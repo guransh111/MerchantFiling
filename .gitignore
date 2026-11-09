@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.DS_Store
+# big generated files: recreate with  python run_all.py
+data/transactions.csv
+data/features.csv
+data/scores_weekly.csv
+data/scores_weekly_nopeer.csv
