@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import os
 import zipfile
 
 import pandas as pd
@@ -110,13 +111,40 @@ def _upload_tab():
         st.success(f"Loaded {len(p.merchants):,} merchants. Open **Overview** or **Risk queue** in the sidebar.")
 
 
+def _memory_gb() -> float:
+    """Memory this app may use: the container limit if there is one (cloud hosts), else the machine's RAM."""
+    for path in ("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        try:
+            raw = open(path).read().strip()
+            if raw.isdigit() and int(raw) < 1 << 60:
+                return int(raw) / 1e9
+        except OSError:
+            pass
+    try:
+        return os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 1e9
+    except (ValueError, OSError, AttributeError):
+        return 4.0
+
+
+def max_world_size() -> int:
+    """Generating ~1,000 merchants needs ~2 GB of memory, 300 needs ~0.9 GB. Free cloud hosts have ~1 GB."""
+    override = os.environ.get("TRUSTLOOP_MAX_MERCHANTS")
+    if override and override.isdigit():
+        return max(100, int(override))
+    gb = _memory_gb()
+    return 1000 if gb >= 3 else 600 if gb >= 2 else 300 if gb >= 1 else 150
+
+
 def _generate_tab():
     st.markdown("Build a fresh synthetic world with your own assumptions, e.g. *what if 10% of merchants are fronts "
                 "and operators hide much better?* Every merchant's hidden truth is known, so you can see how well the "
                 "system copes.")
     with st.form("gen"):
         c1, c2, c3 = st.columns(3)
-        n = c1.slider("Merchants", 100, 1000, 300, 50)
+        cap = max_world_size()
+        n = c1.slider("Merchants", 100, cap, min(300, cap), 50,
+                      help=None if cap >= 1000 else f"Capped at {cap} to fit this server's memory. Run it on your own "
+                                                     "computer for up to 1,000.")
         weeks = c2.slider("Weeks of data", 12, 37, 37)
         seed = c3.number_input("Random seed", 1, 9999, 42, help="Same seed + same settings = identical world")
         c1, c2, c3 = st.columns(3)

@@ -80,6 +80,15 @@ python run_all.py
 
 Step-by-step instructions for beginners: [`explained/08_how_to_run.md`](explained/08_how_to_run.md).
 
+## Put it online
+
+- **Live dashboard → Streamlit Community Cloud** (free): main file `app/dashboard.py`.
+- **Landing page → Vercel** (free): import the repo; `vercel.json` builds `site/`. Set the `DASHBOARD_URL`
+  environment variable to your Streamlit app URL.
+
+Vercel can't host the Streamlit dashboard itself (it needs a server that stays running).
+Step-by-step guide: [`explained/15_putting_it_online.md`](explained/15_putting_it_online.md).
+
 ## What's in the repo
 
 | Path | What it is |
@@ -94,5 +103,6 @@ Step-by-step instructions for beginners: [`explained/08_how_to_run.md`](explaine
 | `src/evaluate.py` | Accuracy vs hidden truth, charts, stress test → `reports/` |
 | `src/config.py` | Every setting in one `Settings` object |
 | `app/` | Streamlit dashboard (12 pages) |
+| `site/`, `vercel.json` | Landing page for Vercel |
 | `templates/` | Example input files in the right format |
 | `tests/` | 22 automated checks (`pytest -q`) |

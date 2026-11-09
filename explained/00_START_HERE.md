@@ -19,6 +19,7 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 12 | [Using your own data](12_using_your_own_data.md) | Uploading your own CSV/Excel, generating test worlds, typing in one merchant |
 | 13 | [The advanced layers](13_advanced_layers.md) | Change points, learning loop, anomaly detector, cost-based thresholds, stress test, clusters |
 | 14 | [Data and method](14_data_and_method.md) | Exactly which data is used (simulated, calibrated to real NPCI figures), how decisions are made, and what real data exists |
+| 15 | [Putting it online](15_putting_it_online.md) | Live dashboard on Streamlit Cloud + landing page on Vercel, step by step |
 
 ## The 2-minute version
 

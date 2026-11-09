@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrustLoop</title>
+<meta name="description" content="Catching UPI merchants whose payments don't match their declared business, without punishing honest shops.">
+<style>
+  :root {
+    --bg: #fcfcfb; --surface: #ffffff; --ink: #0b0b0b; --ink-2: #52514e; --muted: #8a8984;
+    --line: #e4e3df; --accent: #2a78d6; --accent-ink: #ffffff; --warn: #d95926; --good: #1baf7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --surface: #1d1d1b; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #8f8e88;
+      --line: #33322f; --accent: #3987e5; --accent-ink: #ffffff; --warn: #e66a3a; --good: #23c48a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --surface: #1d1d1b; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #8f8e88;
+    --line: #33322f; --accent: #3987e5; --accent-ink: #ffffff; --warn: #e66a3a; --good: #23c48a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 0 16px 64px; }
+  header { padding: 56px 0 32px; }
+  .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 13px; }
+  h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.15; margin: 10px 0 14px; letter-spacing: -0.02em; }
+  .lede { font-size: 19px; color: var(--ink-2); max-width: 720px; margin: 0 0 26px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+  .note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+  h2 { font-size: 24px; margin: 52px 0 6px; letter-spacing: -0.01em; }
+  h2 + p { color: var(--ink-2); margin-top: 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 18px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .stat b { display: block; font-size: 32px; line-height: 1.1; letter-spacing: -0.02em; }
+  .stat span { color: var(--ink-2); font-size: 14px; }
+  .stat small { display: block; color: var(--muted); margin-top: 6px; font-size: 12.5px; }
+  .ladder { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 18px; }
+  .step { border-radius: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-top: 5px solid var(--c); }
+  .step b { display: block; }
+  .step span { color: var(--ink-2); font-size: 14px; }
+  .steps { counter-reset: s; list-style: none; padding: 0; display: grid; gap: 10px; margin-top: 18px; }
+  .steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 14px 56px; position: relative; }
+  .steps li::before { content: counter(s); position: absolute; left: 16px; top: 13px; width: 26px; height: 26px; border-radius: 50%;
+                      background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 14px; display: grid; place-items: center; }
+  .steps li b { display: block; }
+  .steps li span { color: var(--ink-2); font-size: 15px; }
+  figure { margin: 18px 0 0; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
+  figure img { width: 100%; height: auto; display: block; }
+  figcaption { color: #52514e; font-size: 14px; padding: 8px 4px 2px; }
+  .caveat { margin-top: 40px; padding: 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--warn); }
+  footer { color: var(--muted); font-size: 14px; margin-top: 48px; border-top: 1px solid var(--line); padding-top: 18px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Merchant Legitimacy Challenge</div>
+    <h1>TrustLoop: does this merchant's money match its declared business?</h1>
+    <p class="lede">Illegal betting operators open UPI merchant accounts that claim to be ordinary shops. TrustLoop
+      finds them by comparing each merchant with similar shops in the same week, following shared phones, bank accounts
+      and gamblers, and responding proportionately, so honest shops are left alone.</p>
+    <div class="cta">
+      <a class="btn primary" href="__DASHBOARD_URL__" target="_blank" rel="noopener">Open the live dashboard</a>
+      <a class="btn ghost" href="__REPO_URL__" target="_blank" rel="noopener">Code &amp; plain-English guide</a>
+    </div>
+    <p class="note">The dashboard runs on a free server that sleeps when idle; the first load can take up to a minute.</p>
+  </header>
+
+  <h2>Results</h2>
+  <p>On a simulated world of 1,000 merchants over 37 weeks, with payment sizes calibrated to real NPCI category data.</p>
+  <div class="stats">
+    <div class="stat"><b>100%</b><span>of betting fronts and rented accounts caught</span><small>A typical "own history" detector: 20%</small></div>
+    <div class="stat"><b>0 / 920</b><span>honest shops penalised</span><small>1 of 30 honest shops whose business changed; 12 more just asked</small></div>
+    <div class="stat"><b>62% → 1%</b><span>Diwali false alarms</span><small>Honest festive shops alerted for a "sales spike"</small></div>
+    <div class="stat"><b>10 / 10</b><span>rented accounts pinned to the exact handover week</span><small>Behaviour shift + phone/bank change</small></div>
+  </div>
+
+  <h2>How it decides</h2>
+  <p>Every step is explainable in one sentence to a merchant, an analyst or a regulator.</p>
+  <ol class="steps">
+    <li><b>10 weekly signals per merchant</b><span>Match-hour share, late night, round amounts, out-of-state payers, repeat payments, amount variety, same-day pass-through, payout accounts, growth, size vs declared.</span></li>
+    <li><b>Compared with peers in the same week</b><span>Same declared category and city tier. Every sweet shop triples at Diwali, so none of them looks odd. Each signal is capped, so several must agree.</span></li>
+    <li><b>Network</b><span>Fronts come in families. Suspicion spreads from accounts found on public betting pages through shared phones, bank accounts and gamblers.</span></li>
+    <li><b>Change points and a learning loop</b><span>It finds the week behaviour flipped, and learns from analysts' confirm/clear decisions which signals really matter.</span></li>
+    <li><b>Proportionate response</b><span>No money is held without corroboration, and no merchant is closed without a human.</span></li>
+  </ol>
+  <div class="ladder">
+    <div class="step" style="--c:#8a8984"><b>Monitor</b><span>Nothing visible</span></div>
+    <div class="step" style="--c:#2a78d6"><b>Ask</b><span>"Your sales changed, what's new?"</span></div>
+    <div class="step" style="--c:#c98500"><b>Friction</b><span>Lower limits, T+2 settlement</span></div>
+    <div class="step" style="--c:#d95926"><b>Review</b><span>20% reserve + human, needs network evidence</span></div>
+    <div class="step" style="--c:#9b1c1c"><b>Offboard</b><span>Only after an analyst confirms</span></div>
+  </div>
+
+  <h2>Evidence</h2>
+  <p>Charts generated by the evaluation script.</p>
+  <figure><img src="reports/3_actions_by_label.png" alt="Stacked bars: all 920 honest shops at Monitor; almost all betting fronts and rented accounts at Review" loading="lazy">
+    <figcaption>What the system does to each kind of merchant.</figcaption></figure>
+  <figure><img src="reports/2_diwali_false_alarms.png" alt="Line chart: own-history alerts peak at 62% of honest festive shops in Diwali week; peer comparison stays near 1%" loading="lazy">
+    <figcaption>Comparing with peers protects honest shops during the Diwali rush.</figcaption></figure>
+  <figure><img src="reports/7_stress_test.png" alt="Line chart: as evasion rises to 100%, behaviour alone falls to 55% while the full system stays at 100%" loading="lazy">
+    <figcaption>Stress test: as fraudsters hide better, the network and corroboration layers carry the load.</figcaption></figure>
+  <figure><img src="reports/5_learned_weights.png" alt="Bar chart comparing hand-set and learned signal weights; match hours drops to near zero, out-of-state payers rises" loading="lazy">
+    <figcaption>The learning loop corrected our own assumption: honest restaurants screen cricket too.</figcaption></figure>
+
+  <div class="caveat"><b>Honest caveat.</b> Real transaction-level UPI data isn't public, so results come from a
+    simulation calibrated to NPCI's July 2025 category averages and real enforcement cases. They show the method works
+    as designed, not real-world accuracy. The dashboard accepts a payment company's real data as a CSV/Excel upload.</div>
+
+  <footer>TrustLoop prototype · Built with Python, pandas, networkx, scikit-learn and Streamlit.</footer>
+</main>
+</body>
+</html>

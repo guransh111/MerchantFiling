@@ -9,3 +9,4 @@ data/transactions.csv
 data/features.csv
 data/scores_weekly.csv
 data/scores_weekly_nopeer.csv
+site_build/
