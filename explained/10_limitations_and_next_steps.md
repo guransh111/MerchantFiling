@@ -8,7 +8,7 @@
 | We designed fronts and detector together | Risk of building a detector that only finds what we planted | Evasion built in; random audits in real use |
 | Biased labels | Reviewers only see what the system flags, so the learning loop learns its own blind spots | Random audits (2% in the demo) plus the anomaly-driven audit queue |
 | Learning loop on small samples | With few reviews the learned weights are noisy | Needs 5+ of each outcome before it trains; it only suggests weights; a human applies them |
-| Very careful operators | At maximum evasion behaviour alone catches 50% (stress test) | Network, change points and cross-provider sharing |
+| Very careful operators | At maximum evasion behaviour alone catches 55% (stress test) | Network, change points and cross-provider sharing |
 | Small peer groups | Unstable medians | Fall back to category across all tiers when fewer than 10 merchants |
 | Polluted peers | If many kiranas in a city are fronts, "normal" shifts | Median is robust; remove confirmed fronts from baselines |
 | P2P out of scope | Much betting money moves person-to-person | Share flags with banks (MuleHunter) and NPCI |

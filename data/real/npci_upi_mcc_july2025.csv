@@ -1,0 +1,8 @@
+mcc,category,trustloop_category,volume_million,value_crore,avg_ticket_rs,confidence,source
+5411,Grocery stores & supermarkets,kirana,3033,64882,214,high,"NPCI via Business Standard (10 Aug 2025) and SBI Research (18 Aug 2025)"
+5814,Fast food restaurants,restaurant,1221.46,13794.22,113,high,"NPCI via SBI Research (18 Aug 2025)"
+5812,Other eating places & restaurants,restaurant,,,158,medium,"NPCI via Business Standard (10 Aug 2025); volume/value not in source snippet"
+5912,Drug stores & pharmacies,pharmacy,297.41,11825,398,high,"NPCI via The Head and Tale and SBI Research (Aug 2025)"
+5732,Electronics shops,electronics,92.13,10067.66,1093,high,"NPCI via OfficeChai and SBI Research (Aug 2025)"
+5462,Bakeries,sweet_shop,,,262,low,"OfficeChai table (period not confirmed); used as a proxy for sweet shops"
+6012/7322,Debt collection agencies,,161.36,93857,5817,high,"NPCI via The Head and Tale (Aug 2025); not used, shown for context"

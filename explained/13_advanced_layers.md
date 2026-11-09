@@ -42,11 +42,11 @@ It produces:
 defaulted, instead of trusting the analyst's original weights forever.
 
 **Honest evaluation.** Predictions for reviewed merchants are *out-of-fold*: a merchant is never scored
-by a model that saw its own label. Cross-validated AUC on the demo is 1.00 (1.0 = perfect separation,
+by a model that saw its own label. Cross-validated AUC on the demo is 1.00 (82 past reviews: 50 confirmed, 32 cleared) (1.0 = perfect separation,
 0.5 = coin flip). That is high because the synthetic data is clean; expect lower on real data.
 
 **What it discovered.** Our hand-set weights gave *match hours* the joint-highest weight. The learning
-loop gave it almost the **lowest**, because honest restaurants screening IPL matches also have high
+loop gave it the **lowest** (effectively zero), because honest restaurants screening IPL matches also have high
 match-hour share, so it doesn't separate fronts from *cleared* merchants. It learned that
 **out-of-state payers** and **low amount variety** matter most. That's a good slide: *the system
 corrected our own assumption.* (Chart: `reports/5_learned_weights.png`.)
@@ -70,7 +70,7 @@ Output: an anomaly percentile from 0 to 100.
 **Finance analogy.** Outlier screening in an audit sample: you don't know what fraud looks like yet,
 but you look at the transactions that don't resemble the rest.
 
-**Result.** Median percentile: honest shops 46, honest shops that changed 94, fronts 97, rented 98.
+**Result.** Median percentile: honest shops 46, honest shops that changed 94, fronts 97, rented 99.
 So "unusual" isn't the same as "bad": honest drifters are unusual too. That's exactly why we use it
 **only to choose which unflagged merchants to audit** (the *Audit queue* on the Learning loop page),
 never to penalise.
@@ -91,14 +91,14 @@ the cheapest. One click applies it.
 profit of a good loan. It's a business decision, so it's expressed in rupees.
 
 **Result.** On the demo data, the cost is lowest (₹75,000, all of it review time) for any threshold
-from **80 to 91**: everything bad is caught and no honest merchant is penalised. Below 80, honest
-merchants start getting penalised (4 at 75, 15 at 60). Above 91, fronts start slipping through,
+from **85 to 91**: everything bad is caught and no honest merchant is penalised. Below 85, honest
+merchants start getting penalised (1 at 80, 6 at 75, 15 at 60). Above 91, fronts start slipping through,
 and each miss costs ₹5 lakh. The tool reports 91 because ties go to the higher threshold (fewer
-merchants bothered). Our default of 75 costs ₹1.6 lakh. That's cheap, but the tool shows you could
+merchants bothered). Our default of 75 costs ₹2.0 lakh. That's cheap, but the tool shows you could
 safely go stricter on honesty. (Chart: `reports/6_cost_curve.png`.)
 
 Note: this sweep uses the raw risk score. The real ladder also lowers merchants who pre-declared a
-change, so at 75 only 1 honest merchant is actually penalised, not 4.
+change, so at 75 only 1 honest merchant is actually penalised, not 6.
 
 Code: `src/tuning.py`.
 
@@ -124,7 +124,7 @@ to hide, and re-runs everything. At high evasion, operators:
 | 30% (default) | 100% | 100% | 0 |
 | 60% | 100% | 100% | 0 |
 | 80% | 100% | 90% | 0 |
-| 100% | 100% | **50%** | 0 |
+| 100% | 100% | **55%** | 0 |
 
 **The story.** As fraudsters hide better, behaviour alone degrades, but the **layers** (network,
 corroboration, change points) keep catching them. No single defence is enough, and that's why

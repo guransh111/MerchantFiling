@@ -21,8 +21,8 @@
 |---|---|---|
 | 8a | We catch rented accounts the week they change hands | Weekly score chart with change-point marker; 10 of 10 handover weeks found exactly |
 | 8b | The system corrected our own assumption | Learned vs hand-set weights chart: match hours down, out-of-state payers up |
-| 8c | Smarter fraudsters? The layers carry the load | Stress test chart: behaviour alone 50% vs full system 100% at maximum evasion |
-| 8d | We set thresholds in rupees | Cost curve: cheapest between 80 and 91 |
+| 8c | Smarter fraudsters? The layers carry the load | Stress test chart: behaviour alone 55% vs full system 100% at maximum evasion |
+| 8d | We set thresholds in rupees | Cost curve: cheapest between 85 and 91 |
 
 Then do a live dashboard demo (script in file 08) or show screenshots as a backup.
 
@@ -103,11 +103,11 @@ which signals really matter and suggests new weights. It's evaluated out-of-fold
 its own homework. Random audits stop it learning only what it already sees.
 
 **"What if fraudsters copy normal shop behaviour?"**
-We tested exactly that. At maximum evasion, behaviour alone catches half the fronts. The network
+We tested exactly that. At maximum evasion, behaviour alone catches only about half the fronts (55%). The network
 (shared gamblers, phones, accounts), change points and corroboration still catch them all in our
 simulation, with zero honest merchants penalised. A truly isolated operator would be harder to catch,
 which is why cross-provider data sharing is in phase 3.
 
 **"How do you pick thresholds?"**
 In rupees. Enter the cost of a missed front, of a wrongly penalised honest merchant and of review
-time, and the tool shows the cheapest threshold. On our data, anything from 80 to 91 is optimal.
+time, and the tool shows the cheapest threshold. On our data, anything from 85 to 91 is optimal.

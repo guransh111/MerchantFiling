@@ -40,16 +40,23 @@ The dashboard (`streamlit run app/dashboard.py`) lets you:
 
 Guide: [`explained/12_using_your_own_data.md`](explained/12_using_your_own_data.md). Example files: [`templates/`](templates/).
 
+## Data
+
+The demo uses a **simulated** world (real transaction-level UPI data isn't public), calibrated so
+average payment sizes per merchant category match **real NPCI UPI statistics for July 2025**
+([`data/real/`](data/real/)). Betting behaviour follows Enforcement Directorate cases and the CUTS
+report. Full explanation: [`explained/14_data_and_method.md`](explained/14_data_and_method.md).
+
 ## Headline results (synthetic data, 1,000 merchants, 37 weeks)
 
 | | Typical "own-history" detector | TrustLoop |
 |---|---|---|
 | Betting fronts & rented accounts caught | **20%** | **100%** |
 | Honest shops penalised | 0 of 920 | **0 of 920** |
-| Honest shops whose business changed, penalised | 0 of 30 | **1 of 30** (10 more simply asked to explain) |
+| Honest shops whose business changed, penalised | 1 of 30 | **1 of 30** (12 more simply asked to explain) |
 | Honest sweet/electronics shops with a "sales spike" alert in Diwali week | **62%** | **1%** |
 | Rented accounts pinned to their exact handover week | | **10 of 10** |
-| Caught when fraudsters hide as hard as possible (stress test) | | **100%** (behaviour alone: 50%) |
+| Caught when fraudsters hide as hard as possible (stress test) | | **100%** (behaviour alone: 55%) |
 
 Full results and charts: [`reports/results.md`](reports/results.md).
 

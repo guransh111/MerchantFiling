@@ -294,6 +294,20 @@ def main(stress: bool = False):
         st_md[c] = st_md[c].map(lambda v: f"{v:.0%}")
     st_md["evasion"] = st_md.evasion.map(lambda v: f"{v:.0%}")
 
+    # ================================================================ reality check vs real NPCI data
+    real = pd.read_csv(C.DATA / "real" / "npci_upi_mcc_july2025.csv").dropna(subset=["trustloop_category"])
+    real_avg = real.groupby("trustloop_category").avg_ticket_rs.max()  # restaurants: use the eateries figure (158)
+    real_avg["restaurant"] = real.loc[real.mcc == "5812", "avg_ticket_rs"].iloc[0]
+    tx_path = C.DATA / "transactions.csv"
+    if tx_path.exists():
+        tx = pd.read_csv(tx_path, usecols=["merchant_id", "amount", "direction"])
+        honest = m[m.label == "legit"][["merchant_id", "category"]]
+        sim_avg = tx[tx.direction == "in"].merge(honest).groupby("category").amount.mean()
+        reality = pd.DataFrame({"real average payment (NPCI, Jul 2025)": real_avg, "simulated honest shops": sim_avg.round(0)})
+        reality["simulated / real"] = (reality.iloc[:, 1] / reality.iloc[:, 0]).map(lambda v: f"{v:.2f}x")
+        reality.to_csv(C.REPORTS / "reality_check.csv")
+    reality = pd.read_csv(C.REPORTS / "reality_check.csv", index_col=0) if (C.REPORTS / "reality_check.csv").exists() else pd.DataFrame()
+
     # ================================================================ write-up
     n_lab = m.label.value_counts()
     peak_own = fr_own.max()
@@ -378,6 +392,13 @@ def main(stress: bool = False):
         st_md.to_markdown(index=False),
         "",
         "![Stress test](7_stress_test.png)",
+        "",
+        "## 10. Reality check against real NPCI data",
+        "",
+        "Average payment size of honest shops in the simulation vs the real average for the same merchant "
+        "category from NPCI's July 2025 UPI statistics (`data/real/`).",
+        "",
+        reality.to_markdown() if len(reality) else "(run the full pipeline to compute)",
         "",
         "## Caveat",
         "",

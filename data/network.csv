@@ -1,12 +1,12 @@
 merchant_id,network_score,known_bad,linked_to,link_reason,n_links,cluster,cluster_size
 M0000,0.0,False,,,0,,
 M0001,0.0,False,,,0,,
-M0002,100.0,True,M0045,same device (D-X20); same settlement bank account (SA-X02); shared customers: 170 in common (27% overlap); shared payout accounts: 191 in common (38% overlap),6,C008,7.0
+M0002,100.0,True,M0045,same device (D-X20); same settlement bank account (SA-X02); shared customers: 170 in common (27% overlap); shared payout accounts: 191 in common (38% overlap),6,C006,7.0
 M0003,0.0,False,,,0,,
 M0004,0.3,False,,,1,C005,9.0
 M0005,0.0,False,,,0,,
 M0006,0.0,False,,,0,,
-M0007,100.0,True,M0128,same settlement bank account (SA-X04); shared customers: 186 in common (36% overlap),7,C011,8.0
+M0007,100.0,True,M0128,same settlement bank account (SA-X04); shared customers: 186 in common (36% overlap),7,C018,8.0
 M0008,0.0,False,,,0,,
 M0009,0.0,False,,,0,,
 M0010,0.0,False,,,0,,
@@ -15,7 +15,7 @@ M0012,0.0,False,,,0,,
 M0013,0.0,False,,,0,,
 M0014,0.0,False,,,0,,
 M0015,0.0,False,,,0,,
-M0016,4.8,False,M0239,shared customers: 113 in common (6% overlap),1,C015,15.0
+M0016,4.8,False,M0239,shared customers: 113 in common (6% overlap),1,C002,15.0
 M0017,0.0,False,,,0,,
 M0018,0.0,False,,,0,,
 M0019,0.0,False,,,0,,
@@ -24,15 +24,15 @@ M0021,0.0,False,,,0,,
 M0022,0.0,False,,,0,,
 M0023,0.0,False,,,0,,
 M0024,0.0,False,,,0,,
-M0025,100.0,False,M0608,same device (D-X30); same settlement bank account (SA-X03); shared customers: 151 in common (12% overlap); shared payout accounts: 167 in common (34% overlap),11,C015,15.0
+M0025,100.0,False,M0608,same device (D-X30); same settlement bank account (SA-X03); shared customers: 151 in common (12% overlap); shared payout accounts: 167 in common (34% overlap),11,C002,15.0
 M0026,0.0,False,,,0,,
 M0027,0.0,False,,,0,,
 M0028,0.0,False,,,0,,
 M0029,0.0,False,,,0,,
 M0030,0.0,False,,,0,,
 M0031,0.0,False,,,0,,
-M0032,20.0,False,M0025,shared customers: 106 in common (6% overlap),3,C015,15.0
-M0033,0.8,False,,,3,C016,6.0
+M0032,20.0,False,M0025,shared customers: 106 in common (6% overlap),3,C002,15.0
+M0033,0.8,False,,,3,C015,6.0
 M0034,0.0,False,,,0,,
 M0035,0.0,False,,,0,,
 M0036,0.0,False,,,0,,
@@ -44,23 +44,23 @@ M0041,0.0,False,,,0,,
 M0042,0.0,False,,,0,,
 M0043,0.0,False,,,0,,
 M0044,0.0,False,,,0,,
-M0045,100.0,False,M0002,same device (D-X20); same settlement bank account (SA-X02); shared customers: 170 in common (27% overlap); shared payout accounts: 191 in common (38% overlap),6,C008,7.0
+M0045,100.0,False,M0002,same device (D-X20); same settlement bank account (SA-X02); shared customers: 170 in common (27% overlap); shared payout accounts: 191 in common (38% overlap),6,C006,7.0
 M0046,0.0,False,,,0,,
 M0047,0.0,False,,,0,,
-M0048,0.9,False,,,8,C017,10.0
+M0048,0.9,False,,,8,C016,10.0
 M0049,0.0,False,,,0,,
 M0050,0.0,False,,,0,,
-M0051,100.0,True,M0002,same device (D-X20); shared customers: 171 in common (31% overlap); shared payout accounts: 198 in common (39% overlap),6,C008,7.0
+M0051,100.0,True,M0002,same device (D-X20); shared customers: 171 in common (31% overlap); shared payout accounts: 198 in common (39% overlap),6,C006,7.0
 M0052,0.0,False,,,0,,
 M0053,0.0,False,,,0,,
 M0054,0.0,False,,,0,,
-M0055,100.0,False,M0051,same device (D-X20); shared customers: 206 in common (42% overlap); shared payout accounts: 217 in common (44% overlap),6,C008,7.0
+M0055,100.0,False,M0051,same device (D-X20); shared customers: 206 in common (42% overlap); shared payout accounts: 217 in common (44% overlap),6,C006,7.0
 M0056,0.0,False,,,0,,
 M0057,0.0,False,,,0,,
 M0058,0.0,False,,,0,,
 M0059,0.0,False,,,0,,
 M0060,0.0,False,,,0,,
-M0061,100.0,False,M0810,same device (D-X31); shared customers: 178 in common (34% overlap),8,C015,15.0
+M0061,100.0,False,M0810,same device (D-X31); shared customers: 178 in common (34% overlap),8,C002,15.0
 M0062,0.0,False,,,0,,
 M0063,0.0,False,,,0,,
 M0064,0.0,False,,,0,,
@@ -70,7 +70,7 @@ M0067,0.0,False,,,0,,
 M0068,0.0,False,,,0,,
 M0069,0.0,False,,,0,,
 M0070,0.0,False,,,0,,
-M0071,0.6,False,,,2,C013,7.0
+M0071,0.6,False,,,2,C011,7.0
 M0072,0.0,False,,,0,,
 M0073,0.0,False,,,0,,
 M0074,0.0,False,,,0,,
@@ -81,7 +81,7 @@ M0078,0.0,False,,,0,,
 M0079,0.0,False,,,0,,
 M0080,0.0,False,,,0,,
 M0081,0.0,False,,,0,,
-M0082,100.0,False,M0787,shared customers: 164 in common (33% overlap); shared payout accounts: 199 in common (41% overlap),5,C003,6.0
+M0082,100.0,False,M0787,shared customers: 164 in common (33% overlap); shared payout accounts: 199 in common (41% overlap),5,C008,6.0
 M0083,0.0,False,,,0,,
 M0084,0.0,False,,,0,,
 M0085,0.0,False,,,0,,
@@ -97,14 +97,14 @@ M0094,0.0,False,,,0,,
 M0095,0.0,False,,,0,,
 M0096,0.0,False,,,0,,
 M0097,0.0,False,,,0,,
-M0098,100.0,False,M0128,same settlement bank account (SA-X04); shared customers: 154 in common (18% overlap); shared payout accounts: 185 in common (38% overlap),7,C011,8.0
+M0098,100.0,False,M0128,same settlement bank account (SA-X04); shared customers: 154 in common (18% overlap); shared payout accounts: 185 in common (38% overlap),7,C018,8.0
 M0099,0.0,False,,,0,,
-M0100,100.0,False,M0608,same device (D-X30); same settlement bank account (SA-X03); shared customers: 194 in common (31% overlap); shared payout accounts: 199 in common (40% overlap),8,C015,15.0
+M0100,100.0,False,M0608,same device (D-X30); same settlement bank account (SA-X03); shared customers: 194 in common (31% overlap); shared payout accounts: 199 in common (40% overlap),8,C002,15.0
 M0101,0.0,False,,,0,,
 M0102,0.0,False,,,0,,
 M0103,0.0,False,,,0,,
 M0104,0.0,False,,,0,,
-M0105,0.8,False,,,1,C002,6.0
+M0105,0.8,False,,,1,C013,6.0
 M0106,0.0,False,,,0,,
 M0107,0.0,False,,,0,,
 M0108,0.0,False,,,0,,
@@ -127,15 +127,15 @@ M0124,0.0,False,,,0,,
 M0125,1.5,False,M0706,shared customers: 110 in common (6% overlap),5,C005,9.0
 M0126,0.0,False,,,0,,
 M0127,100.0,False,M0859,same device (D-X50); shared customers: 169 in common (33% overlap); shared payout accounts: 191 in common (38% overlap),7,C004,8.0
-M0128,100.0,False,M0972,shared customers: 181 in common (35% overlap); shared payout accounts: 196 in common (39% overlap),7,C011,8.0
+M0128,100.0,False,M0972,shared customers: 181 in common (35% overlap); shared payout accounts: 196 in common (39% overlap),7,C018,8.0
 M0129,0.0,False,,,0,,
 M0130,0.0,False,,,0,,
 M0131,0.0,False,,,0,,
 M0132,0.0,False,,,0,,
 M0133,0.0,False,,,0,,
-M0134,0.9,False,,,3,C018,7.0
+M0134,0.9,False,,,3,C012,7.0
 M0135,0.0,False,,,0,,
-M0136,100.0,False,M0613,same device (D-X70); same settlement bank account (SA-X07); shared customers: 127 in common (17% overlap); shared payout accounts: 135 in common (29% overlap),4,C014,5.0
+M0136,100.0,False,M0613,same device (D-X70); same settlement bank account (SA-X07); shared customers: 127 in common (17% overlap); shared payout accounts: 135 in common (29% overlap),4,C010,5.0
 M0137,0.0,False,,,0,,
 M0138,0.0,False,,,0,,
 M0139,0.0,False,,,0,,
@@ -146,11 +146,11 @@ M0143,0.0,False,,,0,,
 M0144,0.0,False,,,0,,
 M0145,0.0,False,,,0,,
 M0146,0.0,False,,,0,,
-M0147,100.0,False,M0972,shared customers: 186 in common (34% overlap),7,C011,8.0
+M0147,100.0,False,M0972,shared customers: 186 in common (34% overlap),7,C018,8.0
 M0148,0.0,False,,,0,,
 M0149,0.0,False,,,0,,
 M0150,0.0,False,,,0,,
-M0151,1.0,False,M0514,shared customers: 108 in common (7% overlap),3,C000,4.0
+M0151,1.0,False,M0514,shared customers: 108 in common (7% overlap),3,C001,4.0
 M0152,0.0,False,,,0,,
 M0153,0.0,False,,,0,,
 M0154,0.0,False,,,0,,
@@ -172,7 +172,7 @@ M0169,0.0,False,,,0,,
 M0170,0.0,False,,,0,,
 M0171,0.0,False,,,0,,
 M0172,0.0,False,,,0,,
-M0173,0.8,False,,,3,C001,4.0
+M0173,0.8,False,,,3,C009,4.0
 M0174,0.0,False,,,0,,
 M0175,0.0,False,,,0,,
 M0176,0.0,False,,,0,,
@@ -200,7 +200,7 @@ M0197,0.0,False,,,0,,
 M0198,0.0,False,,,0,,
 M0199,0.0,False,,,0,,
 M0200,0.0,False,,,0,,
-M0201,0.8,False,,,3,C001,4.0
+M0201,0.8,False,,,3,C009,4.0
 M0202,0.0,False,,,0,,
 M0203,0.0,False,,,0,,
 M0204,0.0,False,,,0,,
@@ -223,7 +223,7 @@ M0220,0.0,False,,,0,,
 M0221,0.0,False,,,0,,
 M0222,0.0,False,,,0,,
 M0223,0.0,False,,,0,,
-M0224,0.8,False,,,2,C012,6.0
+M0224,0.8,False,,,2,C007,6.0
 M0225,0.0,False,,,0,,
 M0226,0.0,False,,,0,,
 M0227,0.0,False,,,0,,
@@ -233,12 +233,12 @@ M0230,0.0,False,,,0,,
 M0231,0.0,False,,,0,,
 M0232,0.0,False,,,0,,
 M0233,0.0,False,,,0,,
-M0234,0.9,False,,,3,C018,7.0
+M0234,0.9,False,,,3,C012,7.0
 M0235,0.0,False,,,0,,
 M0236,0.0,False,,,0,,
 M0237,0.0,False,,,0,,
 M0238,0.0,False,,,0,,
-M0239,37.4,False,M0025,shared customers: 166 in common (7% overlap),6,C015,15.0
+M0239,37.4,False,M0025,shared customers: 166 in common (7% overlap),6,C002,15.0
 M0240,0.0,False,,,0,,
 M0241,0.0,False,,,0,,
 M0242,0.0,False,,,0,,
@@ -249,7 +249,7 @@ M0246,0.0,False,,,0,,
 M0247,0.0,False,,,0,,
 M0248,0.0,False,,,0,,
 M0249,0.0,False,,,0,,
-M0250,0.8,False,,,5,C002,6.0
+M0250,0.8,False,,,5,C013,6.0
 M0251,0.0,False,,,0,,
 M0252,0.0,False,,,0,,
 M0253,0.0,False,,,0,,
@@ -259,7 +259,7 @@ M0256,0.0,False,,,0,,
 M0257,0.0,False,,,0,,
 M0258,0.0,False,,,0,,
 M0259,0.0,False,,,0,,
-M0260,100.0,True,M0310,same settlement bank account (SA-X01); shared customers: 157 in common (23% overlap); shared payout accounts: 201 in common (41% overlap),4,C007,5.0
+M0260,100.0,True,M0310,same settlement bank account (SA-X01); shared customers: 157 in common (23% overlap); shared payout accounts: 201 in common (41% overlap),4,C019,5.0
 M0261,0.0,False,,,0,,
 M0262,0.0,False,,,0,,
 M0263,0.0,False,,,0,,
@@ -275,7 +275,7 @@ M0272,0.0,False,,,0,,
 M0273,0.0,False,,,0,,
 M0274,0.0,False,,,0,,
 M0275,0.0,False,,,0,,
-M0276,100.0,False,M0128,same device (D-X41); shared customers: 162 in common (26% overlap); shared payout accounts: 194 in common (39% overlap),7,C011,8.0
+M0276,100.0,False,M0128,same device (D-X41); shared customers: 162 in common (26% overlap); shared payout accounts: 194 in common (39% overlap),7,C018,8.0
 M0277,0.0,False,,,0,,
 M0278,0.0,False,,,0,,
 M0279,0.0,False,,,0,,
@@ -284,7 +284,7 @@ M0281,0.0,False,,,0,,
 M0282,0.0,False,,,0,,
 M0283,0.0,False,,,0,,
 M0284,0.0,False,,,0,,
-M0285,100.0,False,M0787,shared customers: 161 in common (33% overlap); shared payout accounts: 195 in common (40% overlap),5,C003,6.0
+M0285,100.0,False,M0787,shared customers: 161 in common (33% overlap); shared payout accounts: 195 in common (40% overlap),5,C008,6.0
 M0286,0.0,False,,,0,,
 M0287,0.0,False,,,0,,
 M0288,0.0,False,,,0,,
@@ -293,7 +293,7 @@ M0290,0.0,False,,,0,,
 M0291,0.0,False,,,0,,
 M0292,0.0,False,,,0,,
 M0293,0.0,False,,,0,,
-M0294,0.9,False,,,1,C009,4.0
+M0294,0.9,False,,,1,C000,4.0
 M0295,0.0,False,,,0,,
 M0296,0.0,False,,,0,,
 M0297,0.0,False,,,0,,
@@ -309,7 +309,7 @@ M0306,0.0,False,,,0,,
 M0307,0.0,False,,,0,,
 M0308,0.9,False,,,3,C005,9.0
 M0309,0.0,False,,,0,,
-M0310,100.0,True,M0605,same device (D-X11); same settlement bank account (SA-X01); shared customers: 164 in common (18% overlap); shared payout accounts: 202 in common (42% overlap),4,C007,5.0
+M0310,100.0,True,M0605,same device (D-X11); same settlement bank account (SA-X01); shared customers: 164 in common (18% overlap); shared payout accounts: 202 in common (42% overlap),4,C019,5.0
 M0311,0.0,False,,,0,,
 M0312,0.0,False,,,0,,
 M0313,0.0,False,,,0,,
@@ -320,7 +320,7 @@ M0317,0.0,False,,,0,,
 M0318,0.0,False,,,0,,
 M0319,0.0,False,,,0,,
 M0320,0.0,False,,,0,,
-M0321,0.6,False,,,2,C013,7.0
+M0321,0.6,False,,,2,C011,7.0
 M0322,0.0,False,,,0,,
 M0323,0.0,False,,,0,,
 M0324,0.3,False,,,1,C005,9.0
@@ -338,10 +338,10 @@ M0335,0.0,False,,,0,,
 M0336,0.0,False,,,0,,
 M0337,0.0,False,,,0,,
 M0338,0.0,False,,,0,,
-M0339,20.2,False,M0025,shared customers: 102 in common (5% overlap),3,C015,15.0
+M0339,20.2,False,M0025,shared customers: 102 in common (5% overlap),3,C002,15.0
 M0340,0.0,False,,,0,,
-M0341,0.9,False,,,3,C018,7.0
-M0342,0.8,False,,,7,C017,10.0
+M0341,0.9,False,,,3,C012,7.0
+M0342,0.8,False,,,7,C016,10.0
 M0343,0.0,False,,,0,,
 M0344,0.0,False,,,0,,
 M0345,0.0,False,,,0,,
@@ -360,14 +360,14 @@ M0357,0.0,False,,,0,,
 M0358,0.0,False,,,0,,
 M0359,0.0,False,,,0,,
 M0360,0.0,False,,,0,,
-M0361,1.0,False,,,3,C013,7.0
+M0361,1.0,False,,,3,C011,7.0
 M0362,0.0,False,,,0,,
 M0363,0.0,False,,,0,,
 M0364,0.0,False,,,0,,
 M0365,0.0,False,,,0,,
 M0366,0.0,False,,,0,,
 M0367,0.0,False,,,0,,
-M0368,0.8,False,,,3,C001,4.0
+M0368,0.8,False,,,3,C009,4.0
 M0369,0.0,False,,,0,,
 M0370,0.0,False,,,0,,
 M0371,0.0,False,,,0,,
@@ -393,7 +393,7 @@ M0390,0.0,False,,,0,,
 M0391,0.0,False,,,0,,
 M0392,0.0,False,,,0,,
 M0393,0.0,False,,,0,,
-M0394,0.8,False,,,1,C006,4.0
+M0394,0.8,False,,,1,C003,4.0
 M0395,0.0,False,,,0,,
 M0396,0.0,False,,,0,,
 M0397,0.0,False,,,0,,
@@ -409,13 +409,13 @@ M0406,0.0,False,,,0,,
 M0407,0.0,False,,,0,,
 M0408,0.0,False,,,0,,
 M0409,0.0,False,,,0,,
-M0410,0.9,False,,,3,C019,8.0
+M0410,0.9,False,,,3,C014,8.0
 M0411,0.0,False,,,0,,
 M0412,0.0,False,,,0,,
-M0413,2.0,False,M0946,shared customers: 98 in common (6% overlap),5,C012,6.0
-M0414,0.8,False,,,1,C002,6.0
+M0413,2.0,False,M0946,shared customers: 98 in common (6% overlap),5,C007,6.0
+M0414,0.8,False,,,1,C013,6.0
 M0415,0.0,False,,,0,,
-M0416,4.0,False,M0239,shared customers: 88 in common (5% overlap),1,C015,15.0
+M0416,4.0,False,M0239,shared customers: 88 in common (5% overlap),1,C002,15.0
 M0417,0.0,False,,,0,,
 M0418,0.0,False,,,0,,
 M0419,0.0,False,,,0,,
@@ -424,20 +424,20 @@ M0421,0.0,False,,,0,,
 M0422,0.0,False,,,0,,
 M0423,0.0,False,,,0,,
 M0424,0.0,False,,,0,,
-M0425,100.0,True,M0260,same settlement bank account (SA-X01); shared customers: 174 in common (26% overlap); shared payout accounts: 196 in common (38% overlap),4,C007,5.0
+M0425,100.0,True,M0260,same settlement bank account (SA-X01); shared customers: 174 in common (26% overlap); shared payout accounts: 196 in common (38% overlap),4,C019,5.0
 M0426,0.0,False,,,0,,
 M0427,0.0,False,,,0,,
 M0428,0.0,False,,,0,,
 M0429,0.0,False,,,0,,
 M0430,0.0,False,,,0,,
 M0431,0.0,False,,,0,,
-M0432,0.1,False,,,1,C017,10.0
+M0432,0.1,False,,,1,C016,10.0
 M0433,0.0,False,,,0,,
 M0434,0.0,False,,,0,,
 M0435,0.0,False,,,0,,
-M0436,0.4,False,,,1,C012,6.0
+M0436,0.4,False,,,1,C007,6.0
 M0437,0.0,False,,,0,,
-M0438,0.8,False,,,7,C017,10.0
+M0438,0.8,False,,,7,C016,10.0
 M0439,0.0,False,,,0,,
 M0440,0.0,False,,,0,,
 M0441,0.0,False,,,0,,
@@ -466,10 +466,10 @@ M0463,0.0,False,,,0,,
 M0464,0.0,False,,,0,,
 M0465,0.8,False,,,3,C005,9.0
 M0466,0.0,False,,,0,,
-M0467,100.0,False,M0972,shared customers: 199 in common (31% overlap); shared payout accounts: 213 in common (43% overlap),7,C011,8.0
-M0468,1.4,False,M0709,shared customers: 123 in common (7% overlap),5,C016,6.0
+M0467,100.0,False,M0972,shared customers: 199 in common (31% overlap); shared payout accounts: 213 in common (43% overlap),7,C018,8.0
+M0468,1.4,False,M0709,shared customers: 123 in common (7% overlap),5,C015,6.0
 M0469,0.0,False,,,0,,
-M0470,100.0,False,M0136,same device (D-X70); same settlement bank account (SA-X07); shared customers: 158 in common (15% overlap); shared payout accounts: 150 in common (32% overlap),4,C014,5.0
+M0470,100.0,False,M0136,same device (D-X70); same settlement bank account (SA-X07); shared customers: 158 in common (15% overlap); shared payout accounts: 150 in common (32% overlap),4,C010,5.0
 M0471,0.0,False,,,0,,
 M0472,0.0,False,,,0,,
 M0473,0.0,False,,,0,,
@@ -513,7 +513,7 @@ M0510,0.0,False,,,0,,
 M0511,0.0,False,,,0,,
 M0512,0.0,False,,,0,,
 M0513,0.0,False,,,0,,
-M0514,1.0,False,,,3,C000,4.0
+M0514,1.0,False,,,3,C001,4.0
 M0515,0.0,False,,,0,,
 M0516,0.0,False,,,0,,
 M0517,0.0,False,,,0,,
@@ -531,7 +531,7 @@ M0528,0.0,False,,,0,,
 M0529,0.0,False,,,0,,
 M0530,0.0,False,,,0,,
 M0531,0.0,False,,,0,,
-M0532,0.7,False,,,1,C009,4.0
+M0532,0.7,False,,,1,C000,4.0
 M0533,0.0,False,,,0,,
 M0534,0.0,False,,,0,,
 M0535,0.0,False,,,0,,
@@ -539,7 +539,7 @@ M0536,0.0,False,,,0,,
 M0537,0.0,False,,,0,,
 M0538,0.0,False,,,0,,
 M0539,0.0,False,,,0,,
-M0540,0.8,False,,,1,C002,6.0
+M0540,0.8,False,,,1,C013,6.0
 M0541,0.0,False,,,0,,
 M0542,0.0,False,,,0,,
 M0543,0.0,False,,,0,,
@@ -553,10 +553,10 @@ M0550,0.0,False,,,0,,
 M0551,0.0,False,,,0,,
 M0552,0.0,False,,,0,,
 M0553,0.0,False,,,0,,
-M0554,100.0,True,M0002,same device (D-X20); shared customers: 181 in common (29% overlap); shared payout accounts: 207 in common (42% overlap),6,C008,7.0
+M0554,100.0,True,M0002,same device (D-X20); shared customers: 181 in common (29% overlap); shared payout accounts: 207 in common (42% overlap),6,C006,7.0
 M0555,0.0,False,,,0,,
 M0556,0.0,False,,,0,,
-M0557,100.0,True,M0972,shared customers: 193 in common (38% overlap); shared payout accounts: 211 in common (43% overlap),7,C011,8.0
+M0557,100.0,True,M0972,shared customers: 193 in common (38% overlap); shared payout accounts: 211 in common (43% overlap),7,C018,8.0
 M0558,0.0,False,,,0,,
 M0559,0.0,False,,,0,,
 M0560,0.0,False,,,0,,
@@ -575,15 +575,15 @@ M0572,0.0,False,,,0,,
 M0573,0.0,False,,,0,,
 M0574,0.0,False,,,0,,
 M0575,0.0,False,,,0,,
-M0576,0.8,False,,,3,C001,4.0
+M0576,0.8,False,,,3,C009,4.0
 M0577,0.0,False,,,0,,
 M0578,0.0,False,,,0,,
 M0579,0.0,False,,,0,,
-M0580,1.6,False,M0341,shared customers: 102 in common (6% overlap),5,C018,7.0
+M0580,1.6,False,M0341,shared customers: 102 in common (6% overlap),5,C012,7.0
 M0581,0.0,False,,,0,,
 M0582,0.0,False,,,0,,
 M0583,0.0,False,,,0,,
-M0584,0.7,False,,,6,C017,10.0
+M0584,0.7,False,,,6,C016,10.0
 M0585,0.0,False,,,0,,
 M0586,0.0,False,,,0,,
 M0587,0.0,False,,,0,,
@@ -604,28 +604,28 @@ M0601,0.0,False,,,0,,
 M0602,0.0,False,,,0,,
 M0603,0.0,False,,,0,,
 M0604,0.0,False,,,0,,
-M0605,100.0,False,M0310,same device (D-X11); same settlement bank account (SA-X01); shared customers: 164 in common (18% overlap); shared payout accounts: 202 in common (42% overlap),4,C007,5.0
+M0605,100.0,False,M0310,same device (D-X11); same settlement bank account (SA-X01); shared customers: 164 in common (18% overlap); shared payout accounts: 202 in common (42% overlap),4,C019,5.0
 M0606,0.0,False,,,0,,
 M0607,0.0,False,,,0,,
-M0608,100.0,True,M0100,same device (D-X30); same settlement bank account (SA-X03); shared customers: 194 in common (31% overlap); shared payout accounts: 199 in common (40% overlap),8,C015,15.0
+M0608,100.0,True,M0100,same device (D-X30); same settlement bank account (SA-X03); shared customers: 194 in common (31% overlap); shared payout accounts: 199 in common (40% overlap),8,C002,15.0
 M0609,0.0,False,,,0,,
 M0610,0.0,False,,,0,,
 M0611,0.0,False,,,0,,
 M0612,0.0,False,,,0,,
-M0613,100.0,False,M0136,same device (D-X70); same settlement bank account (SA-X07); shared customers: 127 in common (17% overlap); shared payout accounts: 135 in common (29% overlap),4,C014,5.0
+M0613,100.0,False,M0136,same device (D-X70); same settlement bank account (SA-X07); shared customers: 127 in common (17% overlap); shared payout accounts: 135 in common (29% overlap),4,C010,5.0
 M0614,0.0,False,,,0,,
-M0615,0.9,False,,,3,C019,8.0
+M0615,0.9,False,,,3,C014,8.0
 M0616,0.0,False,,,0,,
 M0617,0.0,False,,,0,,
 M0618,0.0,False,,,0,,
 M0619,0.0,False,,,0,,
-M0620,100.0,True,M0136,same settlement bank account (SA-X07); shared customers: 193 in common (35% overlap),4,C014,5.0
+M0620,100.0,True,M0136,same settlement bank account (SA-X07); shared customers: 193 in common (35% overlap),4,C010,5.0
 M0621,0.0,False,,,0,,
 M0622,0.0,False,,,0,,
-M0623,0.2,False,,,1,C016,6.0
+M0623,0.2,False,,,1,C015,6.0
 M0624,0.0,False,,,0,,
 M0625,0.0,False,,,0,,
-M0626,100.0,True,M0856,same settlement bank account (SA-X06); shared customers: 185 in common (31% overlap),5,C003,6.0
+M0626,100.0,True,M0856,same settlement bank account (SA-X06); shared customers: 185 in common (31% overlap),5,C008,6.0
 M0627,0.0,False,,,0,,
 M0628,0.0,False,,,0,,
 M0629,0.0,False,,,0,,
@@ -633,12 +633,12 @@ M0630,0.0,False,,,0,,
 M0631,0.0,False,,,0,,
 M0632,0.0,False,,,0,,
 M0633,0.0,False,,,0,,
-M0634,0.8,False,,,7,C017,10.0
+M0634,0.8,False,,,7,C016,10.0
 M0635,0.8,False,,,1,,
 M0636,0.0,False,,,0,,
 M0637,0.0,False,,,0,,
 M0638,0.0,False,,,0,,
-M0639,0.6,False,,,2,C013,7.0
+M0639,0.6,False,,,2,C011,7.0
 M0640,0.0,False,,,0,,
 M0641,0.0,False,,,0,,
 M0642,0.0,False,,,0,,
@@ -649,7 +649,7 @@ M0646,0.0,False,,,0,,
 M0647,0.0,False,,,0,,
 M0648,0.0,False,,,0,,
 M0649,0.0,False,,,0,,
-M0650,1.0,False,M0904,shared customers: 176 in common (9% overlap),8,C017,10.0
+M0650,1.0,False,M0904,shared customers: 176 in common (9% overlap),8,C016,10.0
 M0651,0.0,False,,,0,,
 M0652,0.0,False,,,0,,
 M0653,0.0,False,,,0,,
@@ -669,8 +669,8 @@ M0666,0.0,False,,,0,,
 M0667,0.0,False,,,0,,
 M0668,0.0,False,,,0,,
 M0669,0.0,False,,,0,,
-M0670,0.8,False,,,7,C017,10.0
-M0671,0.5,False,,,2,C016,6.0
+M0670,0.8,False,,,7,C016,10.0
+M0671,0.5,False,,,2,C015,6.0
 M0672,0.0,False,,,0,,
 M0673,0.0,False,,,0,,
 M0674,0.0,False,,,0,,
@@ -682,7 +682,7 @@ M0679,0.0,False,,,0,,
 M0680,0.0,False,,,0,,
 M0681,0.0,False,,,0,,
 M0682,0.0,False,,,0,,
-M0683,0.3,False,,,1,C018,7.0
+M0683,0.3,False,,,1,C012,7.0
 M0684,0.0,False,,,0,,
 M0685,0.0,False,,,0,,
 M0686,0.0,False,,,0,,
@@ -701,28 +701,28 @@ M0698,0.0,False,,,0,,
 M0699,0.0,False,,,0,,
 M0700,0.0,False,,,0,,
 M0701,0.0,False,,,0,,
-M0702,0.6,False,,,2,C019,8.0
+M0702,0.6,False,,,2,C014,8.0
 M0703,0.0,False,,,0,,
 M0704,0.0,False,,,0,,
 M0705,0.0,False,,,0,,
 M0706,1.0,False,,,3,C005,9.0
 M0707,0.0,False,,,0,,
 M0708,0.0,False,,,0,,
-M0709,1.1,False,M0468,shared customers: 123 in common (7% overlap),4,C016,6.0
+M0709,1.1,False,M0468,shared customers: 123 in common (7% overlap),4,C015,6.0
 M0710,0.0,False,,,0,,
-M0711,0.5,False,,,2,C000,4.0
+M0711,0.5,False,,,2,C001,4.0
 M0712,0.0,False,,,0,,
 M0713,0.0,False,,,0,,
 M0714,0.0,False,,,0,,
 M0715,0.0,False,,,0,,
-M0716,0.3,False,,,1,C019,8.0
+M0716,0.3,False,,,1,C014,8.0
 M0717,0.0,False,,,0,,
-M0718,1.2,False,M0788,shared customers: 88 in common (5% overlap),4,C019,8.0
+M0718,1.2,False,M0788,shared customers: 88 in common (5% overlap),4,C014,8.0
 M0719,0.0,False,,,0,,
 M0720,0.0,False,,,0,,
 M0721,0.0,False,,,0,,
 M0722,0.0,False,,,0,,
-M0723,1.5,False,M0995,shared customers: 85 in common (5% overlap),5,C013,7.0
+M0723,1.5,False,M0995,shared customers: 85 in common (5% overlap),5,C011,7.0
 M0724,0.0,False,,,0,,
 M0725,0.0,False,,,0,,
 M0726,0.0,False,,,0,,
@@ -734,7 +734,7 @@ M0731,0.0,False,,,0,,
 M0732,0.0,False,,,0,,
 M0733,0.0,False,,,0,,
 M0734,0.0,False,,,0,,
-M0735,0.7,False,,,2,C000,4.0
+M0735,0.7,False,,,2,C001,4.0
 M0736,0.0,False,,,0,,
 M0737,0.0,False,,,0,,
 M0738,0.0,False,,,0,,
@@ -752,7 +752,7 @@ M0749,0.0,False,,,0,,
 M0750,0.0,False,,,0,,
 M0751,0.0,False,,,0,,
 M0752,0.0,False,,,0,,
-M0753,100.0,True,M0608,same settlement bank account (SA-X03); shared customers: 191 in common (29% overlap),8,C015,15.0
+M0753,100.0,True,M0608,same settlement bank account (SA-X03); shared customers: 191 in common (29% overlap),8,C002,15.0
 M0754,0.0,False,,,0,,
 M0755,0.0,False,,,0,,
 M0756,0.0,False,,,0,,
@@ -762,20 +762,20 @@ M0759,0.0,False,,,0,,
 M0760,0.0,False,,,0,,
 M0761,0.0,False,,,0,,
 M0762,0.0,False,,,0,,
-M0763,0.8,False,,,3,C009,4.0
+M0763,0.8,False,,,3,C000,4.0
 M0764,0.0,False,,,0,,
 M0765,0.0,False,,,0,,
 M0766,0.0,False,,,0,,
 M0767,0.0,False,,,0,,
-M0768,0.4,False,,,1,C012,6.0
+M0768,0.4,False,,,1,C007,6.0
 M0769,0.0,False,,,0,,
 M0770,0.0,False,,,0,,
 M0771,0.0,False,,,0,,
 M0772,0.0,False,,,0,,
-M0773,100.0,False,M0002,same device (D-X20); same settlement bank account (SA-X02); shared customers: 172 in common (26% overlap); shared payout accounts: 197 in common (40% overlap),6,C008,7.0
-M0774,0.8,False,,,3,C006,4.0
+M0773,100.0,False,M0002,same device (D-X20); same settlement bank account (SA-X02); shared customers: 172 in common (26% overlap); shared payout accounts: 197 in common (40% overlap),6,C006,7.0
+M0774,0.8,False,,,3,C003,4.0
 M0775,0.0,False,,,0,,
-M0776,0.9,False,,,8,C017,10.0
+M0776,0.9,False,,,8,C016,10.0
 M0777,0.0,False,,,0,,
 M0778,0.0,False,,,0,,
 M0779,0.0,False,,,0,,
@@ -786,8 +786,8 @@ M0783,0.0,False,,,0,,
 M0784,0.0,False,,,0,,
 M0785,0.0,False,,,0,,
 M0786,0.0,False,,,0,,
-M0787,100.0,False,M0856,same settlement bank account (SA-X06); shared customers: 158 in common (31% overlap),5,C003,6.0
-M0788,1.4,False,M0718,shared customers: 88 in common (5% overlap),5,C019,8.0
+M0787,100.0,False,M0856,same settlement bank account (SA-X06); shared customers: 158 in common (31% overlap),5,C008,6.0
+M0788,1.4,False,M0718,shared customers: 88 in common (5% overlap),5,C014,8.0
 M0789,0.0,False,,,0,,
 M0790,0.0,False,,,0,,
 M0791,0.0,False,,,0,,
@@ -805,14 +805,14 @@ M0802,0.0,False,,,0,,
 M0803,0.0,False,,,0,,
 M0804,0.0,False,,,0,,
 M0805,0.0,False,,,0,,
-M0806,0.3,False,,,1,C013,7.0
+M0806,0.3,False,,,1,C011,7.0
 M0807,0.0,False,,,0,,
 M0808,0.0,False,,,0,,
 M0809,0.0,False,,,0,,
-M0810,100.0,True,M0608,shared customers: 193 in common (38% overlap),8,C015,15.0
+M0810,100.0,True,M0608,shared customers: 193 in common (38% overlap),8,C002,15.0
 M0811,0.0,False,,,0,,
 M0812,0.0,False,,,0,,
-M0813,0.8,False,,,1,C006,4.0
+M0813,0.8,False,,,1,C003,4.0
 M0814,0.0,False,,,0,,
 M0815,0.0,False,,,0,,
 M0816,0.0,False,,,0,,
@@ -830,7 +830,7 @@ M0827,0.0,False,,,0,,
 M0828,0.0,False,,,0,,
 M0829,0.0,False,,,0,,
 M0830,0.0,False,,,0,,
-M0831,0.6,False,,,2,C018,7.0
+M0831,0.6,False,,,2,C012,7.0
 M0832,0.0,False,,,0,,
 M0833,0.0,False,,,0,,
 M0834,0.0,False,,,0,,
@@ -838,7 +838,7 @@ M0835,0.0,False,,,0,,
 M0836,0.0,False,,,0,,
 M0837,0.0,False,,,0,,
 M0838,0.0,False,,,0,,
-M0839,100.0,False,M0260,same settlement bank account (SA-X01); shared customers: 186 in common (33% overlap); shared payout accounts: 216 in common (44% overlap),4,C007,5.0
+M0839,100.0,False,M0260,same settlement bank account (SA-X01); shared customers: 186 in common (33% overlap); shared payout accounts: 216 in common (44% overlap),4,C019,5.0
 M0840,0.0,False,,,0,,
 M0841,0.0,False,,,0,,
 M0842,0.0,False,,,0,,
@@ -855,14 +855,14 @@ M0852,0.0,False,,,0,,
 M0853,0.0,False,,,0,,
 M0854,0.0,False,,,0,,
 M0855,0.0,False,,,0,,
-M0856,100.0,True,M0626,same settlement bank account (SA-X06); shared customers: 185 in common (31% overlap),5,C003,6.0
+M0856,100.0,True,M0626,same settlement bank account (SA-X06); shared customers: 185 in common (31% overlap),5,C008,6.0
 M0857,0.0,False,,,0,,
 M0858,0.0,False,,,0,,
 M0859,100.0,True,M0848,same settlement bank account (SA-X05); shared customers: 188 in common (37% overlap); shared payout accounts: 210 in common (43% overlap),7,C004,8.0
 M0860,0.0,False,,,0,,
 M0861,0.0,False,,,0,,
 M0862,0.0,False,,,0,,
-M0863,0.7,False,,,1,C002,6.0
+M0863,0.7,False,,,1,C013,6.0
 M0864,0.0,False,,,0,,
 M0865,0.0,False,,,0,,
 M0866,0.0,False,,,0,,
@@ -885,11 +885,11 @@ M0882,0.0,False,,,0,,
 M0883,0.0,False,,,0,,
 M0884,0.0,False,,,0,,
 M0885,0.0,False,,,0,,
-M0886,0.9,False,,,3,C019,8.0
+M0886,0.9,False,,,3,C014,8.0
 M0887,0.0,False,,,0,,
 M0888,0.0,False,,,0,,
 M0889,0.0,False,,,0,,
-M0890,1.0,False,,,1,C002,6.0
+M0890,1.0,False,,,1,C013,6.0
 M0891,0.0,False,,,0,,
 M0892,0.0,False,,,0,,
 M0893,0.0,False,,,0,,
@@ -902,8 +902,8 @@ M0899,0.0,False,,,0,,
 M0900,0.0,False,,,0,,
 M0901,0.0,False,,,0,,
 M0902,0.0,False,,,0,,
-M0903,100.0,False,M0787,shared customers: 159 in common (27% overlap); shared payout accounts: 190 in common (38% overlap),5,C003,6.0
-M0904,1.2,False,M0650,shared customers: 176 in common (9% overlap),9,C017,10.0
+M0903,100.0,False,M0787,shared customers: 159 in common (27% overlap); shared payout accounts: 190 in common (38% overlap),5,C008,6.0
+M0904,1.2,False,M0650,shared customers: 176 in common (9% overlap),9,C016,10.0
 M0905,0.0,False,,,0,,
 M0906,0.9,False,,,3,C005,9.0
 M0907,0.0,False,,,0,,
@@ -914,7 +914,7 @@ M0911,0.0,False,,,0,,
 M0912,0.0,False,,,0,,
 M0913,0.0,False,,,0,,
 M0914,0.0,False,,,0,,
-M0915,0.3,False,,,1,C019,8.0
+M0915,0.3,False,,,1,C014,8.0
 M0916,100.0,False,M0848,same device (D-X51); shared customers: 195 in common (33% overlap),7,C004,8.0
 M0917,0.0,False,,,0,,
 M0918,0.0,False,,,0,,
@@ -932,7 +932,7 @@ M0929,0.0,False,,,0,,
 M0930,0.0,False,,,0,,
 M0931,0.0,False,,,0,,
 M0932,0.0,False,,,0,,
-M0933,100.0,True,M0136,shared customers: 183 in common (34% overlap); shared payout accounts: 190 in common (37% overlap),4,C014,5.0
+M0933,100.0,True,M0136,shared customers: 183 in common (34% overlap); shared payout accounts: 190 in common (37% overlap),4,C010,5.0
 M0934,0.0,False,,,0,,
 M0935,0.0,False,,,0,,
 M0936,0.0,False,,,0,,
@@ -940,12 +940,12 @@ M0937,0.0,False,,,0,,
 M0938,0.0,False,,,0,,
 M0939,0.0,False,,,0,,
 M0940,0.0,False,,,0,,
-M0941,100.0,False,M0002,same settlement bank account (SA-X02); shared customers: 147 in common (23% overlap),6,C008,7.0
+M0941,100.0,False,M0002,same settlement bank account (SA-X02); shared customers: 147 in common (23% overlap),6,C006,7.0
 M0942,0.0,False,,,0,,
 M0943,0.0,False,,,0,,
-M0944,0.4,False,,,1,C012,6.0
-M0945,100.0,False,M0608,same settlement bank account (SA-X03); shared customers: 155 in common (25% overlap),8,C015,15.0
-M0946,0.8,False,,,2,C012,6.0
+M0944,0.4,False,,,1,C007,6.0
+M0945,100.0,False,M0608,same settlement bank account (SA-X03); shared customers: 155 in common (25% overlap),8,C002,15.0
+M0946,0.8,False,,,2,C007,6.0
 M0947,0.0,False,,,0,,
 M0948,0.0,False,,,0,,
 M0949,0.0,False,,,0,,
@@ -956,7 +956,7 @@ M0953,0.0,False,,,0,,
 M0954,0.0,False,,,0,,
 M0955,0.0,False,,,0,,
 M0956,0.0,False,,,0,,
-M0957,0.3,False,,,1,C018,7.0
+M0957,0.3,False,,,1,C012,7.0
 M0958,0.0,False,,,0,,
 M0959,0.0,False,,,0,,
 M0960,0.0,False,,,0,,
@@ -971,30 +971,30 @@ M0968,0.0,False,,,0,,
 M0969,0.0,False,,,0,,
 M0970,0.0,False,,,0,,
 M0971,0.0,False,,,0,,
-M0972,100.0,True,M0557,shared customers: 193 in common (38% overlap); shared payout accounts: 211 in common (43% overlap),7,C011,8.0
+M0972,100.0,True,M0557,shared customers: 193 in common (38% overlap); shared payout accounts: 211 in common (43% overlap),7,C018,8.0
 M0973,0.0,False,,,0,,
 M0974,0.0,False,,,0,,
-M0975,0.8,False,,,1,C006,4.0
+M0975,0.8,False,,,1,C003,4.0
 M0976,100.0,False,M0848,shared customers: 177 in common (35% overlap),7,C004,8.0
 M0977,0.0,False,,,0,,
-M0978,100.0,True,M0608,same settlement bank account (SA-X03); shared customers: 186 in common (33% overlap),8,C015,15.0
+M0978,100.0,True,M0608,same settlement bank account (SA-X03); shared customers: 186 in common (33% overlap),8,C002,15.0
 M0979,0.0,False,,,0,,
-M0980,0.8,False,,,1,C009,4.0
+M0980,0.8,False,,,1,C000,4.0
 M0981,0.0,False,,,0,,
 M0982,0.0,False,,,0,,
 M0983,0.0,False,,,0,,
 M0984,0.0,False,,,0,,
-M0985,0.8,False,,,3,C016,6.0
+M0985,0.8,False,,,3,C015,6.0
 M0986,0.0,False,,,0,,
 M0987,0.0,False,,,0,,
-M0988,4.5,False,M0239,shared customers: 100 in common (6% overlap),1,C015,15.0
+M0988,4.5,False,M0239,shared customers: 100 in common (6% overlap),1,C002,15.0
 M0989,0.0,False,,,0,,
 M0990,0.0,False,,,0,,
 M0991,0.0,False,,,0,,
 M0992,0.0,False,,,0,,
 M0993,0.0,False,,,0,,
-M0994,100.0,False,M0810,same device (D-X31); shared customers: 183 in common (30% overlap),8,C015,15.0
-M0995,0.9,False,,,3,C013,7.0
+M0994,100.0,False,M0810,same device (D-X31); shared customers: 183 in common (30% overlap),8,C002,15.0
+M0995,0.9,False,,,3,C011,7.0
 M0996,0.0,False,,,0,,
 M0997,0.0,False,,,0,,
 M0998,0.0,False,,,0,,

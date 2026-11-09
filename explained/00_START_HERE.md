@@ -18,6 +18,7 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 11 | [Glossary](11_glossary.md) | Every acronym and technical term in one place |
 | 12 | [Using your own data](12_using_your_own_data.md) | Uploading your own CSV/Excel, generating test worlds, typing in one merchant |
 | 13 | [The advanced layers](13_advanced_layers.md) | Change points, learning loop, anomaly detector, cost-based thresholds, stress test, clusters |
+| 14 | [Data and method](14_data_and_method.md) | Exactly which data is used (simulated, calibrated to real NPCI figures), how decisions are made, and what real data exists |
 
 ## The 2-minute version
 
@@ -56,7 +57,8 @@ A typical "own history" detector caught only 20% of the bad merchants.
 ## What's real and what's simulated
 
 - **Simulated:** all merchants and payments. No real payment data is publicly available, so we built
-  a realistic fake world (`src/generate.py`). Because we built it, we know who is really a front,
+  a realistic fake world (`src/generate.py`), calibrated so average payment sizes match **real NPCI
+  UPI statistics** for each merchant category (file 14, `data/real/`). Because we built it, we know who is really a front,
   which lets us measure accuracy. The numbers show the *method* works; they are **not** proof of
   real-world performance. Say this openly when you present; judges respect it.
 - **Real:** the problem (Enforcement Directorate cases on 1xBet and Parimatch, the CUTS report on UPI

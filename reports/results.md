@@ -17,10 +17,10 @@ Synthetic world: **1,000 merchants**, 37 weeks (2026-03-16 to 2026-11-29), cover
 | system                                                                      | counts as flagged           | precision   | recall   | honest shops hit   | honest drifters hit   |
 |:----------------------------------------------------------------------------|:----------------------------|:------------|:---------|:-------------------|:----------------------|
 | A. Own-history only (typical anomaly detector)                              | any action (Ask or above)   | 43%         | 20%      | 0 of 920           | 13 of 30              |
-| A. Own-history only (typical anomaly detector)                              | penalty (Friction or above) | 100%        | 20%      | 0 of 920           | 0 of 30               |
+| A. Own-history only (typical anomaly detector)                              | penalty (Friction or above) | 91%         | 20%      | 0 of 920           | 1 of 30               |
 | B. Peer drift score only                                                    | any action (Ask or above)   | 77%         | 100%     | 0 of 920           | 15 of 30              |
-| B. Peer drift score only                                                    | penalty (Friction or above) | 93%         | 100%     | 0 of 920           | 4 of 30               |
-| C. Full TrustLoop (peer + network + change points + learning loop + ladder) | any action (Ask or above)   | 82%         | 100%     | 0 of 920           | 11 of 30              |
+| B. Peer drift score only                                                    | penalty (Friction or above) | 89%         | 100%     | 0 of 920           | 6 of 30               |
+| C. Full TrustLoop (peer + network + change points + learning loop + ladder) | any action (Ask or above)   | 79%         | 100%     | 0 of 920           | 13 of 30              |
 | C. Full TrustLoop (peer + network + change points + learning loop + ladder) | penalty (Friction or above) | 98%         | 100%     | 0 of 920           | 1 of 30               |
 
 ## 2. Diwali false alarms
@@ -38,7 +38,7 @@ Bad merchants **not** on the known-bad list: 30. Linked to a known-bad merchant 
 | Hidden truth                  |   Ask: neutral prompt to explain the change |   Friction: lower limits, T+2 settlement |   Monitor |   Review: 20% rolling reserve + human review |
 |:------------------------------|--------------------------------------------:|-----------------------------------------:|----------:|---------------------------------------------:|
 | Honest shop                   |                                           0 |                                        0 |       920 |                                            0 |
-| Honest shop, business changed |                                          10 |                                        1 |        19 |                                            0 |
+| Honest shop, business changed |                                          12 |                                        1 |        17 |                                            0 |
 | Betting front                 |                                           0 |                                        1 |         0 |                                           39 |
 | Rented account                |                                           0 |                                        1 |         0 |                                            9 |
 
@@ -54,13 +54,13 @@ For every merchant we find the week its score stepped up. For the 10 rented acco
 
 ## 6. The learning loop
 
-Simulated review history: 80 past cases (50 confirmed, 30 cleared; flagged cases plus a 2% random audit). A logistic regression learned which signals separate confirmed fronts from cleared merchants. It learned that **match hours** matter much less than we assumed (honest restaurants screening matches have them too) and that **out-of-state payers** and **low amount variety** matter more.
+Simulated review history: 82 past cases (50 confirmed, 32 cleared; flagged cases plus a 2% random audit). A logistic regression learned which signals separate confirmed fronts from cleared merchants. It learned that **match hours** matter much less than we assumed (honest restaurants screening matches have them too) and that **out-of-state payers** and **low amount variety** matter more.
 
 ![Learned weights](5_learned_weights.png)
 
 ## 7. Second opinion: anomaly detector (no labels needed)
 
-Median anomaly percentile (100 = most unusual merchant): Honest shop: 46, Honest shop, business changed: 94, Betting front: 97, Rented account: 98. Honest merchants whose business changed are also unusual, which is why anomaly alone is used only to choose which unflagged merchants to audit, never to penalise.
+Median anomaly percentile (100 = most unusual merchant): Honest shop: 46, Honest shop, business changed: 94, Betting front: 97, Rented account: 99. Honest merchants whose business changed are also unusual, which is why anomaly alone is used only to choose which unflagged merchants to audit, never to penalise.
 
 ## 8. Choosing the threshold with money
 
@@ -77,10 +77,22 @@ Five fresh worlds of 400 merchants, each with more evasive operators.
 | 0%        |              20 | 100%                 | 100%                                    | 100%                            |                        0 |                           0 |                        1 |
 | 30%       |              20 | 100%                 | 100%                                    | 100%                            |                        0 |                           0 |                        3 |
 | 60%       |              20 | 100%                 | 100%                                    | 100%                            |                        0 |                           0 |                        2 |
-| 80%       |              20 | 100%                 | 90%                                     | 100%                            |                        0 |                           0 |                        1 |
-| 100%      |              20 | 100%                 | 50%                                     | 100%                            |                        0 |                           0 |                        2 |
+| 80%       |              20 | 100%                 | 90%                                     | 100%                            |                        0 |                           0 |                        2 |
+| 100%      |              20 | 100%                 | 55%                                     | 100%                            |                        0 |                           0 |                        2 |
 
 ![Stress test](7_stress_test.png)
+
+## 10. Reality check against real NPCI data
+
+Average payment size of honest shops in the simulation vs the real average for the same merchant category from NPCI's July 2025 UPI statistics (`data/real/`).
+
+|             |   real average payment (NPCI, Jul 2025) |   simulated honest shops | simulated / real   |
+|:------------|----------------------------------------:|-------------------------:|:-------------------|
+| electronics |                                    1093 |                     1096 | 1.00x              |
+| kirana      |                                     214 |                      213 | 1.00x              |
+| pharmacy    |                                     398 |                      398 | 1.00x              |
+| restaurant  |                                     158 |                      158 | 1.00x              |
+| sweet_shop  |                                     262 |                      262 | 1.00x              |
 
 ## Caveat
 

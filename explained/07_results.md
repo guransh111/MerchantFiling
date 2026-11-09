@@ -18,25 +18,25 @@ defaults (precision up), but you turn away good borrowers.
 
 | System | Bad merchants caught (recall) | Precision of penalties | Honest shops penalised | Honest-but-changed penalised |
 |---|---|---|---|---|
-| A. Own-history only | 20% | 100% | 0 of 920 | 0 of 30 |
-| B. Peer drift score only | 100% | 93% | 0 of 920 | 4 of 30 |
+| A. Own-history only | 20% | 91% | 0 of 920 | 1 of 30 |
+| B. Peer drift score only | 100% | 89% | 0 of 920 | 6 of 30 |
 | **C. Full TrustLoop** | **100%** | **98%** | **0 of 920** | **1 of 30** |
 
-"Penalised" = Friction or above. With "Ask" counted as an action, TrustLoop's precision is 82%: the 11
+"Penalised" = Friction or above. With "Ask" counted as an action, TrustLoop's precision is 79%: the 13
 honest-but-changed shops it acts on are mostly just *asked* to explain, which is the intended
 behaviour.
 
 **How to read it:**
 - **A** catches only the 10 rented accounts (they *changed*). It misses all 40 fronts, because a
   front that bet from day one never changes relative to itself.
-- **B** catches everyone but penalises 4 honest shops whose business changed.
+- **B** catches everyone but penalises 6 honest shops whose business changed.
 - **C** adds the network and declarations. Declarations lower honest drifters by a level, and the
-  network corroboration confirms the fronts. Penalties on honest-but-changed shops drop from 4 to 1.
+  network corroboration confirms the fronts. Penalties on honest-but-changed shops drop from 6 to 1.
 
 ## The charts (in `reports/`)
 
 1. **`1_scores_by_label.png`**: each dot is a merchant. Left panel (own history): fronts sit with the
-   honest shops. Right panel (peers): fronts jump to 85 to 93, clearly separated.
+   honest shops. Right panel (peers): fronts jump to 83 to 93, clearly separated.
 2. **`2_diwali_false_alarms.png`**: share of honest sweet and electronics shops triggering a simple
    "sales spiked" alert. With own history, 62% in Diwali week; with peers, about 1%. **This is the
    best single slide for "protecting legitimate businesses".**
@@ -49,8 +49,8 @@ Charts 5 to 7 are new in version 2 (explained in file 13):
 
 5. **`5_learned_weights.png`**: hand-set vs learned weights. The learning loop discovered that
    match hours separate fronts from *cleared honest merchants* poorly, and out-of-state payers well.
-6. **`6_cost_curve.png`**: expected cost in rupees at every threshold. Cheapest anywhere from 80 to 91.
-7. **`7_stress_test.png`**: as fraudsters hide better, behaviour alone falls to 50%; the full
+6. **`6_cost_curve.png`**: expected cost in rupees at every threshold. Cheapest anywhere from 85 to 91.
+7. **`7_stress_test.png`**: as fraudsters hide better, behaviour alone falls to 55%; the full
    system stays at 100%.
 
 ## Version 2 results in one table
@@ -58,10 +58,10 @@ Charts 5 to 7 are new in version 2 (explained in file 13):
 | Layer | Result on demo data |
 |---|---|
 | Change points | Found the exact handover week for **10 of 10** rented accounts; no honest shop had a shift coinciding with an account change |
-| Learning loop | Trained on 80 simulated past reviews (50 confirmed, 30 cleared); cross-validated AUC 1.00 |
-| Anomaly detector | Median percentile: honest 46, honest-but-changed 94, fronts 97. Used for audits only |
-| Cost-based threshold | Lowest cost (₹75,000) for any Friction threshold from 80 to 91 |
-| Stress test (100% evasion) | Full system 100%, behaviour alone 50%, 0 honest merchants penalised |
+| Learning loop | Trained on 82 simulated past reviews (50 confirmed, 32 cleared); cross-validated AUC 1.00 |
+| Anomaly detector | Median percentile: honest 46, honest-but-changed 94, fronts 97, rented 99. Used for audits only |
+| Cost-based threshold | Lowest cost (₹75,000) for any Friction threshold from 85 to 91 |
+| Stress test (100% evasion) | Full system 100%, behaviour alone 55%, 0 honest merchants penalised |
 
 ## Network result
 
@@ -85,4 +85,4 @@ known-bad merchant through a shared phone, bank account or gamblers.
 - **62% → 1%** Diwali false alarms
 - **93%** of fronts not on the known-bad list found through the network
 - **10 of 10** rented accounts pinned to their exact handover week
-- **50% vs 100%**: behaviour alone vs full system when fraudsters hide as hard as they can
+- **55% vs 100%**: behaviour alone vs full system when fraudsters hide as hard as they can

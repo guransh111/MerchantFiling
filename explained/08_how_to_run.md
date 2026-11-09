@@ -59,7 +59,7 @@ pages are quick.
 
 ## A 5-minute demo script
 
-1. **Overview.** "Out of 1,000 merchants, 939 are never touched. 10 are asked a question. 48 reach
+1. **Overview.** "Out of 1,000 merchants, 937 are never touched. 12 are asked a question. 48 reach
    Review, and every one has both behaviour evidence and a network link."
 2. Turn on **Show hidden truth** in the sidebar. "This only exists because the data is simulated.
    Every Review case is a real front or rented account."

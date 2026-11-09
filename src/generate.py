@@ -47,7 +47,14 @@ HOURS = {
     "pharmacy":    _profile({8: 3, 9: 4, 10: 5, 11: 5, 12: 4, 13: 3, 14: 3, 15: 3, 16: 4, 17: 5, 18: 6, 19: 6, 20: 5, 21: 4, 22: 2, 23: 1}),
     "electronics": _profile({11: 4, 12: 5, 13: 5, 14: 5, 15: 5, 16: 6, 17: 7, 18: 7, 19: 6, 20: 4}),
 }
-TICKET = {  # (median rupees, spread) for a lognormal distribution
+# Typical payment size per category: (median rupees, spread) of a lognormal distribution.
+# Calibrated to REAL NPCI UPI averages for July 2025 (data/real/npci_upi_mcc_july2025.csv):
+# median = real average / exp(spread^2 / 2), so the synthetic AVERAGE matches the real one.
+#   grocery 214 · restaurants & eateries 113-158 (use 158) · pharmacies 398 · electronics 1,093 · bakeries ~262
+REAL_AVG_TICKET = {"kirana": 214, "restaurant": 158, "sweet_shop": 262, "pharmacy": 398, "electronics": 1093}
+_SPREAD = {"kirana": 0.8, "restaurant": 0.6, "sweet_shop": 0.7, "pharmacy": 0.8, "electronics": 0.9}
+TICKET = {c: (round(REAL_AVG_TICKET[c] / np.exp(_SPREAD[c] ** 2 / 2)), _SPREAD[c]) for c in REAL_AVG_TICKET}
+UNCALIBRATED_V1 = {  # previous guesses used in v1/v2 (before real NPCI data), kept for reference
     "kirana": (150, 0.8), "restaurant": (420, 0.6), "sweet_shop": (350, 0.7),
     "pharmacy": (280, 0.8), "electronics": (2500, 0.9),
 }
