@@ -1,0 +1,13 @@
+merchant_id,category,city,state,tier,declared_size,declared_monthly_turnover,settlement_account
+M0000,restaurant,Lucknow,UP,2,small,96000,SA00000
+M0001,electronics,Udaipur,RJ,3,small,618000,SA00001
+M0002,sweet_shop,Bengaluru,KA,1,large,224000,SA00002
+M0003,sweet_shop,Varanasi,UP,3,medium,178000,SA00003
+M0004,kirana,Delhi,DL,1,small,31000,SA-X01
+M0005,sweet_shop,Lucknow,UP,2,small,94000,SA00005
+M0006,sweet_shop,Udaipur,RJ,3,small,63000,SA00006
+M0007,kirana,Hyderabad,TG,1,small,33000,SA00007
+M0008,kirana,Pune,MH,2,small,19000,SA00008
+M0009,sweet_shop,Hyderabad,TG,1,medium,155000,SA00009
+M0010,kirana,Nashik,MH,3,small,26000,SA00010
+M0011,kirana,Hyderabad,TG,1,small,22000,SA00011

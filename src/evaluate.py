@@ -52,11 +52,40 @@ def metrics(d: pd.DataFrame, level_col="level") -> dict:
     return out
 
 
+def stress_test(levels=(0.0, 0.3, 0.6, 0.8, 1.0), n=400) -> pd.DataFrame:
+    """Re-run the whole system on worlds where operators try harder and harder to hide.
+
+    evasion 0 = naive operators; 0.9 = nearly every front mimics shop traffic, avoids round
+    amounts, uses its own phone and bank account, and pays winners from elsewhere."""
+    from .engine import run
+    from .generate import simulate
+    rows = []
+    for e in levels:
+        m, tx, cal, kb, ev, decl = simulate(n, evasion=e)
+        tables = {"merchants": m, "transactions": tx, "calendar": cal, "known_bad": kb,
+                  "declarations": decl, "account_events": ev}
+        _, r = run(tables, start=C.START_DATE)
+        d = r.decisions
+        bad = d.label.isin(BAD)
+        rows.append({
+            "evasion": e,
+            "bad merchants": int(bad.sum()),
+            "caught (Friction+)": (d[bad].level >= 2).mean(),
+            "caught by behaviour alone (drift 75+)": (d[bad].drift_score >= 75).mean(),
+            "caught, NOT on known-bad list": (d[bad & ~d.known_bad].level >= 2).mean(),
+            "honest shops penalised": int(((d.label == "legit") & (d.level >= 2)).sum()),
+            "honest drifters penalised": int(((d.label == "genuine_drifter") & (d.level >= 2)).sum()),
+            "honest merchants asked": int((~bad & (d.level == 1)).sum()),
+        })
+        print(f"  stress test evasion={e}: done")
+    return pd.DataFrame(rows)
+
+
 def score_only_levels(s: pd.Series) -> pd.Series:
     return np.select([s >= 75, s >= 60], [2, 1], 0)
 
 
-def main():
+def main(stress: bool = False):
     m = pd.read_csv(C.DATA / "merchants.csv")
     weekly = pd.read_csv(C.DATA / "scores_weekly.csv", parse_dates=["week_start"])
     weekly_own = pd.read_csv(C.DATA / "scores_weekly_nopeer.csv", parse_dates=["week_start"])
@@ -76,7 +105,7 @@ def main():
     systems = {
         "A. Own-history only (typical anomaly detector)": own_only,
         "B. Peer drift score only": peer_only,
-        "C. Full TrustLoop (peer + network + declarations + ladder)": full,
+        "C. Full TrustLoop (peer + network + change points + learning loop + ladder)": full,
     }
     rows = []
     for name, d in systems.items():
@@ -188,6 +217,83 @@ def main():
     fig.savefig(C.REPORTS / "4_weekly_examples.png", dpi=150)
     plt.close(fig)
 
+    # ================================================================ advanced layers
+    from .tuning import Costs, best_threshold, sweep, truth_series
+    cp = pd.read_csv(C.DATA / "changepoints.csv", parse_dates=["shift_week"])
+    rented = m[m.label == "rented"][["merchant_id", "drift_week"]].merge(cp, how="left")
+    rented["true_week"] = pd.Timestamp(C.START_DATE) + pd.to_timedelta(rented.drift_week * 7, unit="D")
+    cp_exact = (rented.shift_week == rented.true_week).mean()
+    cp_near = cp.merge(m[["merchant_id", "label"]]).query("near_account_change").label.value_counts()
+    lw_path = C.DATA / "learned_weights.csv"
+    hist = pd.read_csv(C.DATA / "review_history.csv") if (C.DATA / "review_history.csv").exists() else pd.DataFrame()
+    costs = Costs()
+    sw = sweep(full, truth_series(full), costs)
+    best = best_threshold(sw)
+    anom = full.groupby(full.label.map(LABEL_NAME)).anomaly_pct.median().reindex([LABEL_NAME[l] for l in LABEL_ORDER])
+
+    # 5. learned vs hand-set weights
+    if lw_path.exists():
+        lw = pd.read_csv(lw_path).query("kind == 'worst weeks'").set_index("signal").learned_weight.clip(lower=0)
+        hand = pd.Series({f: w for f, (_, w, _) in C.FEATURES.items()})
+        lw = lw.reindex(hand.index).fillna(0)
+        comp_w = pd.DataFrame({"hand": hand / hand.sum(), "learned": lw / lw.sum()}).sort_values("learned")
+        fig, ax = plt.subplots(figsize=(11, 4.4))
+        y = np.arange(len(comp_w))
+        ax.barh(y + 0.2, comp_w.hand * 100, height=0.38, color="#c3c2b7", label="Hand-set weights (version 1)")
+        ax.barh(y - 0.2, comp_w.learned * 100, height=0.38, color=COLORS["legit"], label="Learned from reviewer decisions")
+        ax.set_yticks(y, [C.SHORT_NAME[f] for f in comp_w.index], fontsize=9)
+        ax.set_xlabel("% of total weight", color=MUTED, fontsize=9)
+        ax.set_title("What the learning loop discovered: which signals really separate fronts from honest drifters",
+                     loc="left", fontsize=12, color=INK)
+        ax.legend(frameon=False, fontsize=9, loc="lower right")
+        _style(ax)
+        ax.yaxis.grid(False)
+        ax.xaxis.grid(True, color=GRID)
+        fig.tight_layout()
+        fig.savefig(C.REPORTS / "5_learned_weights.png", dpi=150)
+        plt.close(fig)
+
+    # 6. cost curve
+    fig, ax = plt.subplots(figsize=(11, 3.8))
+    ax.plot(sw.threshold, sw.total_cost / 1e5, color=COLORS["legit"], lw=2)
+    ax.axvline(best.threshold, color=MUTED, lw=1, ls="--")
+    ax.text(best.threshold + 1, ax.get_ylim()[1] * 0.85,
+            f"Cheapest: penalise from risk {best.threshold:.0f}\n(Rs {best.total_cost / 1e5:.1f} lakh)", fontsize=9, color=MUTED)
+    ax.set_xlabel("Risk score at which we start penalising (Friction)", color=MUTED, fontsize=9)
+    ax.set_ylabel("Expected cost (Rs lakh)", color=MUTED, fontsize=9)
+    ax.set_title(f"Setting the threshold with money: miss = Rs {costs.miss / 1e5:.0f} lakh, wrong penalty = Rs "
+                 f"{costs.false_penalty / 1e3:.0f}k, review = Rs {costs.review / 1e3:.1f}k per case", loc="left", fontsize=11, color=INK)
+    _style(ax)
+    fig.tight_layout()
+    fig.savefig(C.REPORTS / "6_cost_curve.png", dpi=150)
+    plt.close(fig)
+
+    # 7. stress test
+    stress_path = C.REPORTS / "stress_test.csv"
+    if stress or not stress_path.exists():
+        print("Running stress test (5 worlds with increasingly evasive operators)...")
+        stress_test().to_csv(stress_path, index=False)
+    st = pd.read_csv(stress_path)
+    fig, ax = plt.subplots(figsize=(11, 3.8))
+    ax.plot(st.evasion, st["caught (Friction+)"] * 100, "o-", color=COLORS["legit"], lw=2, ms=8, label="Full TrustLoop")
+    ax.plot(st.evasion, st["caught by behaviour alone (drift 75+)"] * 100, "o-", color=COLORS["betting_front"], lw=2, ms=8,
+            label="Behaviour score alone")
+    ax.set_ylim(0, 105)
+    ax.set_xticks(st.evasion, [f"{e:.0%}" for e in st.evasion])
+    ax.set_xlabel("How hard operators try to hide (share of evasive tactics used)", color=MUTED, fontsize=9)
+    ax.set_ylabel("% of bad merchants penalised", color=MUTED, fontsize=9)
+    ax.set_title("Stress test: as fraudsters hide better, the network and corroboration layers carry the load",
+                 loc="left", fontsize=12, color=INK)
+    ax.legend(frameon=False, fontsize=9, loc="lower left")
+    _style(ax)
+    fig.tight_layout()
+    fig.savefig(C.REPORTS / "7_stress_test.png", dpi=150)
+    plt.close(fig)
+    st_md = st.copy()
+    for c in ["caught (Friction+)", "caught by behaviour alone (drift 75+)", "caught, NOT on known-bad list"]:
+        st_md[c] = st_md[c].map(lambda v: f"{v:.0%}")
+    st_md["evasion"] = st_md.evasion.map(lambda v: f"{v:.0%}")
+
     # ================================================================ write-up
     n_lab = m.label.value_counts()
     peak_own = fr_own.max()
@@ -233,6 +339,46 @@ def main():
         "",
         "![Weekly](4_weekly_examples.png)",
         "",
+        "## 5. When did it change? (change-point detection)",
+        "",
+        f"For every merchant we find the week its score stepped up. For the {len(rented)} rented accounts, the detected "
+        f"week matched the real handover week exactly in **{cp_exact:.0%}** of cases. Merchants whose behaviour shift "
+        f"came within 3 weeks of a phone/bank-account change: "
+        + ", ".join(f"{LABEL_NAME.get(k, k)}: {v}" for k, v in cp_near.items()) + ".",
+        "",
+        "## 6. The learning loop",
+        "",
+        f"Simulated review history: {len(hist)} past cases ({(hist.outcome == 'confirmed').sum() if len(hist) else 0} confirmed, "
+        f"{(hist.outcome == 'cleared').sum() if len(hist) else 0} cleared; flagged cases plus a 2% random audit). "
+        "A logistic regression learned which signals separate confirmed fronts from cleared merchants. "
+        "It learned that **match hours** matter much less than we assumed (honest restaurants screening matches have them too) "
+        "and that **out-of-state payers** and **low amount variety** matter more.",
+        "",
+        "![Learned weights](5_learned_weights.png)",
+        "",
+        "## 7. Second opinion: anomaly detector (no labels needed)",
+        "",
+        "Median anomaly percentile (100 = most unusual merchant): "
+        + ", ".join(f"{k}: {v:.0f}" for k, v in anom.items()) + ". "
+        "Honest merchants whose business changed are also unusual, which is why anomaly alone is used only to choose "
+        "which unflagged merchants to audit, never to penalise.",
+        "",
+        "## 8. Choosing the threshold with money",
+        "",
+        f"Assumed costs: missed front Rs {costs.miss:,.0f}; honest merchant wrongly penalised Rs {costs.false_penalty:,.0f}; "
+        f"analyst review Rs {costs.review:,.0f} per case. Lowest expected cost at risk score **{best.threshold:.0f}** "
+        f"(catches {best.caught:.0f}, misses {best.missed:.0f}, wrongly penalises {best.honest_flagged:.0f}).",
+        "",
+        "![Cost curve](6_cost_curve.png)",
+        "",
+        "## 9. Stress test: what if fraudsters hide better?",
+        "",
+        "Five fresh worlds of 400 merchants, each with more evasive operators.",
+        "",
+        st_md.to_markdown(index=False),
+        "",
+        "![Stress test](7_stress_test.png)",
+        "",
         "## Caveat",
         "",
         "These numbers come from *synthetic* data that we designed, so they show the method works "
@@ -247,4 +393,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(stress="--stress" in sys.argv)

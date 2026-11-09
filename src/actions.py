@@ -1,15 +1,22 @@
 """Step 5: decide what to DO about each merchant, and say WHY in plain English.
 
-Inputs: drift score (behaviour vs peers), network score (links to known-bad),
-merchant declarations ("we started late-night delivery"), account events
-(phone changed + bank account changed = possible account rental).
+Inputs
+------
+drift score        behaviour vs peers (score.py)
+network score      links to known-bad merchants (network.py)
+declarations       "we started late-night delivery" (merchant told us in advance)
+account events     phone changed + bank account changed = possible account rental
+change points      the week behaviour flipped, and whether it was right after an account change
+learned model      probability the merchant resembles past CONFIRMED cases (learn.py)
+analyst reviews    a human confirmed ("betting") or cleared ("genuine") the case
 
-Proportionate response ladder (see config.LADDER):
+Proportionate response ladder (thresholds in Settings):
   0 Monitor   -> nothing visible to the merchant
   1 Ask       -> neutral prompt: "Your sales pattern changed. Tell us what's new."
   2 Friction  -> lower limits, slower (T+2) settlement. Money still flows.
   3 Review    -> 20% rolling reserve + a human investigator. Only with corroboration
                  (a network link or a known-bad match). No machine freezes anyone alone.
+  4 Offboard  -> only after an ANALYST confirms; report to FIU-IND and the I4C registry.
 
 Output: data/decisions.csv
 """
@@ -18,11 +25,15 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from . import changepoint as CP
 from . import config as C
 
-NETWORK_WEIGHT = 0.25  # how many risk points a full network link adds
 PLURAL = {"kirana": "kirana stores", "restaurant": "restaurants", "sweet_shop": "sweet shops",
           "pharmacy": "pharmacies", "electronics": "electronics shops"}
+
+
+def plural(cat: str) -> str:
+    return PLURAL.get(cat, f"{cat.replace('_', ' ')} merchants")
 
 
 def _fmt(feat: str, v: float) -> str:
@@ -43,98 +54,137 @@ def _fmt(feat: str, v: float) -> str:
     return f"{v:.2f}"
 
 
-def reasons_for(weekly: pd.DataFrame, merchant_row: pd.Series, top_n: int = 3) -> list[str]:
-    """Top signals across the merchant's 3 worst weeks, written as a sentence each."""
-    worst = weekly.nlargest(3, "drift_score")
+def peer_phrase(peer_group: str) -> str:
+    cat, grp = peer_group.split("|")
+    where = "in all city tiers" if grp == "all tiers" else f"in tier-{grp[-1]} cities"
+    return f"{plural(cat)} {where}"
+
+
+def reasons_for(weekly: pd.DataFrame, top_n: int = 3, worst_weeks: int = 3) -> list[str]:
+    """Top signals across the merchant's worst weeks, written as a sentence each."""
+    worst = weekly.nlargest(worst_weeks, "drift_score")
     pts = {f: worst[f"{f}__pts"].mean() for f in C.FEATURES}
     peak = worst.iloc[0]
-    cat, grp = peak.peer_group.split("|")
-    where = "in all city tiers" if grp == "all tiers" else f"in tier-{grp[-1]} cities"
-    peer_name = f"{PLURAL[cat]} {where}"
+    peers = peer_phrase(peak.peer_group)
     out = []
     for f, p in sorted(pts.items(), key=lambda kv: -kv[1])[:top_n]:
         if p < 0.5:
             break
         desc = C.FEATURES[f][2]
-        out.append(f"{desc[0].upper() + desc[1:]}: {_fmt(f, peak[f])} vs {_fmt(f, peak[f + '__peer'])} for similar {peer_name}")
+        out.append(f"{desc[0].upper() + desc[1:]}: {_fmt(f, peak[f])} vs {_fmt(f, peak[f + '__peer'])} for similar {peers}")
     return out
 
 
 def takeover_flags(events: pd.DataFrame) -> pd.Series:
     """Device AND settlement account changed within 14 days -> possible rental / takeover."""
-    if events.empty:
+    if events is None or events.empty:
         return pd.Series(dtype=bool)
-    ev = events.assign(date=pd.to_datetime(events.date))
+    ev = events.assign(date=pd.to_datetime(events.date, errors="coerce")).dropna(subset=["date"])
     flags = {}
     for mid, g in ev.groupby("merchant_id"):
         d = g[g.event == "device_change"].date
         s = g[g.event == "settlement_account_change"].date
         flags[mid] = any(abs((a - b).days) <= 14 for a in d for b in s)
-    return pd.Series(flags)
+    return pd.Series(flags, dtype=bool)
 
 
-def decide(m, weekly, scores, net, decl, events) -> pd.DataFrame:
+def level_for(score: float, s: C.Settings) -> int:
+    return max(lvl for thr, lvl in s.thresholds() if score >= thr)
+
+
+def decide(m, weekly, scores, net, decl, events, s: C.Settings | None = None,
+           changepoints: pd.DataFrame | None = None, learned: pd.Series | None = None,
+           anomaly: pd.Series | None = None, reviews: pd.DataFrame | None = None) -> pd.DataFrame:
+    s = s or C.Settings()
     d = m.merge(scores, on="merchant_id", how="left").merge(net, on="merchant_id", how="left")
     d["drift_score"] = d.drift_score.fillna(0)
-    d["risk_score"] = np.minimum(100, d.drift_score + NETWORK_WEIGHT * d.network_score)
+    d["network_score"] = d.network_score.fillna(0) if s.use_network else 0.0
+    d["known_bad"] = d.known_bad.fillna(False).astype(bool)
+    d["risk_score"] = np.minimum(100, d.drift_score + s.network_weight * d.network_score)
     d.loc[d.known_bad, "risk_score"] = np.maximum(d.loc[d.known_bad, "risk_score"], 95)
-    d["network_link"] = d.known_bad | (d.network_score >= C.NETWORK_LINK_THRESHOLD)
+    d["network_link"] = d.known_bad | (s.use_network & (d.network_score >= s.network_link_threshold))
     d["possible_takeover"] = d.merchant_id.map(takeover_flags(events)).fillna(False).astype(bool)
+    for c in ["linked_to", "link_reason", "cluster"]:
+        d[c] = d.get(c, pd.Series("", index=d.index)).fillna("")
+    d["cluster_size"] = d.get("cluster_size", pd.Series(np.nan, index=d.index))
 
+    cp = changepoints.set_index("merchant_id") if changepoints is not None and len(changepoints) else pd.DataFrame()
+    d["shift_week"] = d.merchant_id.map(cp.shift_week) if len(cp) else pd.NaT
+    d["shift_jump"] = d.merchant_id.map(cp.jump) if len(cp) else np.nan
+    d["learned_prob"] = d.merchant_id.map(learned) if learned is not None else np.nan
+    d["anomaly_pct"] = d.merchant_id.map(anomaly) if anomaly is not None else np.nan
+
+    rev = {}
+    if reviews is not None and len(reviews):
+        rev = reviews.drop_duplicates("merchant_id", keep="last").set_index("merchant_id").to_dict("index")
     by_m = {k: g for k, g in weekly.groupby("merchant_id")}
-    decl_by_m = decl.groupby("merchant_id").declared_change.agg(" / ".join)
+    decl_by_m = decl.groupby("merchant_id").declared_change.agg(lambda x: " / ".join(map(str, x))) if len(decl) else pd.Series(dtype=str)
+
     rows = []
     for _, r in d.iterrows():
-        level = max(lvl for thr, lvl, _ in C.LADDER if r.risk_score >= thr)
+        mid = r.merchant_id
+        level = level_for(r.risk_score, s)
+        system_level = level
         notes = []
-        if level == 3 and not r.network_link:
+        if level == 3 and s.require_corroboration and not r.network_link:
             level = 2
             notes.append("Capped at Friction: no network corroboration")
-        if r.possible_takeover:
+        if s.use_takeover and r.possible_takeover:
             level = max(level, 1)  # always at least ask
             if r.network_link:
                 level = min(3, level + 1)
             notes.append("Phone and bank account changed within 14 days: possible account rental")
-        declared = decl_by_m.get(r.merchant_id, "")
+        cpr = cp.loc[mid].to_dict() if len(cp) and mid in cp.index else None
+        cp_text = CP.describe(cpr) if cpr else ""
+        if s.use_changepoint and cpr and cpr.get("near_account_change") and cpr["score_after"] >= s.ask:
+            level = max(level, 2 if r.network_link or r.possible_takeover else 1)
+        if cp_text and (level >= 1 or (cpr and cpr.get("near_account_change"))):
+            notes.append(cp_text)
+        declared = decl_by_m.get(mid, "") if s.use_declarations else ""
         if declared and level > 0 and not r.network_link:
             level -= 1
-            notes.append(f"Merchant pre-declared: '{declared}'; lowered one level, evidence requested")
+            notes.append(f"Merchant declared: '{declared}'; lowered one level, evidence requested")
         elif declared and r.network_link and level > 0:
             notes.append(f"Merchant declared '{declared}' but is linked to a known betting account; not accepted without evidence")
+        if s.use_learning and level == 0 and pd.notna(r.learned_prob) and r.learned_prob >= s.learning_escalate_at:
+            level = 1
+            notes.append(f"Resembles cases analysts confirmed before (learned model: {r.learned_prob:.0%}); asking to explain")
         if r.known_bad:
-            notes.append("UPI ID found on a public betting page")
-        elif r.network_link:
+            notes.append("UPI ID found on a public betting page / known-bad list")
+        elif r.network_link and r.linked_to:
             notes.append(f"Linked to {r.linked_to}: {r.link_reason}")
-        reasons = reasons_for(by_m[r.merchant_id], r) if r.merchant_id in by_m else []
-        rows.append({"merchant_id": r.merchant_id, "level": level,
-                     "action": dict((lvl, a) for _, lvl, a in C.LADDER)[level],
+        if r.cluster and r.cluster_size and r.cluster_size >= 3 and r.network_link:
+            notes.append(f"Part of cluster {r.cluster} ({int(r.cluster_size)} merchants densely linked)")
+        review = rev.get(mid)
+        if review:
+            if review.get("outcome") == "confirmed":
+                level = 4
+                notes.insert(0, f"CONFIRMED by analyst{': ' + str(review.get('note')) if review.get('note') else ''}")
+            elif review.get("outcome") == "cleared":
+                level = 0
+                notes.insert(0, f"Cleared by analyst{': ' + str(review.get('note')) if review.get('note') else ''}; "
+                                "monitoring continues")
+        reasons = reasons_for(by_m[mid], worst_weeks=s.worst_weeks) if mid in by_m else []
+        rows.append({"merchant_id": mid, "system_level": system_level, "level": level, "action": C.LEVELS[level],
                      "reason_1": reasons[0] if len(reasons) > 0 else "",
                      "reason_2": reasons[1] if len(reasons) > 1 else "",
                      "reason_3": reasons[2] if len(reasons) > 2 else "",
-                     "notes": " | ".join(notes)})
+                     "notes": " | ".join(notes),
+                     "review_outcome": review.get("outcome") if review else ""})
     out = d.merge(pd.DataFrame(rows), on="merchant_id")
     cols = ["merchant_id", "category", "city", "state", "tier", "declared_size", "declared_monthly_turnover",
             "drift_score", "network_score", "risk_score", "level", "action",
             "reason_1", "reason_2", "reason_3", "notes", "known_bad", "network_link", "possible_takeover",
-            "linked_to", "peak_week", "label", "drift_type"]
-    return out[cols].sort_values("risk_score", ascending=False).reset_index(drop=True)
+            "linked_to", "cluster", "cluster_size", "peak_week", "shift_week", "shift_jump",
+            "learned_prob", "anomaly_pct", "review_outcome", "label", "drift_type"]
+    cols = [c for c in cols if c in out]
+    return out[cols].sort_values(["level", "risk_score"], ascending=False).reset_index(drop=True)
 
 
 def main():
-    m = pd.read_csv(C.DATA / "merchants.csv")
-    weekly = pd.read_csv(C.DATA / "scores_weekly.csv")
-    scores = pd.read_csv(C.DATA / "scores.csv")
-    net = pd.read_csv(C.DATA / "network.csv")
-    decl = pd.read_csv(C.DATA / "declarations.csv")
-    ev = pd.read_csv(C.DATA / "account_events.csv")
-    out = decide(m, weekly, scores, net, decl, ev)
-    out.to_csv(C.DATA / "decisions.csv", index=False)
-    # slim copy for the dashboard (small enough to keep in git)
-    keep = ["merchant_id", "week_start", "peer_group", "n_txns", "inflow", "drift_score"]
-    keep += [c for f in C.FEATURES for c in (f, f + "__peer", f + "__pts")]
-    weekly[keep].round(3).to_csv(C.DATA / "dashboard_weekly.csv.gz", index=False)
-    print(pd.crosstab(out.label, out.action).to_string())
-    return out
+    """Kept for backwards compatibility: the full pipeline now runs through engine.py."""
+    from .engine import main as engine_main
+    return engine_main()
 
 
 if __name__ == "__main__":

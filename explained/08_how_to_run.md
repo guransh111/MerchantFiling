@@ -29,7 +29,7 @@ Quick version (150 merchants, under a minute):
 python run_all.py --small
 ```
 
-Full version (1,000 merchants, 2 to 3 minutes; this is what the results in this folder use):
+Full version (1,000 merchants, about 4 minutes including the stress test; this is what the results in this folder use):
 
 ```bash
 python run_all.py
@@ -48,24 +48,43 @@ streamlit run app/dashboard.py
 
 A browser tab opens at `http://localhost:8501`. To stop it, press `Ctrl + C` in the terminal.
 
-## A 3-minute demo script for the dashboard
+## The dashboard pages
 
-1. **Risk queue tab.** "Out of 1,000 merchants, 939 are never touched. 10 are asked a question.
-   Only 48 reach Review, and every one has both behaviour evidence and a network link."
-2. Turn on **Show hidden truth** in the sidebar. "This column only exists because the data is
-   simulated. Every Review case is a real front or rented account."
-3. **Merchant drill-down**: pick the top merchant. Read the three reasons aloud ("39% of money during
-   match hours vs 4% for similar electronics shops"). Point at the weekly chart peaking in IPL.
-   Notes say its UPI ID was found on a public betting page. Scroll to **Network links**: "these
-   other merchants share its phone, bank account or customers, so suspicion spreads to them too."
-4. In the drop-down, find a merchant at **Ask** (filter Action = Ask in the sidebar). With hidden
-   truth on, it's an honest restaurant screening matches. "The system noticed, but it asks rather
-   than punishes."
-5. **Merchant's view** tab: "This is what that restaurant sees: a neutral question, a form, an
-   evidence upload, and their trust tier."
-6. **Customer's payment screen** tab: pick a Review merchant. "The paying customer sees 'Verified:
-   Electronics, Gaya'. If they're placing a bet, that's a red flag to them too, and 'Report' gives
-   us free labels."
+The menu on the left has 12 pages. File 03 lists what each is for, and file 12 explains how to put
+your own data in. The ones you'll use most: **Risk queue**, **Merchant drill-down**,
+**Check a merchant** and **Settings & what-if**.
+
+The first page you open takes about 5 to 10 seconds while it analyses the demo data; after that,
+pages are quick.
+
+## A 5-minute demo script
+
+1. **Overview.** "Out of 1,000 merchants, 939 are never touched. 10 are asked a question. 48 reach
+   Review, and every one has both behaviour evidence and a network link."
+2. Turn on **Show hidden truth** in the sidebar. "This only exists because the data is simulated.
+   Every Review case is a real front or rented account."
+3. **Merchant drill-down** (top merchant). Read the three reasons aloud. Show the weekly chart and
+   the hour-of-day chart (its money arrives at night; a real kirana's doesn't). Scroll to **Network
+   links**. Then click **Confirm: betting / misuse**: "the analyst's decision overrides the system,
+   becomes a label for the learning loop, and turns this merchant into a new starting point for the
+   network search."
+4. Pick a **rented account** (with hidden truth on, the label says so). Point to the red line on the
+   weekly chart: "the system found the exact week it changed hands, the same day the phone and bank
+   account changed."
+5. **Check a merchant.** Choose the example "Restaurant screening IPL": it's asked, not punished.
+   Switch to "Betting front (classic)": the score jumps. Tick "pre-declared change" to show it lowers
+   the level only when there's no network link.
+6. **Settings & what-if.** Lower the Ask threshold to 40 and press Apply. The impact table shows who
+   moved, and how many more honest merchants get asked. "This is the trade-off, and it's a business
+   choice."
+7. **Performance & thresholds.** Change the cost of a missed front, and the cheapest threshold moves.
+   "We set thresholds in rupees, not by gut feel."
+8. **Learning loop.** "It learned that match hours matter less than we thought, because honest
+   restaurants screen matches too." Optionally press **Apply suggested weights**.
+9. **Load data → Generate.** Set evasion to 1.0 and generate 300 merchants. Show the result on
+   Performance: still caught, thanks to the network.
+10. **Customer's payment screen.** "The paying customer sees 'Verified: Kirana, Lucknow'. If they
+    think they're placing a bet, that's a red flag to them too."
 
 ## Run the tests (optional)
 
@@ -73,14 +92,17 @@ A browser tab opens at `http://localhost:8501`. To stop it, press `Ctrl + C` in 
 pytest -q
 ```
 
-You should see `11 passed`.
+You should see `22 passed`.
 
 ## Changing things
 
-All the tunable numbers are in `src/config.py`: feature weights, the cap, the ladder thresholds,
-the merchant mix. Change one, re-run `python run_all.py`, and see how the results move. For example,
-set the Ask threshold to 50 and see more honest drifters get asked. This is a good way to show
-judges you understand the precision/recall trade-off.
+Easiest: the **Settings & what-if** page in the dashboard (no code). To change the defaults
+permanently, edit `src/config.py` (the `Settings` class) and re-run `python run_all.py`.
+
+## Using your own data
+
+See file 12. Short version: dashboard → **Load data** → upload a merchants file and a transactions
+file (CSV or Excel), check the column mapping, press the button.
 
 ## Troubleshooting
 
@@ -90,3 +112,6 @@ judges you understand the precision/recall trade-off.
 | `ModuleNotFoundError: No module named ...` | Run the `pip install -r requirements.txt` step again |
 | Dashboard says "No results yet" | Run `python run_all.py --small` first |
 | Dashboard looks stale after re-running | Press `C` then refresh the page in the browser (clears the cache) |
+| Excel upload fails | Run `pip install openpyxl`, or save the sheet as CSV |
+| Upload says a required column is missing | Use the column-mapping drop-downs to point it at the right column |
+| "Need at least 5 confirmed and 5 cleared cases" | The learning loop needs more analyst decisions; confirm/clear a few more cases |

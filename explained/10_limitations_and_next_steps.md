@@ -6,7 +6,9 @@
 |---|---|---|
 | Synthetic data | Results are cleaner than reality | Pilot on real data; measure precision through human review |
 | We designed fronts and detector together | Risk of building a detector that only finds what we planted | Evasion built in; random audits in real use |
-| Biased labels later | Reviewers only see what the system flags, so the model learns its own blind spots | Randomly audit ~1% of unflagged merchants every quarter |
+| Biased labels | Reviewers only see what the system flags, so the learning loop learns its own blind spots | Random audits (2% in the demo) plus the anomaly-driven audit queue |
+| Learning loop on small samples | With few reviews the learned weights are noisy | Needs 5+ of each outcome before it trains; it only suggests weights; a human applies them |
+| Very careful operators | At maximum evasion behaviour alone catches 50% (stress test) | Network, change points and cross-provider sharing |
 | Small peer groups | Unstable medians | Fall back to category across all tiers when fewer than 10 merchants |
 | Polluted peers | If many kiranas in a city are fronts, "normal" shifts | Median is robust; remove confirmed fronts from baselines |
 | P2P out of scope | Much betting money moves person-to-person | Share flags with banks (MuleHunter) and NPCI |
@@ -37,10 +39,19 @@ compliance sign-off.
 - Suspicious transaction reports filed and Suspect Registry submissions
 - Merchant churn among flagged-then-cleared merchants
 
-## Ideas to extend the prototype (if you have time)
+## Already built in version 2
 
-1. **Supervised model.** Train gradient boosting on the 10 signals using the labels, with
-   cross-validation. Compare with the rule score.
-2. **Payment-note keywords.** Add a `note` column with occasional "id"/"bet" text for fronts.
-3. **Threshold slider in the dashboard** showing precision/recall live.
-4. **Federated sharing demo.** Two simulated PAs sharing hashed device and account IDs.
+- ✅ Supervised learning on reviewer decisions (logistic regression with learned weights) → file 13
+- ✅ Threshold tuning in the dashboard (Settings page, cost-based tool) → file 13
+- ✅ Random-audit queue driven by an anomaly detector → file 13
+- ✅ Bring-your-own-data upload → file 12
+
+## Ideas to extend further (if you have time)
+
+1. **Payment-note keywords.** Add a `note` column with occasional "id"/"bet" text for fronts; use
+   keyword flags only (privacy).
+2. **Federated sharing demo.** Two simulated payment providers sharing hashed device and account IDs.
+3. **Saving decisions permanently.** Analyst decisions currently last for a session (with download
+   and upload); a real system would store them in a database with an audit log.
+4. **Gradient boosting** next to the logistic regression, once there are hundreds of labelled cases.
+5. **Separate peer group for legitimate pass-through businesses** (wholesalers, aggregators).

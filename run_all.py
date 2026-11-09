@@ -8,15 +8,13 @@ Then open the dashboard:   streamlit run app/dashboard.py
 import argparse
 import time
 
-from src import actions, evaluate, features, generate, network, score
+from src import engine, evaluate, generate
 
 STEPS = [
-    ("1/6 Creating synthetic merchants and payments", lambda a: generate.main(a.small)),
-    ("2/6 Calculating weekly signals", lambda a: features.main()),
-    ("3/6 Scoring drift vs peers (and the own-history baseline)", lambda a: (score.main("peer"), score.main("own"))),
-    ("4/6 Building the network of shared phones, accounts and customers", lambda a: network.main()),
-    ("5/6 Deciding actions and writing reasons", lambda a: actions.main()),
-    ("6/6 Evaluating against the hidden truth", lambda a: evaluate.main()),
+    ("1/3 Creating synthetic merchants and payments", lambda a: generate.main(a.small)),
+    ("2/3 Running TrustLoop: signals, peer scores, network, change points, learning loop, decisions",
+     lambda a: engine.main()),
+    ("3/3 Evaluating against the hidden truth (incl. stress test)", lambda a: evaluate.main(stress=not a.small)),
 ]
 
 if __name__ == "__main__":

@@ -13,7 +13,32 @@ everything in plain English. No coding or statistics background needed.
 
 Don't ask *"is this behaviour unusual?"* Ask *"does this behaviour match what the merchant declared,
 compared with similar shops in the same week?"* Then respond **proportionately**: ask first, add
-friction second, and hold money only when there's independent corroboration.
+friction second, hold money only with independent corroboration, and offboard only when a human confirms.
+
+## What's inside
+
+| Layer | What it does |
+|---|---|
+| 10 weekly signals | Match hours, late night, round amounts, out-of-state payers, repeat payments, amount variety, same-day pass-through, payout accounts, growth, size vs declared |
+| Peer drift score | Each merchant vs its peers in the same week, so Diwali is normal; capped signals, so several must agree |
+| Network | Shared phones, bank accounts, gamblers; PageRank from known-bad merchants; cluster detection |
+| Change points | The week behaviour flipped, and whether a phone/bank change came with it (catches rented accounts) |
+| Learning loop | Learns from analysts' confirm/clear decisions; suggests better weights; out-of-fold evaluation |
+| Anomaly detector | Isolation Forest to choose which unflagged merchants to audit |
+| Cost-based thresholds | Picks the cut-off with the lowest expected cost in rupees |
+| Proportionate ladder | Monitor → Ask → Friction → Review → Offboard, with a plain-English reason for every flag |
+
+## Put your own data in
+
+The dashboard (`streamlit run app/dashboard.py`) lets you:
+- **Upload** merchants and transactions as CSV or Excel, with **any column names** (automatic
+  mapping you can correct). The minimum is 4 columns; more columns switch on more signals.
+- **Generate** a simulated world with your own assumptions (size, % fronts, how hard fraudsters hide).
+- **Check a merchant**: type one in with sliders, or upload its payments.
+- **Confirm or clear** cases as an analyst, and submit **merchant explanations**; both feed back in.
+- Change **every weight and threshold** live and see who moves.
+
+Guide: [`explained/12_using_your_own_data.md`](explained/12_using_your_own_data.md). Example files: [`templates/`](templates/).
 
 ## Headline results (synthetic data, 1,000 merchants, 37 weeks)
 
@@ -23,7 +48,8 @@ friction second, and hold money only when there's independent corroboration.
 | Honest shops penalised | 0 of 920 | **0 of 920** |
 | Honest shops whose business changed, penalised | 0 of 30 | **1 of 30** (10 more simply asked to explain) |
 | Honest sweet/electronics shops with a "sales spike" alert in Diwali week | **62%** | **1%** |
-| Bad merchants NOT on the known-bad list that the network still linked to one | | **93%** |
+| Rented accounts pinned to their exact handover week | | **10 of 10** |
+| Caught when fraudsters hide as hard as possible (stress test) | | **100%** (behaviour alone: 50%) |
 
 Full results and charts: [`reports/results.md`](reports/results.md).
 
@@ -36,11 +62,13 @@ pip install -r requirements.txt
 ```
 
 ```bash
-python run_all.py --small
+streamlit run app/dashboard.py
 ```
 
+The demo results are already in the repo. To regenerate everything (about 4 minutes):
+
 ```bash
-streamlit run app/dashboard.py
+python run_all.py
 ```
 
 Step-by-step instructions for beginners: [`explained/08_how_to_run.md`](explained/08_how_to_run.md).
@@ -49,13 +77,15 @@ Step-by-step instructions for beginners: [`explained/08_how_to_run.md`](explaine
 
 | Path | What it is |
 |---|---|
-| `explained/` | **Plain-English guide**: the problem, the idea, every signal, scoring, results, pitch guide, glossary |
-| `src/generate.py` | Creates a realistic fake world: 1,000 merchants, ~3 million UPI payments, IPL, Diwali |
-| `src/features.py` | Turns payments into 10 weekly signals per merchant |
-| `src/score.py` | Drift score: each merchant vs its peers, same week |
-| `src/network.py` | Finds merchants sharing phones, bank accounts and customers with known betting accounts |
-| `src/actions.py` | Proportionate response ladder plus plain-English reasons for every flag |
-| `src/evaluate.py` | Measures accuracy against the hidden truth; writes `reports/` |
-| `app/dashboard.py` | Streamlit demo: risk queue, drill-down, merchant's view, customer's payment screen |
-| `tests/` | Automated checks (`pytest -q`) |
-| `data/` | Generated data (the big files are recreated by `run_all.py`) |
+| `explained/` | **Plain-English guide**: problem, idea, signals, scoring, results, pitch, your own data, advanced layers, glossary |
+| `src/engine.py` | Runs the whole pipeline on any dataset (`prepare` = slow part, `analyse` = fast part) |
+| `src/schema.py` | Bring-your-own-data: column recognition, cleaning, validation |
+| `src/generate.py` | Synthetic world: ~3 million UPI payments, IPL, Diwali, fronts, rented accounts, honest drifters |
+| `src/features.py`, `score.py` | 10 weekly signals; peer drift score |
+| `src/network.py`, `changepoint.py`, `learn.py` | Network and clusters; change points; learning loop and anomaly detector |
+| `src/actions.py`, `tuning.py` | Response ladder with reasons; cost-based thresholds |
+| `src/evaluate.py` | Accuracy vs hidden truth, charts, stress test → `reports/` |
+| `src/config.py` | Every setting in one `Settings` object |
+| `app/` | Streamlit dashboard (12 pages) |
+| `templates/` | Example input files in the right format |
+| `tests/` | 22 automated checks (`pytest -q`) |

@@ -16,6 +16,8 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 09 | [Pitch guide](09_pitch_guide.md) | Slide-by-slide storyline, demo script, likely judge questions |
 | 10 | [Limitations and next steps](10_limitations_and_next_steps.md) | What's weak, and how a real provider would roll it out |
 | 11 | [Glossary](11_glossary.md) | Every acronym and technical term in one place |
+| 12 | [Using your own data](12_using_your_own_data.md) | Uploading your own CSV/Excel, generating test worlds, typing in one merchant |
+| 13 | [The advanced layers](13_advanced_layers.md) | Change points, learning loop, anomaly detector, cost-based thresholds, stress test, clusters |
 
 ## The 2-minute version
 
@@ -37,6 +39,15 @@ payment provider has to find them without harassing the millions of honest shops
 4. **Respond proportionately.** Monitor, then ask, then add friction, then review. Money is held only
    when a network link backs up the behaviour. Every flag comes with a plain-English reason, and the
    merchant can explain or appeal.
+
+**Version 2 adds (file 13):** detecting *the week* behaviour changed, so rented accounts are caught
+the day the phone and bank account switch; a **learning loop** that learns from analysts' confirm/clear
+decisions (it found our own assumption about match hours was wrong); an anomaly detector to choose
+what to audit; thresholds set in **rupees**; and a **stress test** against smarter fraudsters.
+
+**You can now put your own data in (file 12):** upload CSV/Excel with any column names, generate a
+custom world, or type one merchant in with sliders. Analysts can confirm or clear cases, and merchants
+can submit explanations, in the dashboard; both change the results.
 
 **Results on our simulated data (1,000 merchants):** we caught all 50 bad merchants and penalised
 none of the 920 honest shops. Only 1 of 30 honest shops whose business changed was penalised.

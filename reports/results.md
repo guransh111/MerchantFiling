@@ -14,14 +14,14 @@ Synthetic world: **1,000 merchants**, 37 weeks (2026-03-16 to 2026-11-29), cover
 *Precision* = of the merchants we acted on, the share that were really bad.  
 *Recall* = of the really bad merchants, the share we acted on.
 
-| system                                                     | counts as flagged           | precision   | recall   | honest shops hit   | honest drifters hit   |
-|:-----------------------------------------------------------|:----------------------------|:------------|:---------|:-------------------|:----------------------|
-| A. Own-history only (typical anomaly detector)             | any action (Ask or above)   | 43%         | 20%      | 0 of 920           | 13 of 30              |
-| A. Own-history only (typical anomaly detector)             | penalty (Friction or above) | 100%        | 20%      | 0 of 920           | 0 of 30               |
-| B. Peer drift score only                                   | any action (Ask or above)   | 77%         | 100%     | 0 of 920           | 15 of 30              |
-| B. Peer drift score only                                   | penalty (Friction or above) | 93%         | 100%     | 0 of 920           | 4 of 30               |
-| C. Full TrustLoop (peer + network + declarations + ladder) | any action (Ask or above)   | 82%         | 100%     | 0 of 920           | 11 of 30              |
-| C. Full TrustLoop (peer + network + declarations + ladder) | penalty (Friction or above) | 98%         | 100%     | 0 of 920           | 1 of 30               |
+| system                                                                      | counts as flagged           | precision   | recall   | honest shops hit   | honest drifters hit   |
+|:----------------------------------------------------------------------------|:----------------------------|:------------|:---------|:-------------------|:----------------------|
+| A. Own-history only (typical anomaly detector)                              | any action (Ask or above)   | 43%         | 20%      | 0 of 920           | 13 of 30              |
+| A. Own-history only (typical anomaly detector)                              | penalty (Friction or above) | 100%        | 20%      | 0 of 920           | 0 of 30               |
+| B. Peer drift score only                                                    | any action (Ask or above)   | 77%         | 100%     | 0 of 920           | 15 of 30              |
+| B. Peer drift score only                                                    | penalty (Friction or above) | 93%         | 100%     | 0 of 920           | 4 of 30               |
+| C. Full TrustLoop (peer + network + change points + learning loop + ladder) | any action (Ask or above)   | 82%         | 100%     | 0 of 920           | 11 of 30              |
+| C. Full TrustLoop (peer + network + change points + learning loop + ladder) | penalty (Friction or above) | 98%         | 100%     | 0 of 920           | 1 of 30               |
 
 ## 2. Diwali false alarms
 
@@ -47,6 +47,40 @@ Bad merchants **not** on the known-bad list: 30. Linked to a known-bad merchant 
 ![Scores](1_scores_by_label.png)
 
 ![Weekly](4_weekly_examples.png)
+
+## 5. When did it change? (change-point detection)
+
+For every merchant we find the week its score stepped up. For the 10 rented accounts, the detected week matched the real handover week exactly in **100%** of cases. Merchants whose behaviour shift came within 3 weeks of a phone/bank-account change: Rented account: 10.
+
+## 6. The learning loop
+
+Simulated review history: 80 past cases (50 confirmed, 30 cleared; flagged cases plus a 2% random audit). A logistic regression learned which signals separate confirmed fronts from cleared merchants. It learned that **match hours** matter much less than we assumed (honest restaurants screening matches have them too) and that **out-of-state payers** and **low amount variety** matter more.
+
+![Learned weights](5_learned_weights.png)
+
+## 7. Second opinion: anomaly detector (no labels needed)
+
+Median anomaly percentile (100 = most unusual merchant): Honest shop: 46, Honest shop, business changed: 94, Betting front: 97, Rented account: 98. Honest merchants whose business changed are also unusual, which is why anomaly alone is used only to choose which unflagged merchants to audit, never to penalise.
+
+## 8. Choosing the threshold with money
+
+Assumed costs: missed front Rs 500,000; honest merchant wrongly penalised Rs 20,000; analyst review Rs 1,500 per case. Lowest expected cost at risk score **91** (catches 50, misses 0, wrongly penalises 0).
+
+![Cost curve](6_cost_curve.png)
+
+## 9. Stress test: what if fraudsters hide better?
+
+Five fresh worlds of 400 merchants, each with more evasive operators.
+
+| evasion   |   bad merchants | caught (Friction+)   | caught by behaviour alone (drift 75+)   | caught, NOT on known-bad list   |   honest shops penalised |   honest drifters penalised |   honest merchants asked |
+|:----------|----------------:|:---------------------|:----------------------------------------|:--------------------------------|-------------------------:|----------------------------:|-------------------------:|
+| 0%        |              20 | 100%                 | 100%                                    | 100%                            |                        0 |                           0 |                        1 |
+| 30%       |              20 | 100%                 | 100%                                    | 100%                            |                        0 |                           0 |                        3 |
+| 60%       |              20 | 100%                 | 100%                                    | 100%                            |                        0 |                           0 |                        2 |
+| 80%       |              20 | 100%                 | 90%                                     | 100%                            |                        0 |                           0 |                        1 |
+| 100%      |              20 | 100%                 | 50%                                     | 100%                            |                        0 |                           0 |                        2 |
+
+![Stress test](7_stress_test.png)
 
 ## Caveat
 

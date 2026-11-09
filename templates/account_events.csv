@@ -1,0 +1,6 @@
+merchant_id,date,event,new_value
+M0000,2026-05-04,device_change,D-X00
+M0000,2026-05-04,settlement_account_change,SA-X00
+M0007,2026-03-24,device_change,D00007b
+M0010,2026-05-04,device_change,D-X11
+M0010,2026-05-04,settlement_account_change,SA-X01

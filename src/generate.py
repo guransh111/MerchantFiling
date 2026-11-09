@@ -71,8 +71,8 @@ COLLECTION_BASE = 30_000_000
 
 
 # --------------------------------------------------------------------------- calendar
-def build_calendar() -> pd.DataFrame:
-    days = pd.date_range(C.START_DATE, periods=C.N_WEEKS * 7, freq="D")
+def build_calendar(n_weeks: int = C.N_WEEKS) -> pd.DataFrame:
+    days = pd.date_range(C.START_DATE, periods=n_weeks * 7, freq="D")
     cal = pd.DataFrame({"date": days})
     ipl = (days >= C.IPL[0]) & (days <= C.IPL[1])
     sept = (days >= C.SEPT_SERIES[0]) & (days <= C.SEPT_SERIES[1]) & ((days.day % 2) == 1)
@@ -90,12 +90,13 @@ def build_calendar() -> pd.DataFrame:
 
 
 # --------------------------------------------------------------------------- merchants
-def build_merchants(n: int, rng: np.random.Generator) -> pd.DataFrame:
+def build_merchants(n: int, rng: np.random.Generator, label_mix: dict | None = None,
+                    n_weeks: int = C.N_WEEKS) -> pd.DataFrame:
     labels = np.array(["legit"] * n, dtype=object)
     idx = rng.permutation(n)
     pos = 0
-    for lab, share in C.LABEL_MIX.items():
-        k = max(2, int(round(share * n)))
+    for lab, share in (label_mix or C.LABEL_MIX).items():
+        k = max(2 if share > 0 else 0, int(round(share * n)))
         labels[idx[pos:pos + k]] = lab
         pos += k
     city_idx = rng.integers(0, len(CITIES), n)
@@ -119,8 +120,10 @@ def build_merchants(n: int, rng: np.random.Generator) -> pd.DataFrame:
         t = rng.choice(list(DRIFT_TYPES))
         m.loc[i, "drift_type"] = t
         m.loc[i, "category"] = rng.choice(DRIFT_TYPES[t][0])
-        m.loc[i, "drift_week"] = int(rng.integers(6, C.N_WEEKS - 6))
-    m.loc[m.label == "rented", "drift_week"] = rng.integers(8, 29, (m.label == "rented").sum())
+        lo = min(6, n_weeks // 3)
+        m.loc[i, "drift_week"] = int(rng.integers(lo, max(lo + 1, n_weeks - 6)))
+    lo = min(8, n_weeks // 3)
+    m.loc[m.label == "rented", "drift_week"] = rng.integers(lo, max(lo + 1, min(29, n_weeks - 2)), (m.label == "rented").sum())
     m["settlement_account"] = [f"SA{i:05d}" for i in range(n)]
     # what the merchant wrote on the sign-up form ("expected monthly turnover")
     typical = m.declared_size.map(SIZE_RATE) * 30 * m.category.map(lambda c: TICKET[c][0] * 1.3)
@@ -167,10 +170,22 @@ def _sample_hours(p, n, rng):
     return rng.choice(24, n, p=p)
 
 
-def simulate(n_merchants: int, seed: int = C.SEED):
+def simulate(n_merchants: int, seed: int = C.SEED, n_weeks: int = C.N_WEEKS,
+             label_mix: dict | None = None, evasion: float = 0.3, known_bad_share: float = 0.5):
+    """Build the synthetic world.
+
+    evasion (0-1): how hard the betting operators try to hide. 0.3 = default.
+      Controls the share of fronts that keep genuine-looking shop traffic, avoid round
+      amounts, run on their own phone / bank account, and pay winners from elsewhere.
+      Above 0.3, operators also spread bets thinly over more accounts, recruit local
+      gamblers and take deposits during normal shop hours.
+    known_bad_share: share of fronts whose UPI ID is found on public betting pages.
+    """
     rng = np.random.default_rng(seed)
-    cal = build_calendar()
-    m = build_merchants(n_merchants, rng)
+    # tactics beyond the default level (0.3) only kick in as evasion rises towards 1
+    hard = max(0.0, (evasion - 0.3) / 0.7)
+    cal = build_calendar(n_weeks)
+    m = build_merchants(n_merchants, rng, label_mix, n_weeks)
     n_days = len(cal)
     dow = cal.date.dt.dayofweek.values
     festive = cal.festive_level.values
@@ -222,7 +237,7 @@ def simulate(n_merchants: int, seed: int = C.SEED):
         if lab == "rented":       # shop slows down after the handover
             rate = np.where(week_of_day >= dweek, rate * 0.2, rate)
         if lab == "betting_front":  # fronts keep only a trickle of genuine-looking activity
-            rate = rate * (rng.uniform(0.15, 0.4) if rng.random() < 0.3 else 0.02)
+            rate = rate * (rng.uniform(0.15 + 0.6 * hard, 0.4 + 0.6 * hard) if rng.random() < evasion else 0.02)
 
         # ---- honest shop payments (in)
         counts = rng.poisson(rate)
@@ -292,9 +307,10 @@ def simulate(n_merchants: int, seed: int = C.SEED):
         if lab in ("betting_front", "rented"):
             op = ops[row.operator]
             start = 0 if lab == "betting_front" else dweek * 7
-            uses_op_device = rng.random() < 0.7
+            uses_op_device = rng.random() < 1 - evasion
             bet_device = rng.choice(op["devices"]) if uses_op_device or lab == "rented" else own_device
-            fstrength = rng.uniform(25, 70)
+            # hard evasion: spread bets thinly over many more accounts -> less volume per front
+            fstrength = rng.uniform(25, 70) * (1 - 0.75 * hard)
             active = np.arange(n_days) >= start
             lam = np.where(match_day, fstrength, fstrength * 0.25) * active * rng.lognormal(0, 0.2, n_days)
             cnt = rng.poisson(lam)
@@ -306,29 +322,35 @@ def simulate(n_merchants: int, seed: int = C.SEED):
             hrs_casino = rng.choice([20, 21, 22, 23, 0, 1, 2], nb, p=[.1, .15, .2, .2, .15, .12, .08])
             bh = np.where(on_match, np.where(weekend_ipl[bet_days], hrs_dbl, hrs_match), hrs_casino)
             bet_amt = rng.choice(BET_SIZES, nb, p=BET_P).astype(float)
-            if rng.random() < 0.3:  # evasive operators avoid perfectly round amounts
+            if rng.random() < evasion:  # evasive operators avoid perfectly round amounts
                 odd = rng.random(nb) < 0.5
                 bet_amt[odd] += rng.choice([-1, 1, 7, -3, 9], odd.sum())
             sub = rng.choice(op["pool"], 350, replace=False)
             sw = op["weights"][np.searchsorted(op["pool"], sub)]
             g = rng.choice(sub, nb, p=sw / sw.sum())
             gstate = op["pool_state"][g - op["pool"][0]]
+            if hard > 0:
+                # hard evasion: recruit gamblers locally, and take deposits during shop hours too
+                local = rng.random(nb) < 0.7 * hard
+                gstate = np.where(local, row.state, gstate)
+                daytime = rng.random(nb) < 0.5 * hard
+                bh = np.where(daytime, _sample_hours(hours_p, nb, rng), bh)
             b.add(mid, bet_days, bh, bet_amt, g, gstate, np.full(nb, bet_device, dtype=object), "in")
 
             if lab == "rented":
                 ts = str(cal.date[start].date())
                 events += [(mid, ts, "device_change", bet_device), (mid, ts, "settlement_account_change", op["settlement"])]
-            elif rng.random() < 0.5:
+            elif rng.random() < max(0.0, 0.8 - evasion):
                 m.loc[i, "settlement_account"] = op["settlement"]
             if rng.random() < 0.25:  # scripted fake explanation, as seen in ED cases
-                declarations.append((mid, str(cal.date[int(rng.integers(2, 20)) * 7].date()),
+                declarations.append((mid, str(cal.date[int(rng.integers(2, max(3, min(20, n_weeks)))) * 7].date()),
                                      rng.choice(["Festival sale", "Started home delivery", "Bulk order from a client"])))
 
             # payouts: most of each day's bets go straight back out to winners and the operator.
             # ~40% of operators are more careful: they pay winners from other accounts, so this
             # merchant shows no payouts at all (pass-through signals stay silent for them).
             day_in = pd.Series(bet_amt).groupby(bet_days).sum()
-            if rng.random() < 0.4:
+            if rng.random() < min(1.0, evasion + 0.1):
                 day_in = day_in.iloc[:0]
             for d, v in day_in.items():
                 out_total = v * rng.uniform(0.7, 0.92)
@@ -365,11 +387,11 @@ def simulate(n_merchants: int, seed: int = C.SEED):
 
     # ---- known-bad list: half the fronts are found on public betting pages / Telegram channels
     fronts = m.merchant_id[m.label == "betting_front"].to_numpy()
-    seeds = rng.choice(fronts, len(fronts) // 2, replace=False)
+    seeds = rng.choice(fronts, int(len(fronts) * known_bad_share), replace=False)
     known_bad = pd.DataFrame({
         "merchant_id": seeds,
         "source": rng.choice(["public betting website", "public Telegram channel"], len(seeds)),
-        "found_date": [str(cal.date[int(rng.integers(14, 120))].date()) for _ in seeds],
+        "found_date": [str(cal.date[int(rng.integers(min(14, len(cal) - 2), min(120, len(cal) - 1)))].date()) for _ in seeds],
     })
     ev = pd.DataFrame(events, columns=["merchant_id", "date", "event", "new_value"])
     decl = pd.DataFrame(declarations, columns=["merchant_id", "week_start", "declared_change"])

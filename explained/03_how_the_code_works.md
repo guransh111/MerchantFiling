@@ -1,23 +1,36 @@
 # 3. How the code works (no coding knowledge needed)
 
-Think of it as an assembly line with six stations. Each station is one Python file in `src/`. Each
-reads the previous station's output from the `data/` folder and writes its own.
+Think of it as an assembly line. Each station is one Python file in `src/`.
 
 ```
- generate.py      features.py       score.py          network.py        actions.py        evaluate.py
- ┌──────────┐    ┌──────────┐     ┌──────────┐      ┌──────────┐      ┌──────────┐      ┌──────────┐
- │ fake     │───▶│ 10 weekly│────▶│ compare  │─────▶│ who is   │─────▶│ what to  │─────▶│ how good │
- │ merchants│    │ signals  │     │ with     │      │ linked to│      │ do + why │      │ was it?  │
- │ + 3M     │    │ per shop │     │ peers    │      │ known bad│      │ (ladder) │      │ charts   │
- │ payments │    │          │     │ 0-100    │      │ 0-100    │      │          │      │          │
- └──────────┘    └──────────┘     └──────────┘      └──────────┘      └──────────┘      └──────────┘
-                                                                            │
-                                                                            ▼
-                                                            app/dashboard.py (the demo website)
+ generate.py     features.py      score.py        network.py      changepoint.py   learn.py         actions.py
+ ┌─────────┐    ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐      ┌─────────┐      ┌─────────┐
+ │ fake    │───▶│10 weekly│────▶│ compare │────▶│ who is  │────▶│ when did│─────▶│ learn   │─────▶│ what to │
+ │ world   │    │ signals │     │ w/ peers│     │ linked? │     │ it flip?│      │ from    │      │ do + why│
+ │ (or YOUR│    │         │     │ 0-100   │     │ 0-100   │     │         │      │ analysts│      │ (ladder)│
+ │  data)  │    └─────────┘     └─────────┘     └─────────┘     └─────────┘      └─────────┘      └─────────┘
+ └─────────┘
+        schema.py cleans uploaded data · engine.py runs everything in one call · evaluate.py grades it
+                         app/dashboard.py is the website on top of all of it
 ```
 
-`run_all.py` runs all six in order. `src/config.py` holds every setting (dates, weights, thresholds)
-in one place, with comments, so you can tweak numbers without touching the logic.
+| File | Job |
+|---|---|
+| `config.py` | Every setting (weights, thresholds, switches) in one `Settings` object the dashboard can change live |
+| `schema.py` | Bring-your-own-data: recognises column names, cleans messy files, explains what's missing (file 12) |
+| `generate.py` | Builds the fake world; now with sliders for size, mix and how hard fraudsters hide |
+| `features.py` | Payments → 10 weekly signals (switches signals off when a column is missing) |
+| `score.py` | Peer drift score; can also score a single new merchant |
+| `network.py` | Links, PageRank from known-bad merchants, clusters |
+| `changepoint.py` | Finds the week behaviour changed (file 13) |
+| `learn.py` | Learning loop, anomaly detector, simulated review history (file 13) |
+| `actions.py` | Ladder + plain-English reasons, including analyst overrides and merchant explanations |
+| `tuning.py` | Cheapest threshold in rupees (file 13) |
+| `engine.py` | Runs it all: `prepare` (slow: payments → signals and links) then `analyse` (fast: seconds) |
+| `evaluate.py` | Grades against the hidden truth, charts, stress test |
+
+`run_all.py` runs: generate → engine → evaluate. The split in `engine.py` is what makes the dashboard
+quick: signals are computed once, and moving a slider only re-runs the fast part.
 
 ---
 
@@ -92,6 +105,9 @@ Then the ladder (file 06): Monitor < 60 ≤ Ask < 75 ≤ Friction < 90 ≤ Revie
 - Phone **and** bank account changed within 14 days means a possible rental: at least Ask, plus
   one level if network-linked.
 - A pre-declared change moves the merchant down one level, unless it is network-linked.
+- **New in v2:** a behaviour shift right after an account change (change point) escalates; the
+  learning loop can move Monitor → Ask when it's 80%+ sure; an **analyst's decision overrides
+  everything** (confirmed → Offboard & report, level 4; cleared → Monitor).
 
 It writes the top 3 reasons in plain English, comparing the merchant with its peers, e.g. *"Share of
 money received during cricket match hours: 61% vs 10% for similar kirana stores in tier-1 cities"*.
@@ -99,17 +115,32 @@ Output: `decisions.csv`.
 
 ## Station 6: `evaluate.py` grades the system
 
-Only now do we open the hidden labels and compare. It writes `reports/results.md` and 4 charts.
-File 07 explains them.
+Only now do we open the hidden labels and compare. It writes `reports/results.md` and 7 charts,
+including the learned weights, the cost curve and the **stress test** (five fresh worlds with
+increasingly evasive fraudsters). Files 07 and 13 explain them.
 
-## The dashboard: `app/dashboard.py`
+## The dashboard: `app/dashboard.py` (+ `app/views/`)
 
-A small website built with Streamlit. It has five tabs: the risk queue, a merchant drill-down, what
-the merchant sees (the "tell us what changed" form and trust tier), what the paying customer sees (the
-declared business shown on the payment screen), and the results.
+A website built with Streamlit, with a menu on the left:
+
+| Page | What it's for |
+|---|---|
+| Start here | What it is and how to use it |
+| Load data | Upload your own files, generate a world, download templates (file 12) |
+| Overview | Counts per action, share of payment volume under friction, most common reasons, which signals your data supports |
+| Risk queue | Sortable, filterable list; download all decisions as CSV |
+| Merchant drill-down | Full case file: reasons, weekly score with the change-point marker, peer table, hour-of-day chart, network links, latest payments, **Confirm / Clear buttons** |
+| Network | Clusters of linked merchants and an interactive picture |
+| Check a merchant | Score one merchant from sliders or its payments file |
+| Settings & what-if | Every weight and threshold; shows who moved after a change |
+| Learning loop | What it learned, suggested weights, audit queue |
+| Performance & thresholds | Precision/recall, cost-based threshold, stress test |
+| Merchant's view / Customer's payment screen | The human side; merchant explanations feed back in |
 
 ## Tests: `tests/test_pipeline.py`
 
-There are 11 automated checks. Examples: fronts really do peak on match days; drifters score below
-fronts; no merchant reaches Review without a network link; the hidden label is never used as an
-input (this would be cheating, called "leakage"). Run them with `pytest -q`.
+There are 22 automated checks. Examples: fronts peak on match days; drifters score below fronts; no
+Review without a network link; change points find every rented handover; the learning loop trains
+out-of-fold; an analyst's decision overrides the system; messy uploads are mapped correctly; a
+3-column upload still works; the hidden label is never used as an input (that would be cheating,
+called "leakage"). Run them with `pytest -q`.

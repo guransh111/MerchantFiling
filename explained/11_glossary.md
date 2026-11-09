@@ -49,7 +49,16 @@
 | **Graph / network** | Dots (merchants) joined by lines (shared phones, accounts, customers) |
 | **Personalized PageRank** | Spreads importance from chosen starting points along a network's lines |
 | **Seed** (two meanings) | (1) known-bad merchants PageRank starts from; (2) random-number seed (42) that makes results reproducible |
-| **Supervised ML / XGBoost / gradient boosting** | Models that learn from labelled examples; a later phase |
+| **Supervised ML / XGBoost / gradient boosting** | Models that learn from labelled examples |
+| **Logistic regression** | A simple, explainable model giving a probability from weighted inputs; used in the learning loop |
+| **Out-of-fold / cross-validation** | Scoring each case with a model that never saw it, to get honest accuracy |
+| **AUC** | 0.5 = coin flip, 1.0 = perfectly separates bad from good |
+| **Isolation Forest** | An anomaly detector: how easily can this case be separated from all the others? |
+| **Change point / structural break** | The moment a time series switches to a new level |
+| **Louvain communities / clusters** | Groups of network nodes more tightly linked to each other than to the rest |
+| **Stress test** | Re-running the system under deliberately harder conditions (smarter fraudsters) |
+| **Expected cost / cost-based threshold** | Choosing the cut-off that minimises (misses × cost) + (false alarms × cost) |
+| **Column mapping** | Telling the system which of your columns means "amount", "time", etc. |
 
 ## Code tools
 

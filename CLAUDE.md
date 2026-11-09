@@ -6,16 +6,21 @@ betting fronts, rented accounts) without flagging genuine seasonal or changing m
 The user is a finance student, not a programmer: explain changes in plain language and keep
 `explained/` up to date when behaviour or results change.
 
-Stack: Python 3.11+, pandas, numpy, scipy, networkx, matplotlib, streamlit, pytest.
+Stack: Python 3.11+, pandas, numpy, scipy, scikit-learn, networkx, matplotlib, streamlit, altair, pytest.
 
-Pipeline (`python run_all.py [--small]`):
-src/generate.py -> src/features.py -> src/score.py -> src/network.py -> src/actions.py -> src/evaluate.py
-Dashboard: `streamlit run app/dashboard.py`. Tests: `pytest -q`.
+Pipeline (`python run_all.py [--small]`): src/generate.py -> src/engine.py -> src/evaluate.py
+engine.prepare() = features.py + network.build_edges (slow); engine.analyse() = score, network,
+changepoint, learn, actions (fast; what the dashboard re-runs on every settings/review change).
+Uploads go through src/schema.py (column mapping + clean) before engine.prepare().
+Dashboard: `streamlit run app/dashboard.py` (pages in app/views/, shared state in app/state.py;
+store values in session_state under names that don't clash with widget keys, e.g. `tl_settings`).
+Tests: `pytest -q`.
 
 Rules:
 - seed=42 everywhere (src/config.py); results must be reproducible.
 - The hidden `label` column is ground truth for evaluation ONLY. Never use it in features,
-  scoring, network or action logic (a test enforces this).
-- Tunable numbers (features, weights, thresholds, ladder) live in src/config.py.
+  scoring, network, change-point or action logic (a test enforces this). The one sanctioned use is
+  learn.simulate_review_history(), which stands in for past analyst investigations in the demo.
+- Tunable numbers live in config.Settings; the dashboard edits them live.
 - After changing logic, re-run `python run_all.py` and commit the regenerated reports/ and
-  the small files in data/ that the dashboard reads.
+  the small files in data/ that the dashboard reads (features.csv.gz, network_edges.csv, etc.).

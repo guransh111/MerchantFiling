@@ -1,0 +1,6 @@
+evasion,bad merchants,caught (Friction+),caught by behaviour alone (drift 75+),"caught, NOT on known-bad list",honest shops penalised,honest drifters penalised,honest merchants asked
+0.0,20,1.0,1.0,1.0,0,0,1
+0.3,20,1.0,1.0,1.0,0,0,3
+0.6,20,1.0,1.0,1.0,0,0,2
+0.8,20,1.0,0.9,1.0,0,0,1
+1.0,20,1.0,0.5,1.0,0,0,2

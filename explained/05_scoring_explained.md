@@ -93,5 +93,7 @@ We deliberately used a **transparent, rule-based** score for version 1:
 3. **Regulators prefer it.** RBI found rule-only systems produce many false positives, but opaque
    models are hard to defend. Ours is statistical, not crude rules, and still explainable.
 
-Once reviewers confirm cases, a supervised model (e.g. gradient boosting) can be trained on top,
-with these same 10 signals as inputs. That's phase 2 in file 10.
+**Version 2 adds the learning part on top, without giving up explainability:** once analysts have
+confirmed or cleared at least 5 cases of each kind, a logistic regression learns from them, using
+the same 10 signals as inputs. It produces a second-opinion probability and *suggested weights* you
+can inspect and apply. It never overrides the transparent score on its own. See file 13.
