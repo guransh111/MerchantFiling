@@ -1,4 +1,4 @@
-"""Load data: demo, upload your own, generate a new simulated world, templates."""
+"""Load data window (opened from Home): upload your own, generate a simulated world, templates."""
 from __future__ import annotations
 
 import io
@@ -108,7 +108,8 @@ def _upload_tab():
                 p.review_history = engine.demo_review_history(p)
             status.update(label="Done", state="complete")
         state.set_dataset(p, clean["transactions"], clean["calendar"])
-        st.success(f"Loaded {len(p.merchants):,} merchants. Open **Overview** or **Risk queue** in the sidebar.")
+        st.session_state._toast = f"Loaded {len(p.merchants):,} merchants from {fm.name}"
+        st.rerun()  # closes the window; Home shows the new dataset
 
 
 def _memory_gb() -> float:
@@ -172,21 +173,23 @@ def _generate_tab():
             status.update(label="Done", state="complete")
         state.set_dataset(p, tx, cal)
         st.session_state.generated_tables = tables
-        st.success(f"Generated {len(m):,} merchants and {len(tx):,} payments. Open **Overview** to explore.")
+        st.session_state._toast = f"Generated {len(m):,} merchants and {len(tx):,} payments"
+        st.rerun()  # closes the window; Home shows the new world
     if st.session_state.get("generated_tables") and not state.is_demo():
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
             for name, df in st.session_state.generated_tables.items():
                 z.writestr(f"{name}.csv", df.to_csv(index=False))
-        st.download_button("Download this world as CSV files (zip)", buf.getvalue(), "trustloop_world.zip")
+        st.download_button("Download this world as CSV files (zip)", buf.getvalue(), "trace_world.zip")
 
 
-def page():
-    st.title("Load data")
+def body():
+    """Contents of the Load data window."""
     p = state.prepared()
-    st.caption(f"Loaded: {p.name} · {len(p.merchants):,} merchants")
+    st.caption(f"Loaded now: {p.name} · {len(p.merchants):,} merchants")
     if not state.is_demo() and st.button("Switch back to the demo dataset"):
         state.use_demo()
+        st.session_state._toast = "Switched back to the demo dataset"
         st.rerun()
     t1, t2, t3 = st.tabs(["Upload your own data", "Generate a simulated world", "Templates & data guide"])
     with t1:
@@ -196,7 +199,7 @@ def page():
     with t3:
         st.markdown("Download example files in exactly the right format, open them in Excel, replace with your data, "
                     "and upload them in the first tab.")
-        st.download_button("Download example files (zip of CSVs)", _templates_zip(), "trustloop_templates.zip", type="primary")
+        st.download_button("Download example files (zip of CSVs)", _templates_zip(), "trace_templates.zip", type="primary")
         st.markdown("##### What each column means")
         st.dataframe(_dictionary(), hide_index=True, width="stretch")
         st.markdown("##### Minimum viable upload")

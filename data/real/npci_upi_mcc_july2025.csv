@@ -1,4 +1,4 @@
-mcc,category,trustloop_category,volume_million,value_crore,avg_ticket_rs,confidence,source
+mcc,category,trace_category,volume_million,value_crore,avg_ticket_rs,confidence,source
 5411,Grocery stores & supermarkets,kirana,3033,64882,214,high,"NPCI via Business Standard (10 Aug 2025) and SBI Research (18 Aug 2025)"
 5814,Fast food restaurants,restaurant,1221.46,13794.22,113,high,"NPCI via SBI Research (18 Aug 2025)"
 5812,Other eating places & restaurants,restaurant,,,158,medium,"NPCI via Business Standard (10 Aug 2025); volume/value not in source snippet"

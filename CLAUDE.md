@@ -1,4 +1,4 @@
-# TrustLoop prototype
+# Trace prototype
 
 Goal: detect UPI merchants whose activity drifts from their declared business (e.g. illegal
 betting fronts, rented accounts) without flagging genuine seasonal or changing merchants.

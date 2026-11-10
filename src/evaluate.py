@@ -105,7 +105,7 @@ def main(stress: bool = False):
     systems = {
         "A. Own-history only (typical anomaly detector)": own_only,
         "B. Peer drift score only": peer_only,
-        "C. Full TrustLoop (peer + network + change points + learning loop + ladder)": full,
+        "C. Full Trace (peer + network + change points + learning loop + ladder)": full,
     }
     rows = []
     for name, d in systems.items():
@@ -135,7 +135,7 @@ def main(stress: bool = False):
     # ================================================================ charts
     # 1. score by label, own-history vs peer
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
-    for ax, (title, d) in zip(axes, [("Compared with its own past", own_only), ("Compared with peers (TrustLoop)", peer_only)]):
+    for ax, (title, d) in zip(axes, [("Compared with its own past", own_only), ("Compared with peers (Trace)", peer_only)]):
         rng = np.random.default_rng(0)
         for i, lab in enumerate(LABEL_ORDER):
             y = d[d.label == lab].drift_score
@@ -154,7 +154,7 @@ def main(stress: bool = False):
     # 2. Diwali chart
     fig, ax = plt.subplots(figsize=(11, 3.8))
     ax.plot(fr_own.index, fr_own.values * 100, color=COLORS["betting_front"], lw=2, label="Own-history only")
-    ax.plot(fr_peer.index, fr_peer.values * 100, color=COLORS["legit"], lw=2, label="Peer comparison (TrustLoop)")
+    ax.plot(fr_peer.index, fr_peer.values * 100, color=COLORS["legit"], lw=2, label="Peer comparison (Trace)")
     ax.axvspan(dw, dw + pd.Timedelta(days=7), color=GRID, alpha=0.8)
     ax.text(dw - pd.Timedelta(days=1), ax.get_ylim()[1] * 0.92, "Diwali week", ha="right", fontsize=9, color=MUTED)
     ax.set_ylabel("% of honest sweet & electronics\nshops with a 'sales spike' alert", color=MUTED, fontsize=9)
@@ -275,7 +275,7 @@ def main(stress: bool = False):
         stress_test().to_csv(stress_path, index=False)
     st = pd.read_csv(stress_path)
     fig, ax = plt.subplots(figsize=(11, 3.8))
-    ax.plot(st.evasion, st["caught (Friction+)"] * 100, "o-", color=COLORS["legit"], lw=2, ms=8, label="Full TrustLoop")
+    ax.plot(st.evasion, st["caught (Friction+)"] * 100, "o-", color=COLORS["legit"], lw=2, ms=8, label="Full Trace")
     ax.plot(st.evasion, st["caught by behaviour alone (drift 75+)"] * 100, "o-", color=COLORS["betting_front"], lw=2, ms=8,
             label="Behaviour score alone")
     ax.set_ylim(0, 105)
@@ -295,8 +295,8 @@ def main(stress: bool = False):
     st_md["evasion"] = st_md.evasion.map(lambda v: f"{v:.0%}")
 
     # ================================================================ reality check vs real NPCI data
-    real = pd.read_csv(C.DATA / "real" / "npci_upi_mcc_july2025.csv").dropna(subset=["trustloop_category"])
-    real_avg = real.groupby("trustloop_category").avg_ticket_rs.max()  # restaurants: use the eateries figure (158)
+    real = pd.read_csv(C.DATA / "real" / "npci_upi_mcc_july2025.csv").dropna(subset=["trace_category"])
+    real_avg = real.groupby("trace_category").avg_ticket_rs.max()  # restaurants: use the eateries figure (158)
     real_avg["restaurant"] = real.loc[real.mcc == "5812", "avg_ticket_rs"].iloc[0]
     tx_path = C.DATA / "transactions.csv"
     if tx_path.exists():

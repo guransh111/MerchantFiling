@@ -118,7 +118,7 @@ to hide, and re-runs everything. At high evasion, operators:
 
 **Result.**
 
-| Evasion | Caught by full TrustLoop | Caught by behaviour score alone | Honest merchants penalised |
+| Evasion | Caught by full Trace | Caught by behaviour score alone | Honest merchants penalised |
 |---|---|---|---|
 | 0% | 100% | 100% | 0 |
 | 30% (default) | 100% | 100% | 0 |

@@ -1,4 +1,4 @@
-# TrustLoop: Build Conversation Notes
+# Trace (formerly TrustLoop): Build Conversation Notes
 
 A record of the build session that turned the Merchant Legitimacy Challenge notes into a working prototype,
 dashboard, deployment setup, pitch deck and design pass. It follows the order of the conversation.
@@ -20,9 +20,10 @@ Repository: https://github.com/guransh111/merchantfiling
 13. Running `/unslop`: audit and story video
 14. "Why has it not updated on Streamlit"
 15. Dark mode
-16. Where everything is
-17. Numbers to remember
-18. Sources
+16. Renamed to Trace, new Home page
+17. Where everything is
+18. Numbers to remember
+19. Sources
 
 ---
 
@@ -225,7 +226,7 @@ The README's three example commands were run:
 2. **"The hero of example.com":** skipped; it's a placeholder address.
 3. **"My landing page and the story video":** a 9-second square video (2160×2160, 60 fps) of the landing page
    redesigning itself in four steps, with redline measurements and the required "unslop by @heydamir"
-   credit. Saved in `unslop-story/trustloop-unslop.mp4` with its story file and bundled IBM Plex fonts.
+   credit. Saved in `unslop-story/trace-unslop.mp4` with its story file and bundled IBM Plex fonts.
 
 ---
 
@@ -249,7 +250,16 @@ under **Manage app**.
 
 ---
 
-## 16. Where everything is
+## 16. Renamed to Trace, new Home page
+
+- The product is now called **Trace** everywhere: dashboard, landing page, charts, reports, docs, story
+  video and pitch deck. (Earlier sections keep the old name where they describe what happened at the time.)
+- "Start here" and "Load data" are merged into one minimal **Home** page: the name, one sentence, a
+  **Load data** button, a link to the risk queue, the ladder at a glance, and three one-line summaries.
+- **Load data** opens as a window on top of Home (upload, generate, templates); it closes by itself once
+  the data has loaded.
+
+## 17. Where everything is
 
 | What | Where |
 |---|---|
@@ -260,7 +270,7 @@ under **Manage app**.
 | Real NPCI figures | `data/real/` |
 | Example input files | `templates/` |
 | Landing page (Vercel) | `site/index.html`, `vercel.json` |
-| Story video | `unslop-story/trustloop-unslop.mp4` |
+| Story video | `unslop-story/trace-unslop.mp4` |
 | unslop skill | `.claude/skills/unslop/` |
 | Tests | `tests/` (31 checks, `pytest -q`) |
 | Pitch deck | https://claude.ai/artifact/LiTyTSGFHaf2adhkgyjsWM |
@@ -281,7 +291,7 @@ python run_all.py
 
 ---
 
-## 17. Numbers to remember
+## 18. Numbers to remember
 
 | Result (simulated world, 1,000 merchants, 37 weeks) | Value |
 |---|---|
@@ -301,7 +311,7 @@ cases. They show the method works as designed, not real-world accuracy.
 
 ---
 
-## 18. Sources
+## 19. Sources
 
 - Enforcement Directorate press releases on 1xBet (Nov 2025, 2026)
 - CUTS International report on UPI mules, via MediaNama (2025)

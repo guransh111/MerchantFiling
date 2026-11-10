@@ -116,7 +116,7 @@ def page():
                 "with the risk committee, or load an approved policy.")
     a, b = st.columns(2)
     a.download_button("Download current policy (JSON)", json.dumps(dataclasses.asdict(cur), indent=2),
-                      "trustloop_policy.json", mime="application/json")
+                      "trace_policy.json", mime="application/json")
     up = b.file_uploader("Load a policy file (JSON)", type=["json"])
     if up is not None and b.button("Apply loaded policy"):
         try:

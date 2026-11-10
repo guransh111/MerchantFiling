@@ -27,7 +27,7 @@ import pandas as pd
 
 from . import config as C
 
-DEMO_CONSORTIUM_KEY = "trustloop-demo-consortium-key"  # in real life: generated and held by IDPIC / NPCI
+DEMO_CONSORTIUM_KEY = "trace-demo-consortium-key"  # in real life: generated and held by IDPIC / NPCI
 
 
 def mask(value, keep: int = 4) -> str:
@@ -59,7 +59,7 @@ def str_draft(mid: str, results, prepared, case_id: str = "", events: pd.DataFra
     lines = [
         f"# DRAFT Suspicious Transaction Report: {mid}",
         "",
-        "> Draft prepared by TrustLoop for the Principal Officer. Verify every field, then file through FIU-IND's "
+        "> Draft prepared by Trace for the Principal Officer. Verify every field, then file through FIU-IND's "
         "FINnet portal in the official format. PMLA requires filing within 7 days of forming the suspicion.",
         "",
         "## 1. Reporting entity",

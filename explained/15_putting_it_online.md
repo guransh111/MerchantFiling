@@ -16,10 +16,10 @@ So the setup is:
 | **Landing page** | **Vercel** | Free | A fast public page with headline results and charts, plus a button that opens the dashboard |
 
 ```
-judges / anyone ──▶ trustloop.vercel.app (Vercel: instant, never sleeps)
+judges / anyone ──▶ trace.vercel.app (Vercel: instant, never sleeps)
                          │  "Open the live dashboard"
                          ▼
-                    trustloop.streamlit.app (Streamlit Cloud: the real app)
+                    trace.streamlit.app (Streamlit Cloud: the real app)
 ```
 
 Both deploy straight from your GitHub repo, and both update automatically when you push changes.
@@ -37,7 +37,7 @@ already in the repo.
    - **Repository:** `guransh111/merchantfiling`
    - **Branch:** `main`
    - **Main file path:** `app/dashboard.py`
-   - **App URL:** choose a name, e.g. `trustloop` → `https://trustloop.streamlit.app`
+   - **App URL:** choose a name, e.g. `trace` → `https://trace.streamlit.app`
 4. Click **Advanced settings** and choose **Python 3.12**. Leave secrets empty.
 5. Click **Deploy**. The first build installs the libraries and takes 3 to 5 minutes. You'll see the
    log scrolling; that's normal.
@@ -68,7 +68,7 @@ already in the repo.
    - **Framework Preset:** `Other` (the repo's `vercel.json` already says how to build)
    - Leave **Build Command** and **Output Directory** alone (they come from `vercel.json`)
    - Open **Environment Variables** and add:
-     - Name `DASHBOARD_URL`, value: your Streamlit URL from Part A, e.g. `https://trustloop.streamlit.app`
+     - Name `DASHBOARD_URL`, value: your Streamlit URL from Part A, e.g. `https://trace.streamlit.app`
 4. Click **Deploy**. It takes under a minute. You get a URL like `https://merchantfiling.vercel.app`.
    You can rename it under **Settings → Domains**.
 5. Open it and click **Open the live dashboard** to check the link.

@@ -1,4 +1,4 @@
-# TrustLoop: Implementation Plan (v2, as built)
+# Trace: Implementation Plan (v2, as built)
 
 This updates the original 4-page implementation plan to match what the prototype actually does.
 Items marked ✅ are built and demonstrable in the dashboard; ⏳ means planned for a real rollout.

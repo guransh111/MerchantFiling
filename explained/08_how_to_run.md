@@ -52,7 +52,7 @@ It follows your computer's light/dark setting. To switch by hand: the ⋮ menu (
 
 ## The dashboard pages
 
-The menu on the left has 16 pages. File 03 lists what each is for, and file 12 explains how to put
+The menu on the left has 15 pages. **Home** holds the Load data button. File 03 lists what each is for, and file 12 explains how to put
 your own data in. The ones you'll use most: **Risk queue**, **Merchant drill-down**,
 **Check a merchant** and **Settings & what-if**.
 
@@ -83,7 +83,7 @@ pages are quick.
    "We set thresholds in rupees, not by gut feel."
 8. **Learning loop.** "It learned that match hours matter less than we thought, because honest
    restaurants screen matches too." Optionally press **Apply suggested weights**.
-9. **Load data → Generate.** Set evasion to 1.0 and generate 300 merchants. Show the result on
+9. **Home → Load data → Generate.** Set evasion to 1.0 and generate 300 merchants. Show the result on
    Performance: still caught, thanks to the network.
 10. **Case management.** "Every flag becomes a case with a 72-hour clock, an audit log and an appeal
     path. Our appeal overturn rate is 6%: that's the metric that tells us if we're over-flagging."
@@ -110,7 +110,7 @@ permanently, edit `src/config.py` (the `Settings` class) and re-run `python run_
 
 ## Using your own data
 
-See file 12. Short version: dashboard → **Load data** → upload a merchants file and a transactions
+See file 12. Short version: dashboard → **Home** → **Load data** button → upload a merchants file and a transactions
 file (CSV or Excel), check the column mapping, press the button.
 
 ## Troubleshooting

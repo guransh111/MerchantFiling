@@ -116,7 +116,7 @@ def queue():
         "learned_prob": st.column_config.NumberColumn("Learned", format="percent", help="Learning-loop probability"),
         "anomaly_pct": st.column_config.NumberColumn("Anomaly", format="%.0f", help="Percentile; 100 = most unusual"),
         "reason_1": "Main reason", "notes": "Notes"})
-    st.download_button("Download all decisions (CSV)", d.to_csv(index=False), "trustloop_decisions.csv")
+    st.download_button("Download all decisions (CSV)", d.to_csv(index=False), "trace_decisions.csv")
 
 
 # ---------------------------------------------------------------- merchant drill-down

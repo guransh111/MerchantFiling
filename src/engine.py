@@ -1,4 +1,4 @@
-"""The engine: run the whole TrustLoop pipeline on ANY dataset in one call.
+"""The engine: run the whole Trace pipeline on ANY dataset in one call.
 
     prepared = prepare(tables)                     # slow part: payments -> weekly signals, links
     results  = analyse(prepared, Settings(), ...)  # fast part: scores, network, decisions (seconds)
@@ -159,7 +159,7 @@ def save(p: Prepared, r: Results, folder=C.DATA):
         r.learning["weights"].to_csv(folder / "learned_weights.csv", index=False)
 
 
-def load_prepared(folder=C.DATA, name: str = "Demo (simulated 1,000 merchants)") -> Prepared:
+def load_prepared(folder=C.DATA, name: str = "Demo dataset (simulated)") -> Prepared:
     rd = lambda n, **k: pd.read_csv(folder / n, **k) if (folder / n).exists() else pd.DataFrame()
     hist = rd("review_history.csv")
     return Prepared(merchants=rd("merchants.csv"), features=rd("features.csv.gz", parse_dates=["week_start"]),

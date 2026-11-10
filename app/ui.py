@@ -56,7 +56,7 @@ def __getattr__(name: str):
 
 # Chart structure only: fonts, sizes, no frame. Colours of text and grid come from Streamlit's own
 # chart theme, which already follows light/dark; mark colours are set per chart from pal().
-@alt.theme.register("trustloop", enable=True)
+@alt.theme.register("trace", enable=True)
 def _chart_theme() -> alt.theme.ThemeConfig:
     return {
         "config": {
@@ -145,3 +145,20 @@ def ladder_list(counts: dict, describe: bool = True) -> str:
                     + (f"<span style='color:{p['MUTED']};font-size:14px'>{what[lvl]}</span>" if describe else "") + "</div>"
                     f"<span style='font-family:{MONO};font-size:15px;color:{p['INK']}'>{int(counts.get(lvl, 0)):,}</span></div>")
     return "".join(rows)
+
+
+def ladder_strip(counts: dict) -> str:
+    """The ladder at a glance, in one row: pips, step name and how many merchants sit there."""
+    p = pal()
+    cells = []
+    for lvl in range(5):
+        color = p["LEVEL_COLOR"][lvl] if lvl else p["INK_2"]
+        cells.append(
+            f"<div style='flex:1;min-width:120px;padding:16px 20px;"
+            f"border-left:{'none' if lvl == 0 else '1px solid ' + p['HAIRLINE']}'>"
+            f"<div>{pips(lvl, label=False)}</div>"
+            f"<div style='font-family:{MONO};font-size:28px;font-weight:500;color:{p['INK']};margin-top:10px;"
+            f"font-variant-numeric:tabular-nums'>{int(counts.get(lvl, 0)):,}</div>"
+            f"<div style='font-size:14px;color:{color};font-weight:500'>{LEVEL_NAME[lvl]}</div></div>")
+    return (f"<div style='display:flex;flex-wrap:wrap;border:1px solid {p['HAIRLINE']};border-radius:12px;"
+            f"overflow:hidden'>" + "".join(cells) + "</div>")

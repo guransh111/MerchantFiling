@@ -12,7 +12,7 @@ from src import engine, evaluate, generate
 
 STEPS = [
     ("1/3 Creating synthetic merchants and payments", lambda a: generate.main(a.small)),
-    ("2/3 Running TrustLoop: signals, peer scores, network, change points, learning loop, decisions",
+    ("2/3 Running Trace: signals, peer scores, network, change points, learning loop, decisions",
      lambda a: engine.main()),
     ("3/3 Evaluating against the hidden truth (incl. stress test)", lambda a: evaluate.main(stress=not a.small)),
 ]

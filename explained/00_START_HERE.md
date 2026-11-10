@@ -34,7 +34,7 @@ payment provider has to find them without harassing the millions of honest shops
 **Why simple rules fail.** "Alert if sales jump" also catches every sweet shop at Diwali.
 "Alert if a merchant changes" misses fronts that were betting from day one, because they never change.
 
-**Our idea: TrustLoop.**
+**Our idea: Trace.**
 1. **Compare each merchant with its peers in the same week.** These are shops of the same declared
    type in the same kind of city. If every sweet shop triples at Diwali, that's normal. If one
    "kirana" takes 60% of its money during IPL match hours while other kiranas take 10%, that's not.

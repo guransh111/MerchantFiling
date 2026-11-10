@@ -1,9 +1,10 @@
 # 12. Using your own data
 
-The dashboard can analyse **any** merchant data you give it, not just the demo. There are three
-ways to put data in.
+The dashboard can analyse **any** merchant data you give it, not just the demo. On the **Home** page,
+press **Load data**: a window opens with three tabs (upload, generate, templates). When the data has loaded,
+the window closes by itself and every page uses the new data. There are three ways to put data in.
 
-## Way 1: Upload files (Load data → Upload your own data)
+## Way 1: Upload files (Home → Load data → Upload your own data)
 
 You need two files, as **CSV or Excel**:
 
@@ -54,7 +55,7 @@ If your merchants file has a `label` column (e.g. real investigation outcomes), 
 to grade the results on the Performance page, never to score. You can optionally let it simulate
 "past analyst reviews" so the learning loop can train.
 
-## Way 2: Generate a simulated world (Load data → Generate)
+## Way 2: Generate a simulated world (Home → Load data → Generate)
 
 Use sliders to set: number of merchants (100 to 1,000), weeks of data, % betting fronts, % rented
 accounts, % honest shops whose business changes, **how hard operators try to hide** (evasion 0 to 1),
@@ -93,5 +94,5 @@ to save them, and load them again later.
 
 ## Example files
 
-`templates/` in the repo (or **Load data → Templates** in the dashboard) holds small example
+`templates/` in the repo (or **Home → Load data → Templates** in the dashboard) holds small example
 files in exactly the right format. Open them in Excel, replace them with your data, and upload.

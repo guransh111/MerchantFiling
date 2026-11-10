@@ -14,14 +14,14 @@ Synthetic world: **1,000 merchants**, 37 weeks (2026-03-16 to 2026-11-29), cover
 *Precision* = of the merchants we acted on, the share that were really bad.  
 *Recall* = of the really bad merchants, the share we acted on.
 
-| system                                                                      | counts as flagged           | precision   | recall   | honest shops hit   | honest drifters hit   |
-|:----------------------------------------------------------------------------|:----------------------------|:------------|:---------|:-------------------|:----------------------|
-| A. Own-history only (typical anomaly detector)                              | any action (Ask or above)   | 43%         | 20%      | 0 of 920           | 13 of 30              |
-| A. Own-history only (typical anomaly detector)                              | penalty (Friction or above) | 91%         | 20%      | 0 of 920           | 1 of 30               |
-| B. Peer drift score only                                                    | any action (Ask or above)   | 77%         | 100%     | 0 of 920           | 15 of 30              |
-| B. Peer drift score only                                                    | penalty (Friction or above) | 89%         | 100%     | 0 of 920           | 6 of 30               |
-| C. Full TrustLoop (peer + network + change points + learning loop + ladder) | any action (Ask or above)   | 79%         | 100%     | 0 of 920           | 13 of 30              |
-| C. Full TrustLoop (peer + network + change points + learning loop + ladder) | penalty (Friction or above) | 98%         | 100%     | 0 of 920           | 1 of 30               |
+| system                                                                  | counts as flagged           | precision   | recall   | honest shops hit   | honest drifters hit   |
+|:------------------------------------------------------------------------|:----------------------------|:------------|:---------|:-------------------|:----------------------|
+| A. Own-history only (typical anomaly detector)                          | any action (Ask or above)   | 43%         | 20%      | 0 of 920           | 13 of 30              |
+| A. Own-history only (typical anomaly detector)                          | penalty (Friction or above) | 91%         | 20%      | 0 of 920           | 1 of 30               |
+| B. Peer drift score only                                                | any action (Ask or above)   | 77%         | 100%     | 0 of 920           | 15 of 30              |
+| B. Peer drift score only                                                | penalty (Friction or above) | 89%         | 100%     | 0 of 920           | 6 of 30               |
+| C. Full Trace (peer + network + change points + learning loop + ladder) | any action (Ask or above)   | 79%         | 100%     | 0 of 920           | 13 of 30              |
+| C. Full Trace (peer + network + change points + learning loop + ladder) | penalty (Friction or above) | 98%         | 100%     | 0 of 920           | 1 of 30               |
 
 ## 2. Diwali false alarms
 

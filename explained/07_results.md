@@ -20,9 +20,9 @@ defaults (precision up), but you turn away good borrowers.
 |---|---|---|---|---|
 | A. Own-history only | 20% | 91% | 0 of 920 | 1 of 30 |
 | B. Peer drift score only | 100% | 89% | 0 of 920 | 6 of 30 |
-| **C. Full TrustLoop** | **100%** | **98%** | **0 of 920** | **1 of 30** |
+| **C. Full Trace** | **100%** | **98%** | **0 of 920** | **1 of 30** |
 
-"Penalised" = Friction or above. With "Ask" counted as an action, TrustLoop's precision is 79%: the 13
+"Penalised" = Friction or above. With "Ask" counted as an action, Trace's precision is 79%: the 13
 honest-but-changed shops it acts on are mostly just *asked* to explain, which is the intended
 behaviour.
 

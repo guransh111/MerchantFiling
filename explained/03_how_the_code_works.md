@@ -130,8 +130,7 @@ A website built with Streamlit, with a menu on the left:
 
 | Page | What it's for |
 |---|---|
-| Start here | What it is and how to use it |
-| Load data | Upload your own files, generate a world, download templates (file 12) |
+| Home | What Trace does, the ladder at a glance, and the **Load data** button, which opens a window to upload your own files, generate a world or download templates (file 12) |
 | Overview | Counts per action, share of payment volume under friction, most common reasons, which signals your data supports |
 | Risk queue | Sortable, filterable list; download all decisions as CSV |
 | Merchant drill-down | Full case file: reasons, weekly score with the change-point marker, peer table, hour-of-day chart, network links, latest payments, **Confirm / Clear buttons** |

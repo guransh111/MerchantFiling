@@ -62,8 +62,10 @@ form. Freezing money needs network corroboration and a human. Merchants who tell
 in advance (e.g. "we started late-night delivery") move down a level, unless they are linked to a
 betting network, because the ED cases show operators coach mules with fake explanations.
 
-## The name: TrustLoop
+## The name: Trace
 
-Trust is earned in a loop: honest behaviour leads to a higher trust tier, which brings faster
-settlement, higher limits and fewer checks. Merchants have a reason to keep their profile honest,
-and fronts never build up trust.
+The tool traces three things: the money back to the business the merchant declared, each front back to the
+known betting accounts it is linked to, and every action back to a reason the merchant can read and answer.
+
+Honest merchants still earn trust over time through trust tiers (faster settlement, higher limits, fewer
+checks), so they have a reason to keep their profile honest, and fronts never build up a record.

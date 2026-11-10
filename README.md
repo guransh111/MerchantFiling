@@ -1,4 +1,4 @@
-# TrustLoop: does this merchant's money match its business?
+# Trace: does this merchant's money match its business?
 
 A working prototype for the **Merchant Legitimacy Challenge**:
 
@@ -34,7 +34,7 @@ friction second, hold money only with independent corroboration, and offboard on
 ## Put your own data in
 
 The dashboard (`streamlit run app/dashboard.py`) lets you:
-- **Upload** merchants and transactions as CSV or Excel, with **any column names** (automatic
+- **Load data** (button on Home, opens a window): **upload** merchants and transactions as CSV or Excel, with **any column names** (automatic
   mapping you can correct). The minimum is 4 columns; more columns switch on more signals.
 - **Generate** a simulated world with your own assumptions (size, % fronts, how hard fraudsters hide).
 - **Check a merchant**: type one in with sliders, or upload its payments.
@@ -52,7 +52,7 @@ report. Full explanation: [`explained/14_data_and_method.md`](explained/14_data_
 
 ## Headline results (synthetic data, 1,000 merchants, 37 weeks)
 
-| | Typical "own-history" detector | TrustLoop |
+| | Typical "own-history" detector | Trace |
 |---|---|---|
 | Betting fronts & rented accounts caught | **20%** | **100%** |
 | Honest shops penalised | 0 of 920 | **0 of 920** |
@@ -108,7 +108,7 @@ Step-by-step guide: [`explained/15_putting_it_online.md`](explained/15_putting_i
 | `src/evaluate.py` | Accuracy vs hidden truth, charts, stress test → `reports/` |
 | `src/config.py` | Every setting in one `Settings` object |
 | `src/replay.py`, `cases.py`, `scanner.py`, `reporting.py` | Replay; case management; betting-page scanner; STRs, I4C file, consortium tokens |
-| `app/` | Streamlit dashboard (16 pages) |
+| `app/` | Streamlit dashboard (15 pages; Home holds the Load data window) |
 | `site/`, `vercel.json` | Landing page for Vercel |
 | `templates/` | Example input files in the right format |
 | `tests/` | 31 automated checks (`pytest -q`) |

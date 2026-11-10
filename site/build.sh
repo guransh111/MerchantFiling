@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the static landing page for Vercel into site_build/.
 # Set these in Vercel -> Project -> Settings -> Environment Variables:
-#   DASHBOARD_URL  your Streamlit app, e.g. https://trustloop.streamlit.app
+#   DASHBOARD_URL  your Streamlit app, e.g. https://trace.streamlit.app
 #   REPO_URL       (optional) defaults to the GitHub repo
 set -euo pipefail
 OUT=site_build
