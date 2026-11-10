@@ -118,8 +118,7 @@ raised grey panels, and a small search bar in the sidebar.
 
 - **Animated "How Trace decides" on Home.** The three cards on Home now play a short animation when the page
   opens (about 3 seconds; click it to replay): the merchant-vs-peers bars fill, the network grows out from a
-  known betting account, and the ladder bars rise one by one with their counts. Viewers who ask their computer
-  for reduced motion see the finished picture straight away. The numbers are live (top flagged merchant, linked
+  known betting account, and the ladder bars rise one by one with their counts. The numbers are live (top flagged merchant, linked
   merchants and clusters, merchants per ladder step), so it stays right when you load your own data.
   The animation is `app/assets/how_trace_decides.html` (fonts included in the file); `ui.how_trace_decides()`
   fills in the numbers and `home()` shows it. It replaces the static drawings there.
@@ -127,8 +126,8 @@ raised grey panels, and a small search bar in the sidebar.
 - **Opening intro.** When someone opens (or reloads) the site, a dark screen shows the Trace mark drawing itself
   (big dot, line, small dot), the name slides out beside it, and the screen fades away after about 3.6 seconds.
   It plays once per visit, not on every page change, and it covers the first seconds while the data loads.
-  The Home animation waits for it to finish before it starts. Viewers who ask for reduced motion get a short
-  version. The intro is `app/assets/trace_intro.html` (CSS only); `ui.intro()` shows it from `app/dashboard.py`.
+  The Home animation waits for it to finish before it starts. Both animations play even when a computer is set to
+  reduce motion (Windows: Animation effects off), because otherwise they were skipped entirely. The intro is `app/assets/trace_intro.html` (CSS only); `ui.intro()` shows it from `app/dashboard.py`.
 
 **Where it lives**
 
