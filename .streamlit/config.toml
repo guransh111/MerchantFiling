@@ -1,3 +1,7 @@
+# Look and feel, following an "unslop" pass (unslop by Damir Sokolovsky, @heydamir, CC BY 4.0).
+# Direction: a compliance desk. Cool ink-grey neutrals, one cobalt accent, IBM Plex for an
+# exact, accountable voice, IBM Plex Mono for figures and meta.
+
 [server]
 # CSV/Excel uploads up to 200 MB
 maxUploadSize = 200
@@ -5,5 +9,40 @@ maxUploadSize = 200
 [browser]
 gatherUsageStats = false
 
+[client]
+# hide Streamlit's developer toolbar (Deploy button etc.) in the finished product
+toolbarMode = "viewer"
+
 [theme]
-primaryColor = "#2a78d6"
+base = "light"
+primaryColor = "#1f5fae"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f6f9"
+textColor = "#111827"
+linkColor = "#1f5fae"
+linkUnderline = false
+borderColor = "#e3e7ee"
+dataframeBorderColor = "#e9ecf1"
+dataframeHeaderBackgroundColor = "#f7f8fa"
+dataframeHeaderTextColor = "#4b5565"
+showWidgetBorder = true
+font = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap, sans-serif"
+headingFont = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap, sans-serif"
+codeFont = "IBM Plex Mono:https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap, monospace"
+baseFontSize = 15
+headingFontWeights = [500, 500, 500, 500, 500, 500]
+headingFontSizes = ["30px", "22px", "18px", "16px", "15px", "14px"]
+metricValueFontSize = "28px"
+metricValueFontWeight = 500
+baseRadius = "8px"
+buttonRadius = "8px"
+blueColor = "#1f5fae"
+greenColor = "#16a34a"
+redColor = "#c0392b"
+orangeColor = "#b45309"
+yellowColor = "#a16207"
+chartCategoricalColors = ["#1f5fae", "#9aa3b2", "#b45309", "#c2410c", "#5b6b85", "#7f1d1d"]
+
+[theme.sidebar]
+backgroundColor = "#f4f6f9"
+secondaryBackgroundColor = "#eceff4"

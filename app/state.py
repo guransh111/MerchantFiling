@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 from src import config as C  # noqa: E402
 from src import engine  # noqa: E402
 
-LEVEL_COLOR = {0: "#8a8984", 1: "#2a78d6", 2: "#c98500", 3: "#d95926", 4: "#9b1c1c"}
+from ui import LEVEL_COLOR, pips  # noqa: E402
 LABEL_NAME = {"legit": "Honest shop", "genuine_drifter": "Honest shop, business changed",
               "betting_front": "Betting front", "rented": "Rented account"}
 REVIEW_COLS = ["merchant_id", "outcome", "note", "source"]
@@ -142,8 +142,8 @@ def add_declaration(mid: str, text: str, week_start=None):
 
 
 def level_badge(level: int) -> str:
-    return (f"<span style='display:inline-block;padding:2px 10px;border-radius:12px;background:{LEVEL_COLOR[level]};"
-            f"color:white;font-size:13px;font-weight:600'>{C.LEVEL_SHORT[level]}</span>")
+    """Where the merchant sits on the ladder (the 'ladder pips' signature)."""
+    return pips(level)
 
 
 def merchant_label(d: pd.DataFrame, mid: str) -> str:

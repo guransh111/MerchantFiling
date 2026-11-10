@@ -87,7 +87,7 @@ customer data (privacy law, competition). The fix is **keyed hashing**:
         st.dataframe(shared.head(8), hide_index=True, width="stretch")
         st.download_button("Download shared token list (CSV)", shared.to_csv(index=False), "consortium_tokens.csv")
     with b:
-        st.markdown("**Provider B's new applicants**")
+        st.markdown("##### Provider B's new applicants")
         up = st.file_uploader("Upload applicants (CSV with application_id, settlement_account, device_id)", type=["csv"])
         if up is not None:
             apps = pd.read_csv(up)
@@ -98,7 +98,7 @@ customer data (privacy law, competition). The fix is **keyed hashing**:
                 apps["application_id"] = [f"APP-{i}" for i in range(len(apps))]
         else:
             apps = RPT.simulate_applicants(p, offboarded)
-            st.caption(f"Using {len(apps)} simulated applicants (a few are operators re-applying with reused accounts or phones).")
+            st.caption(f"Using {len(apps)} simulated applicants (a few are operators re-applying with reused accounts or phones)")
     res = RPT.check_applicants(apps, shared, key)
     hits = res[res.flag]
     st.markdown(f"### {len(hits)} of {len(res)} applicants match an offboarded merchant")
@@ -127,7 +127,7 @@ def reports_page():
             return
     else:
         mids = d[d.level >= 3].merchant_id.tolist()
-    st.markdown(f"**{len(mids)} merchants** in scope.")
+    st.caption(f"{len(mids)} merchants in scope")
     c, e = state.cases()
     case_of = c.drop_duplicates("merchant_id", keep="last").set_index("merchant_id").case_id if len(c) else pd.Series(dtype=str)
     entity = st.text_input("Reporting entity name", "[Payment Aggregator name]")
@@ -151,5 +151,5 @@ def reports_page():
                       help="Identifiers in clear: confidential, for the regulator only")
     cc.download_button("Consortium tokens (CSV)", RPT.consortium_tokens(mids, p).to_csv(index=False), "consortium_tokens.csv",
                        help="Hashed identifiers, safe to share with other payment providers")
-    st.markdown(f"**I4C file preview** ({len(i4c)} identifiers)")
+    st.markdown(f"##### I4C file preview · {len(i4c)} identifiers")
     st.dataframe(i4c.head(20), hide_index=True, width="stretch")

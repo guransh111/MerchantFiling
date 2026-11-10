@@ -29,7 +29,7 @@ def page():
         net = net.assign(flagged=lv >= 2, risk=d.risk_score.reindex(net.merchant_id).to_numpy())
         cl = cl.merge(net.groupby("cluster").agg(at_friction_or_above=("flagged", "sum"), avg_risk=("risk", "mean")).reset_index())
         cl = cl.sort_values(["avg_risk", "merchants"], ascending=False)
-        st.markdown("**Clusters of 3+ densely linked merchants**")
+        st.markdown("##### Clusters of three or more linked merchants")
         st.dataframe(cl, hide_index=True, width="stretch",
                      column_config={"avg_risk": st.column_config.ProgressColumn("Avg risk", min_value=0, max_value=100, format="%.0f")})
 

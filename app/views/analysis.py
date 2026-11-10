@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 import state
+import ui
 from src import config as C
 from src.actions import peer_phrase
 
@@ -24,54 +25,63 @@ def overview():
     d = r.decisions
     p = state.prepared()
     st.title("Overview")
-    st.caption(f"Dataset: **{p.name}**")
-    cols = st.columns(6)
-    cols[0].metric("Merchants", f"{len(d):,}")
-    for i in range(5):
-        cols[i + 1].metric(C.LEVEL_SHORT[i], int((d.level == i).sum()))
+    st.caption(f"{p.name} · as of {state.clock():%d %b %Y}")
 
     vol = r.weekly.groupby("merchant_id").inflow.sum()
     under = vol[vol.index.isin(d.merchant_id[d.level >= 2])].sum() / vol.sum() if vol.sum() else 0
-    asked = (d.level == 1).sum()
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Payment volume under friction or worse", f"{under:.1%}",
-              help="Business cost of the current settings: share of all money received by merchants at Friction or above")
-    c2.metric("Merchants asked a question", int(asked), help="Level 1: a neutral prompt, no restriction")
-    c3.metric("Analyst decisions this session", len(st.session_state.reviews))
+    m = st.columns(4)
+    m[0].metric("Merchants watched", f"{len(d):,}")
+    m[1].metric("Asked a question", f"{int((d.level == 1).sum()):,}", help="Ask: a neutral prompt, no restriction")
+    m[2].metric("Under friction or review", f"{int(d.level.between(2, 3).sum()):,}")
+    m[3].metric("Payment volume under friction", f"{under:.1%}",
+                help="Business cost of the current settings: share of all money received by merchants at Friction or above")
 
-    left, right = st.columns([3, 2])
+    left, right = st.columns([2, 1], gap="large")
     with left:
-        st.markdown("**What the system recommends**")
-        lv = d.level.value_counts().reindex(range(5), fill_value=0).rename_axis("level").reset_index(name="merchants")
-        lv["action"] = lv.level.map(C.LEVEL_SHORT)
-        lv["color"] = lv.level.map(state.LEVEL_COLOR)
-        ch = alt.Chart(lv).mark_bar(cornerRadiusEnd=4).encode(
-            y=alt.Y("action:N", sort=list(C.LEVEL_SHORT.values()), title=None),
-            x=alt.X("merchants:Q", title="Merchants", scale=alt.Scale(type="symlog")),
-            color=alt.Color("color:N", scale=None), tooltip=["action", "merchants"])
-        txt = ch.mark_text(align="left", dx=4).encode(text="merchants:Q", color=alt.value("#52514e"))
-        st.altair_chart((ch + txt).properties(height=200), width="stretch")
-        st.caption("Log scale: most merchants are never touched.")
+        st.markdown("##### Merchants scoring 60 or more, week by week")
+        wk = r.weekly.groupby("week_start").drift_score.apply(lambda s_: int((s_ >= st.session_state.tl_settings.ask).sum()))
+        wk = wk.rename("merchants").reset_index()
+        layers = []
+        cal_start, cal_end = pd.Timestamp(C.IPL[0]), pd.Timestamp(C.IPL[1])
+        if wk.week_start.min() <= cal_end and wk.week_start.max() >= cal_start:
+            band = pd.DataFrame({"start": [cal_start], "end": [cal_end], "label": ["IPL"]})
+            layers.append(alt.Chart(band).mark_rect(color="#f1f3f7").encode(x="start:T", x2="end:T"))
+            layers.append(alt.Chart(band).mark_text(align="left", dx=6, dy=10, baseline="top").encode(
+                x="start:T", y=alt.value(0), text="label"))
+        layers.append(alt.Chart(wk).mark_line(strokeWidth=2, interpolate="monotone").encode(
+            x=alt.X("week_start:T", title=None, axis=alt.Axis(format="%b", tickCount="month")),
+            y=alt.Y("merchants:Q", title=None),
+            tooltip=[alt.Tooltip("week_start:T", title="Week of", format="%d %b %Y"), alt.Tooltip("merchants:Q", title="Merchants")]))
+        st.altair_chart(alt.layer(*layers).properties(height=300), width="stretch")
+        st.caption("Shaded: IPL season. The Diwali rush in early November barely moves the count, because every shop "
+                   "is compared with similar shops in the same week")
     with right:
-        st.markdown("**Most common main reason (flagged merchants)**")
+        st.markdown("##### The ladder now")
+        st.markdown(ui.ladder_list(d.level.value_counts().to_dict(), describe=False), unsafe_allow_html=True)
+        st.caption("Review needs a network link or a GST mismatch; Offboard needs an analyst")
+
+    c1, c2 = st.columns(2, gap="large")
+    with c1:
+        st.markdown("##### Why merchants are flagged")
         flagged = d[d.level >= 1]
         if len(flagged):
-            reasons = flagged.reason_1.str.split(":").str[0].replace("", "No behaviour reason (network / account change)")
-            rc = reasons.value_counts().rename_axis("reason").reset_index(name="merchants")[["merchants", "reason"]]
-            st.dataframe(rc, hide_index=True, width="stretch")
+            reasons = flagged.reason_1.str.split(":").str[0].replace("", "Network or account change only")
+            rc = reasons.value_counts().head(6)
+            st.markdown(ui.bar_list(rc.items()), unsafe_allow_html=True)
+            st.caption(f"Main reason for each of the {len(flagged):,} merchants at Ask or above")
         else:
-            st.info("No merchant is flagged under the current settings.")
+            st.info("No merchant is flagged under the current settings")
+    with c2:
+        st.markdown("##### Signals your data supports")
+        f = p.features
+        cov = [(C.SHORT_NAME[x], float(f[x].notna().mean() * 100)) for x in C.FEATURES]
+        st.markdown(ui.bar_list(cov, fmt="{:.0f}%", accent_first=False, max_value=100), unsafe_allow_html=True)
+        st.caption("Share of merchant-weeks with data; match hours only exist in weeks with matches")
 
-    st.markdown("**Which signals this dataset supports**")
-    f = state.prepared().features
-    cov = pd.DataFrame({"signal": [C.SHORT_NAME[x] for x in C.FEATURES],
-                        "weeks with data": [f[x].notna().mean() for x in C.FEATURES]})
-    st.dataframe(cov, hide_index=True, width="stretch",
-                 column_config={"weeks with data": st.column_config.ProgressColumn(min_value=0, max_value=1, format="percent")})
     if state.has_truth():
         bad = d.label.isin(["betting_front", "rented"])
-        st.info(f"This dataset has a hidden truth. Bad merchants at Friction or above: **{(d[bad].level >= 2).mean():.0%}**. "
-                f"Honest merchants at Friction or above: **{int((~bad & (d.level >= 2)).sum())}**. See **Performance** for detail.")
+        st.caption(f"Hidden truth (demo only): {(d[bad].level >= 2).mean():.0%} of bad merchants are at Friction or above, "
+                   f"and {int((~bad & (d.level >= 2)).sum())} honest merchants are. Details on Performance & thresholds")
 
 
 # ---------------------------------------------------------------- queue
@@ -80,11 +90,13 @@ def queue():
     d = r.decisions
     st.title("Risk queue")
     c1, c2, c3, c4 = st.columns([2, 2, 1, 1])
-    levels = c1.multiselect("Action", list(C.LEVEL_SHORT.values()), default=["Ask", "Friction", "Review", "Offboard"])
+    scope = c1.segmented_control("Show", ["Ask and above", "Friction and above", "Everyone"], default="Ask and above",
+                                 key="queue_scope") or "Ask and above"
+    min_level = {"Ask and above": 1, "Friction and above": 2, "Everyone": 0}[scope]
     cats = c2.multiselect("Declared category", sorted(d.category.unique()))
     min_risk = c3.number_input("Min risk", 0, 100, 0)
     search = c4.text_input("Search ID")
-    v = d[d.level.map(C.LEVEL_SHORT).isin(levels) & (d.risk_score >= min_risk)]
+    v = d[(d.level >= min_level) & (d.risk_score >= min_risk)]
     if cats:
         v = v[v.category.isin(cats)]
     if search:
@@ -140,8 +152,9 @@ def merchant():
     with head:
         turnover = f" · expects ₹{row.declared_monthly_turnover:,.0f}/month" if pd.notna(row.declared_monthly_turnover) else ""
         st.markdown(f"### {mid} {state.level_badge(int(row.level))}", unsafe_allow_html=True)
-        st.markdown(f"**Declared:** {str(row.category).replace('_', ' ')} · {row.city} (tier {row.tier}){turnover}")
-        st.markdown(f"**Recommended action:** {row.action}")
+        st.markdown(f"Declared as {str(row.category).replace('_', ' ')} · {row.city}, tier {row.tier}{turnover}")
+        detail = row.action.partition(": ")[2]
+        st.caption(detail[:1].upper() + detail[1:] if detail else "No action: monitoring only")
         if st.session_state.reveal and "label" in d:
             st.info(f"Hidden truth: **{state.LABEL_NAME.get(row.label, row.label)}**"
                     + (f" ({row.drift_type})" if isinstance(row.get("drift_type"), str) and row.drift_type else ""))
@@ -158,7 +171,7 @@ def merchant():
 
     c1, c2 = st.columns([2, 3])
     with c1:
-        st.markdown("**Why**")
+        st.markdown("##### Why")
         any_reason = False
         for x in [row.reason_1, row.reason_2, row.reason_3]:
             if isinstance(x, str) and x:
@@ -167,36 +180,58 @@ def merchant():
         if not any_reason:
             st.markdown("- Behaviour is in line with similar merchants.")
         if isinstance(row.notes, str) and row.notes:
-            st.markdown("**Notes**")
+            st.markdown("##### Notes")
             for n in row.notes.split(" | "):
                 st.markdown(f"- {n}")
     with c2:
-        st.markdown("**Weekly drift score** (dashed = Ask threshold; red rule = detected behaviour shift)")
-        layers = [alt.Chart(mw).mark_line(strokeWidth=2, color="#2a78d6").encode(
-            x=alt.X("week_start:T", title=None),
-            y=alt.Y("drift_score:Q", title="Drift score", scale=alt.Scale(domain=[0, 100])),
+        st.markdown("##### Drift score, week by week")
+        layers = [alt.Chart(mw).mark_line(strokeWidth=2, color=ui.ACCENT, interpolate="monotone").encode(
+            x=alt.X("week_start:T", title=None, axis=alt.Axis(format="%b", tickCount="month")),
+            y=alt.Y("drift_score:Q", title=None, scale=alt.Scale(domain=[0, 100])),
             tooltip=[alt.Tooltip("week_start:T", title="Week"), alt.Tooltip("drift_score:Q", format=".0f", title="Score"),
                      alt.Tooltip("inflow:Q", format=",.0f", title="Money in (₹)"), alt.Tooltip("n_txns:Q", title="Payments")]),
-            alt.Chart(pd.DataFrame({"y": [st.session_state.tl_settings.ask]})).mark_rule(strokeDash=[4, 4], color="#8a8984").encode(y="y:Q")]
+            alt.Chart(pd.DataFrame({"y": [st.session_state.tl_settings.ask]})).mark_rule(strokeDash=[4, 4], color=ui.MUTED).encode(y="y:Q")]
         if pd.notna(row.shift_week) and pd.notna(row.shift_jump) and row.shift_jump >= 20:
-            layers.append(alt.Chart(pd.DataFrame({"x": [pd.Timestamp(row.shift_week)]})).mark_rule(color="#d95926", strokeWidth=2).encode(x="x:T"))
+            layers.append(alt.Chart(pd.DataFrame({"x": [pd.Timestamp(row.shift_week)]})).mark_rule(color=ui.LEVEL_COLOR[3], strokeWidth=1.5).encode(x="x:T"))
         st.altair_chart(alt.layer(*layers).properties(height=230), width="stretch")
+        st.caption("Dashed line: the Ask threshold. Solid orange line: the week its behaviour changed, when there was one")
 
-    st.markdown("**This merchant vs its peers, in its worst week**")
+    st.markdown("##### How far this merchant is from similar shops")
     if len(mw):
+        from src.actions import _fmt
         peak = mw.loc[mw.drift_score.idxmax()]
+        cap = st.session_state.tl_settings.z_cap
         t = pd.DataFrame([{"signal": C.SHORT_NAME[f], "this merchant": peak[f], "typical peer": peak[f + "__peer"],
-                           "z (spreads from normal)": peak[f + "__z"], "risk points": peak[f + "__pts"]} for f in C.FEATURES])
-        st.dataframe(t.sort_values("risk points", ascending=False), hide_index=True, width="stretch", column_config={
-            "this merchant": st.column_config.NumberColumn(format="%.2f"),
-            "typical peer": st.column_config.NumberColumn(format="%.2f"),
-            "z (spreads from normal)": st.column_config.NumberColumn(format="%.1f"),
-            "risk points": st.column_config.ProgressColumn(min_value=0, max_value=st.session_state.tl_settings.z_cap * 1.2, format="%.1f")})
-        st.caption(f"Peers: {peer_phrase(peak.peer_group)}, week of {pd.Timestamp(peak.week_start):%d %b %Y}.")
+                           "z": peak[f + "__z"], "risk points": peak[f + "__pts"],
+                           "compare": f"{_fmt(f, peak[f])} vs {_fmt(f, peak[f + '__peer'])} for peers"} for f in C.FEATURES])
+        t = t.dropna(subset=["z"]).sort_values("z", ascending=False)
+        t["shown"] = t.z.clip(-2, cap * 2)
+        t["counts"] = np.where(t.z > 0.5, "adds risk", "normal")
+        base = alt.Chart(t).encode(y=alt.Y("signal:N", sort=list(t.signal), title=None,
+                                          axis=alt.Axis(labelFont=ui.SANS, labelFontSize=13, labelColor=ui.INK)))
+        bars = base.mark_bar(height=14, cornerRadiusEnd=3).encode(
+            x=alt.X("shown:Q", title="Typical spreads away from similar shops (0 = typical)",
+                    scale=alt.Scale(domain=[-2, cap * 2])),
+            color=alt.Color("counts:N", scale=alt.Scale(domain=["adds risk", "normal"], range=[ui.ACCENT, ui.NEUTRAL_BAR]),
+                            legend=None),
+            tooltip=["signal", "compare", alt.Tooltip("z:Q", format=".1f", title="spreads away"),
+                     alt.Tooltip("risk points:Q", format=".1f")])
+        labels = base.mark_text(align="left", dx=8).encode(x="shown:Q", text="compare")
+        zero = alt.Chart(pd.DataFrame({"x": [0]})).mark_rule(color=ui.INK_2).encode(x="x:Q")
+        capr = alt.Chart(pd.DataFrame({"x": [cap]})).mark_rule(strokeDash=[3, 3], color=ui.MUTED).encode(x="x:Q")
+        st.altair_chart(alt.layer(bars, zero, capr, labels).properties(height=34 * len(t) + 30), width="stretch")
+        st.caption(f"Compared with {peer_phrase(peak.peer_group)}, week of {pd.Timestamp(peak.week_start):%d %b %Y}. "
+                   f"Each signal adds at most {cap:.0f} spreads (dashed line), so several have to agree")
+        with st.expander("Exact figures"):
+            st.dataframe(t[["signal", "this merchant", "typical peer", "z", "risk points"]], hide_index=True, width="stretch",
+                         column_config={"this merchant": st.column_config.NumberColumn(format="%.2f"),
+                                        "typical peer": st.column_config.NumberColumn(format="%.2f"),
+                                        "z": st.column_config.NumberColumn("spreads away", format="%.1f"),
+                                        "risk points": st.column_config.NumberColumn(format="%.1f")})
         if "payer_states" in peak and pd.notna(peak.payer_states):
             same = r.weekly[(r.weekly.peer_group == peak.peer_group) & (r.weekly.week_start == peak.week_start)]
-            st.caption(f"Distinct payer states that week: **{int(peak.payer_states)}** "
-                       f"(typical peer: {same.payer_states.median():.0f}).")
+            st.caption(f"Distinct payer states that week: {int(peak.payer_states)} "
+                       f"(typical peer: {same.payer_states.median():.0f})")
     if pd.notna(row.get("gst_annual_turnover", float("nan"))) or pd.notna(row.get("upi_annual_takings", float("nan"))):
         g1, g2, g3 = st.columns(3)
         g1.metric("UPI takings (annualised)", f"₹{row.upi_annual_takings / 1e5:,.1f} lakh" if pd.notna(row.upi_annual_takings) else "n/a")
@@ -207,10 +242,10 @@ def merchant():
         peers = r.weekly[(r.weekly.peer_group == peak.peer_group) & (r.weekly.week_start == peak.week_start)].merchant_id
         hp = _hour_profile(mid, peers)
         if hp is not None and len(hp):
-            st.markdown("**When the money arrives (share of value by hour of day)**")
+            st.markdown("##### When the money arrives")
             st.altair_chart(alt.Chart(hp).mark_line(point=True, strokeWidth=2).encode(
                 x=alt.X("hour:O", title="Hour of day"), y=alt.Y("share:Q", axis=alt.Axis(format="%"), title=None),
-                color=alt.Color("who:N", scale=alt.Scale(range=["#2a78d6", "#8a8984"]), legend=alt.Legend(orient="top", title=None)),
+                color=alt.Color("who:N", scale=alt.Scale(range=[ui.ACCENT, ui.NEUTRAL_BAR]), legend=alt.Legend(orient="top", title=None)),
                 tooltip=["who", "hour", alt.Tooltip("share:Q", format=".1%")]).properties(height=220), width="stretch")
 
     links = r.edges[(r.edges.a == mid) | (r.edges.b == mid)].copy()
@@ -218,7 +253,7 @@ def merchant():
         links["other merchant"] = links.a.where(links.b == mid, links.b)
         links = links.merge(d[["merchant_id", "risk_score", "level", "known_bad"]], left_on="other merchant", right_on="merchant_id")
         links["their action"] = links.level.map(C.LEVEL_SHORT)
-        st.markdown("**Network links** (what this merchant shares with others)")
+        st.markdown("##### What it shares with other merchants")
         st.dataframe(links[["other merchant", "why", "risk_score", "their action", "known_bad"]].sort_values("risk_score", ascending=False),
                      hide_index=True, width="stretch")
 
@@ -228,7 +263,7 @@ def merchant():
             st.dataframe(tx[tx.merchant_id == mid].tail(100).iloc[::-1], hide_index=True, width="stretch")
 
     st.divider()
-    st.markdown("### Analyst decision")
+    st.markdown("##### Analyst decision")
     st.caption("Your decision overrides the system for this merchant, adds a label for the learning loop, and (if "
                "confirmed) makes this merchant a new starting point for the network search.")
     current = st.session_state.reviews.set_index("merchant_id").outcome.get(mid) if len(st.session_state.reviews) else None

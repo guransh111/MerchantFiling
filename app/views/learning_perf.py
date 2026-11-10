@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 
 import state
+import ui
 from src import config as C
 from src.learn import suggested_weights
 from src.tuning import Costs, best_threshold, sweep, truth_series
@@ -35,7 +36,7 @@ def learning():
         st.markdown("**What it learned** (positive = pushes towards 'confirmed'; standardised units)")
         st.altair_chart(alt.Chart(ww).mark_bar(cornerRadiusEnd=4).encode(
             y=alt.Y("signal_name:N", sort="-x", title=None), x=alt.X("learned_weight:Q", title="Learned weight"),
-            color=alt.condition("datum.learned_weight > 0", alt.value("#d95926"), alt.value("#8a8984")),
+            color=alt.condition("datum.learned_weight > 0", alt.value(ui.ACCENT), alt.value(ui.NEUTRAL_BAR)),
             tooltip=["signal_name", alt.Tooltip("learned_weight:Q", format=".2f")]).properties(height=280), width="stretch")
         sug = suggested_weights(w, st.session_state.tl_settings.weights)
         sug["signal"] = sug.signal.map(C.SHORT_NAME)
@@ -50,7 +51,7 @@ def learning():
         st.caption("Bias warning: analysts mostly review what the system already flags, so the model can only learn "
                    "what the system already sees. That's why random audits (below) matter.")
 
-    st.markdown("### Audit queue: unusual merchants the rules don't flag")
+    st.markdown("##### Audit queue: unusual merchants the rules don't flag")
     st.markdown("The anomaly detector (Isolation Forest) needs no labels. It ranks merchants whose overall behaviour "
                 "profile is unusual. Auditing the top of this list, plus a random ~2% sample, is how you find **new** "
                 "fraud patterns before the rules know about them.")
@@ -85,7 +86,7 @@ def performance():
                    "decisions (confirm / clear cases on the Merchant drill-down page).")
         return
     src = "hidden labels" if "label" in d and d.label.notna().any() else f"{len(truth)} analyst decisions"
-    st.caption(f"Ground truth from: {src}.")
+    st.caption(f"Ground truth from: {src}")
     dd = d.set_index("merchant_id").join(truth.rename("bad"), how="inner")
     rows = []
     for name, lvl in [("Ask or above", 1), ("Friction or above", 2), ("Review or above", 3)]:
@@ -98,11 +99,11 @@ def performance():
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch", column_config={
         "precision": st.column_config.NumberColumn(format="percent"), "recall": st.column_config.NumberColumn(format="percent")})
     if "label" in d:
-        st.markdown("**What happens to each kind of merchant**")
+        st.markdown("##### What happens to each kind of merchant")
         ct = pd.crosstab(d.label.map(lambda x: state.LABEL_NAME.get(x, x)).rename("Hidden truth"), d.level.map(C.LEVEL_SHORT))
         st.dataframe(ct[[c for c in C.LEVEL_SHORT.values() if c in ct]], width="stretch")
 
-    st.markdown("### Set the threshold with money")
+    st.markdown("##### Set the threshold with money")
     st.markdown("Estimate what each mistake costs. The chart shows the expected total cost at every possible "
                 "Friction threshold; the cheapest one is marked.")
     c = st.columns(3)
@@ -115,11 +116,11 @@ def performance():
     best = best_threshold(sw)
     cur = st.session_state.tl_settings.friction
     base = alt.Chart(sw).encode(x=alt.X("threshold:Q", title="Penalise (Friction) from risk score"))
-    line = base.mark_line(strokeWidth=2, color="#2a78d6").encode(
+    line = base.mark_line(strokeWidth=2, color=ui.ACCENT).encode(
         y=alt.Y("total_cost:Q", title="Expected cost (₹)", axis=alt.Axis(format="~s")),
         tooltip=["threshold", alt.Tooltip("total_cost:Q", format=",.0f"), "caught", "missed", "honest_flagged"])
     rules = alt.Chart(pd.DataFrame({"x": [best.threshold, cur], "what": ["cheapest", "current"]})).mark_rule(strokeDash=[4, 4]).encode(
-        x="x:Q", color=alt.Color("what:N", scale=alt.Scale(range=["#d95926", "#8a8984"]), legend=alt.Legend(orient="top", title=None)))
+        x="x:Q", color=alt.Color("what:N", scale=alt.Scale(range=[ui.ACCENT, ui.MUTED]), legend=alt.Legend(orient="top", title=None)))
     st.altair_chart((line + rules).properties(height=280), width="stretch")
     cur_row = sw.iloc[(sw.threshold - cur).abs().argmin()]
     a, b = st.columns(2)
@@ -137,18 +138,18 @@ def performance():
             f"Cost-based threshold (miss Rs {miss:,}, false penalty Rs {fp:,}, review Rs {rv:,})")
         st.rerun()
 
-    st.markdown("### Catching fraud vs bothering honest merchants, at every threshold")
+    st.markdown("##### Catching fraud vs bothering honest merchants, at every threshold")
     long = sw.melt("threshold", ["caught", "honest_flagged"], var_name="what", value_name="merchants")
     long["what"] = long.what.map({"caught": "Bad merchants caught", "honest_flagged": "Honest merchants penalised"})
     st.altair_chart(alt.Chart(long).mark_line(strokeWidth=2).encode(
         x=alt.X("threshold:Q", title="Penalise (Friction) from risk score"),
         y=alt.Y("merchants:Q", title="Merchants", scale=alt.Scale(type="symlog")),
-        color=alt.Color("what:N", scale=alt.Scale(range=["#2a78d6", "#d95926"]), legend=alt.Legend(orient="top", title=None)),
+        color=alt.Color("what:N", scale=alt.Scale(range=[ui.ACCENT, ui.LEVEL_COLOR[3]]), legend=alt.Legend(orient="top", title=None)),
         tooltip=["threshold", "what", "merchants"]).properties(height=260), width="stretch")
     st.caption("Log scale. Move right: fewer honest merchants penalised, but eventually bad ones slip through.")
 
     stress = C.REPORTS / "stress_test.csv"
     if state.is_demo() and stress.exists():
-        st.markdown("### Stress test (from `python run_all.py`)")
+        st.markdown("##### Stress test")
         st.dataframe(pd.read_csv(stress), hide_index=True, width="stretch")
         st.image(str(C.REPORTS / "7_stress_test.png"))

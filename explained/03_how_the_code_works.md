@@ -30,6 +30,7 @@ Think of it as an assembly line. Each station is one Python file in `src/`.
 | `cases.py` | Case lifecycle, 72h deadlines, appeals, audit log, metrics (file 16) |
 | `scanner.py` | Finds UPI IDs on public betting pages and matches them to merchants (file 16) |
 | `reporting.py` | Draft STRs, I4C file, consortium tokens for privacy-safe sharing (file 16) |
+| `app/ui.py` | The look: chart theme, ladder colours, "ladder pips" (file 17) |
 | `engine.py` | Runs it all: `prepare` (slow: payments → signals and links) then `analyse` (fast: seconds) |
 | `evaluate.py` | Grades against the hidden truth, charts, stress test |
 

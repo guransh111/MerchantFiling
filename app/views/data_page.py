@@ -98,7 +98,7 @@ def _upload_tab():
         for w in rep.warnings:
             st.warning(w)
         for i in rep.info:
-            st.caption("ℹ️ " + i)
+            st.caption(i)
         if not rep.ok:
             return
         with st.status("Analysing your data...", expanded=True) as status:
@@ -184,7 +184,7 @@ def _generate_tab():
 def page():
     st.title("Load data")
     p = state.prepared()
-    st.markdown(f"**Currently loaded:** {p.name} · {len(p.merchants):,} merchants")
+    st.caption(f"Loaded: {p.name} · {len(p.merchants):,} merchants")
     if not state.is_demo() and st.button("Switch back to the demo dataset"):
         state.use_demo()
         st.rerun()
@@ -197,9 +197,9 @@ def page():
         st.markdown("Download example files in exactly the right format, open them in Excel, replace with your data, "
                     "and upload them in the first tab.")
         st.download_button("Download example files (zip of CSVs)", _templates_zip(), "trustloop_templates.zip", type="primary")
-        st.markdown("#### What each column means")
+        st.markdown("##### What each column means")
         st.dataframe(_dictionary(), hide_index=True, width="stretch")
-        st.markdown("#### Minimum viable upload")
+        st.markdown("##### Minimum viable upload")
         st.markdown("- **merchants**: `merchant_id`, `category`\n- **transactions**: `merchant_id`, `ts` (date & time), `amount`\n\n"
                     "With only these, the system uses round amounts, match hours, late night, variety and growth. "
                     "Add payer IDs, payer state, direction (in/out), declared turnover, device and bank account to "

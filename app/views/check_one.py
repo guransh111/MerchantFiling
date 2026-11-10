@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 
 import state
+import ui
 from src import config as C
 from src import schema
 from src import score as S
@@ -73,7 +74,7 @@ def _ladder_for(score, network, known_bad, takeover, declared, s: C.Settings, gs
 def _points_chart(res: dict):
     df = pd.DataFrame({"signal": [C.SHORT_NAME[f] for f in C.FEATURES],
                        "points": [float(res["points"][f]) for f in C.FEATURES]}).sort_values("points", ascending=False)
-    ch = alt.Chart(df).mark_bar(cornerRadiusEnd=4, color="#d95926").encode(
+    ch = alt.Chart(df).mark_bar(cornerRadiusEnd=3, color=ui.ACCENT).encode(
         y=alt.Y("signal:N", sort="-x", title=None),
         x=alt.X("points:Q", title="Risk points (max per signal = cap x weight)",
                 scale=alt.Scale(domain=[0, max(4.0, df.points.max())])),
@@ -112,7 +113,7 @@ def page():
                                    key=f"sl_{f}_{preset}",
                                    help=f"{C.FEATURES[f][2]}. Typical peer: {peer_ui:.1f}" if peer_ui is not None else C.FEATURES[f][2])
             vals[f] = from_ui(v)
-        st.markdown("**Other evidence**")
+        st.markdown("##### Other evidence")
         e = st.columns(5)
         network = e[0].checkbox("Shares phone/bank/customers with a known betting merchant")
         known_bad = e[1].checkbox("UPI ID found on a betting page")
@@ -169,7 +170,7 @@ def page():
         a, b = st.columns([1, 3])
         a.metric("Drift score (worst weeks)", f"{summary:.0f}")
         a.markdown(f"**Action:** {state.level_badge(lvl)}", unsafe_allow_html=True)
-        b.altair_chart(alt.Chart(w).mark_line(point=True, color="#2a78d6").encode(
+        b.altair_chart(alt.Chart(w).mark_line(point=True, color=ui.ACCENT).encode(
             x=alt.X("week_start:T", title=None), y=alt.Y("drift_score:Q", scale=alt.Scale(domain=[0, 100]), title="Weekly drift"),
             tooltip=["week_start:T", alt.Tooltip("drift_score:Q", format=".0f"), "n_txns"]).properties(height=220), width="stretch")
         from src.actions import reasons_for

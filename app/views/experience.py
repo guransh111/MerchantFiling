@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 
 import state
+import ui
 from src import config as C
 
 KIND = {"kirana": "a kirana store", "restaurant": "a restaurant", "sweet_shop": "a sweet shop",
@@ -36,7 +37,7 @@ def merchant_view():
         else:
             st.warning(f"**We've applied a temporary measure to your account:** {row.action.split(': ', 1)[-1]}.\n\n"
                        "Your payments continue to work. Here is why, and how to resolve it within **72 hours**.")
-        st.markdown("**What we noticed**")
+        st.markdown("##### What we noticed")
         for x in [row.reason_1, row.reason_2]:
             if isinstance(x, str) and x:
                 st.markdown(f"- {x}")
@@ -53,7 +54,7 @@ def merchant_view():
             st.success("Explanation received. A person will review it within 72 hours. You can appeal to our grievance "
                        f"officer if you disagree. Current action: **{C.LEVEL_SHORT[int(row.level)]}**.")
     with right:
-        st.markdown("**Your trust tier**")
+        st.markdown("##### Your trust tier")
         tier = {0: ("Gold", "same-day settlement"), 1: ("Silver", "next-day settlement"),
                 2: ("Bronze", "T+2 settlement"), 3: ("Under review", "20% reserve held"),
                 4: ("Closed", "account closed")}[int(row.level)]
@@ -72,16 +73,16 @@ def payer_view():
     warn = ""
     if row.level >= 2:
         warn = ("<div style='margin-top:12px;padding:10px;border-radius:8px;background:#fff4e5;color:#7a4b00;font-size:14px'>"
-                f"⚠️ This merchant is registered as <b>{KIND.get(cat, cat.replace('_', ' '))}</b>. "
+                f"{ui.lucide('alert', 16, '#7a4b00')} This merchant is registered as <b>{KIND.get(cat, cat.replace('_', ' '))}</b>. "
                 "If you are not buying from a shop, stop and check.</div>")
     st.markdown(f"""
 <div style="max-width:340px;margin:auto;border:1px solid #ccc;border-radius:24px;padding:22px;font-family:sans-serif;background:#fff;color:#111">
   <div style="font-size:13px;color:#666">Paying</div>
   <div style="font-size:20px;font-weight:600">Shree {mid[-3:]} {SHOP.get(cat, cat.replace('_', ' ').title())}</div>
-  <div style="font-size:14px;color:#2a78d6;margin-top:2px">✔ Verified: {cat.replace('_', ' ').title()} · {row.city}</div>
+  <div style="font-size:14px;color:#1f5fae;margin-top:2px">{ui.lucide('check', 16, '#1f5fae')} Verified: {cat.replace('_', ' ').title()} · {row.city}</div>
   <div style="font-size:34px;font-weight:600;margin:18px 0">₹ 500</div>
   {warn}
-  <div style="margin-top:16px;padding:12px;border-radius:12px;background:#2a78d6;color:white;text-align:center">Pay</div>
+  <div style="margin-top:16px;padding:12px;border-radius:12px;background:#1f5fae;color:white;text-align:center">Pay</div>
   <div style="margin-top:10px;font-size:12px;color:#666;text-align:center">Not a shop? <u>Report this merchant</u></div>
 </div>""", unsafe_allow_html=True)
     st.caption("Showing the declared business at payment time makes a 'kirana' collecting cricket bets obvious to the "

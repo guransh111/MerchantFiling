@@ -27,13 +27,13 @@ def page():
     before = state.results().decisions
 
     with st.form("settings_form"):
-        st.markdown("#### 1. How much each signal counts (weights)")
+        st.markdown("##### 1. How much each signal counts (weights)")
         cols = st.columns(5)
         weights = {}
         for i, (f, (_, default, desc)) in enumerate(C.FEATURES.items()):
             weights[f] = cols[i % 5].number_input(C.SHORT_NAME[f], 0.0, 3.0, float(cur.weights.get(f, default)), 0.1,
                                                   help=f"{desc}. Default {default}. 0 switches the signal off.")
-        st.markdown("#### 2. Scoring")
+        st.markdown("##### 2. Scoring")
         c = st.columns(4)
         z_cap = c[0].slider("Cap per signal (spreads)", 1.0, 10.0, float(cur.z_cap), 0.5,
                             help="Lower = more signals must agree before the score gets high")
@@ -42,13 +42,13 @@ def page():
         worst = c[2].slider("Worst weeks averaged", 1, 8, int(cur.worst_weeks),
                             help="Merchant score = average of its N worst weeks. Higher = ignores short blips")
         mpg = c[3].slider("Minimum peer group size", 3, 50, int(cur.min_peer_group))
-        st.markdown("#### 3. Action ladder")
+        st.markdown("##### 3. Action ladder")
         c = st.columns(4)
         ask = c[0].slider("Ask from risk", 0.0, 100.0, float(cur.ask), 1.0)
         fric = c[1].slider("Friction from risk", 0.0, 100.0, float(cur.friction), 1.0)
         rev = c[2].slider("Review from risk", 0.0, 100.0, float(cur.review), 1.0)
         corr = c[3].checkbox("Review needs network corroboration", cur.require_corroboration)
-        st.markdown("#### 4. Network")
+        st.markdown("##### 4. Network")
         c = st.columns(6)
         use_net = c[0].checkbox("Use network", cur.use_network)
         nw = c[1].slider("Risk points per network point", 0.0, 1.0, float(cur.network_weight), 0.05)
@@ -57,7 +57,7 @@ def page():
         for j, kind in enumerate(["device", "account", "payers", "payouts"]):
             ew[kind] = (c[3] if j < 2 else c[4] if j < 3 else c[5]).slider(
                 f"Link type: {kind}", 0.0, 3.0, float(cur.edge_weights.get(kind, 1.0)), 0.25, help="Importance multiplier; 0 = ignore")
-        st.markdown("#### 5. Other evidence")
+        st.markdown("##### 5. Other evidence")
         c = st.columns(5)
         use_decl = c[0].checkbox("Declarations lower the level", cur.use_declarations)
         use_take = c[1].checkbox("Phone + bank change = possible rental", cur.use_takeover)
@@ -92,7 +92,7 @@ def page():
     prev = st.session_state.get("settings_before")
     if prev is not None:
         after = state.results().decisions
-        st.markdown("### Impact of your last change")
+        st.markdown("##### Impact of your last change")
         st.markdown("Rows = action before the change, columns = action after. Off-diagonal cells are merchants whose "
                     "treatment changed.")
         st.dataframe(_impact(prev, after), width="stretch")
@@ -111,7 +111,7 @@ def page():
         st.caption("Changed from defaults: " + ", ".join(diff))
 
     st.divider()
-    st.markdown("### Policy file and change log")
+    st.markdown("##### Policy file and change log")
     st.markdown("Thresholds are policy, not code. Save the current settings as a file to version them, share them "
                 "with the risk committee, or load an approved policy.")
     a, b = st.columns(2)
@@ -130,4 +130,4 @@ def page():
     if log:
         st.dataframe(pd.DataFrame(log[::-1]), hide_index=True, width="stretch")
     else:
-        st.caption("No policy changes in this session yet.")
+        st.caption("No policy changes in this session yet")
