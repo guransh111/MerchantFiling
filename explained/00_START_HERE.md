@@ -22,6 +22,7 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 15 | [Putting it online](15_putting_it_online.md) | Live dashboard on Streamlit Cloud + landing page on Vercel, step by step |
 | 16 | [Running it as an operation](16_operations.md) | Time-to-detection replay, case management and appeals, GST cross-check, betting-page scanner, consortium sharing, regulator reports |
 | 17 | [The design pass](17_design_pass.md) | How the dashboard and landing page were redesigned with the unslop checklist |
+| — | [Build conversation notes](CHAT_NOTES.md) | A record of the whole build conversation: every request, what was built, results and links |
 | — | [Implementation plan v2](IMPLEMENTATION_PLAN_v2.md) | Your original plan, updated to show what is built (✅) and what is still for the real rollout (⏳) |
 
 ## The 2-minute version
