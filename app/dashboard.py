@@ -114,6 +114,7 @@ with st.sidebar:
     n_rev, n_dec = len(st.session_state.reviews), len(st.session_state.extra_decl)
     if n_rev or n_dec:
         st.caption(f"This session: {n_rev} analyst decisions, {n_dec} merchant explanations")
+    st.caption("Light or dark: menu ⋮ → Settings → Theme")
     if st.session_state.tl_settings != state.C.Settings():
         st.caption("Custom settings active")
 

@@ -45,8 +45,8 @@ def overview():
         cal_start, cal_end = pd.Timestamp(C.IPL[0]), pd.Timestamp(C.IPL[1])
         if wk.week_start.min() <= cal_end and wk.week_start.max() >= cal_start:
             band = pd.DataFrame({"start": [cal_start], "end": [cal_end], "label": ["IPL"]})
-            layers.append(alt.Chart(band).mark_rect(color="#f1f3f7").encode(x="start:T", x2="end:T"))
-            layers.append(alt.Chart(band).mark_text(align="left", dx=6, dy=10, baseline="top").encode(
+            layers.append(alt.Chart(band).mark_rect(color=ui.BAND).encode(x="start:T", x2="end:T"))
+            layers.append(alt.Chart(band).mark_text(align="left", dx=6, dy=10, baseline="top", color=ui.MUTED).encode(
                 x="start:T", y=alt.value(0), text="label"))
         layers.append(alt.Chart(wk).mark_line(strokeWidth=2, interpolate="monotone").encode(
             x=alt.X("week_start:T", title=None, axis=alt.Axis(format="%b", tickCount="month")),
@@ -216,7 +216,7 @@ def merchant():
                             legend=None),
             tooltip=["signal", "compare", alt.Tooltip("z:Q", format=".1f", title="spreads away"),
                      alt.Tooltip("risk points:Q", format=".1f")])
-        labels = base.mark_text(align="left", dx=8).encode(x="shown:Q", text="compare")
+        labels = base.mark_text(align="left", dx=8, color=ui.INK_2).encode(x="shown:Q", text="compare")
         zero = alt.Chart(pd.DataFrame({"x": [0]})).mark_rule(color=ui.INK_2).encode(x="x:Q")
         capr = alt.Chart(pd.DataFrame({"x": [cap]})).mark_rule(strokeDash=[3, 3], color=ui.MUTED).encode(x="x:Q")
         st.altair_chart(alt.layer(bars, zero, capr, labels).properties(height=34 * len(t) + 30), width="stretch")

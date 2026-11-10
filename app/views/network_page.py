@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 import state
+import ui
 from src import config as C
 from src.network import graph_from_edges
 
@@ -52,16 +53,16 @@ def page():
         nd["truth"] = nd.merchant_id.map(d.label).map(lambda x: state.LABEL_NAME.get(x, x))
     ed = pd.DataFrame([{"x": pos[a][0], "y": pos[a][1], "x2": pos[b][0], "y2": pos[b][1], "w": dd["weight"],
                         "why": "; ".join(dd["why"])} for a, b, dd in nodes.edges(data=True)])
-    lines = alt.Chart(ed).mark_rule(color="#b8b7b0").encode(
+    lines = alt.Chart(ed).mark_rule(color=ui.EDGE).encode(
         x=alt.X("x:Q", axis=None), y=alt.Y("y:Q", axis=None), x2="x2", y2="y2",
         strokeWidth=alt.StrokeWidth("w:Q", scale=alt.Scale(range=[0.5, 4]), legend=None), tooltip=["why"])
     tips = ["merchant_id", "category", "action", alt.Tooltip("risk:Q", format=".0f"), "known_bad"] + (["truth"] if "truth" in nd else [])
-    dots = alt.Chart(nd).mark_circle(stroke="white", strokeWidth=1.5, opacity=1).encode(
+    dots = alt.Chart(nd).mark_circle(stroke=ui.BG, strokeWidth=1.5, opacity=1).encode(
         x="x:Q", y="y:Q", size=alt.Size("risk:Q", scale=alt.Scale(range=[60, 600]), legend=None),
         color=alt.Color("action:N", scale=alt.Scale(domain=list(C.LEVEL_SHORT.values()),
-                                                    range=[state.LEVEL_COLOR[i] for i in range(5)]),
+                                                    range=[ui.LEVEL_COLOR[i] for i in range(5)]),
                         legend=alt.Legend(orient="top", title=None)),
         tooltip=tips)
-    ring = alt.Chart(nd[nd.known_bad | nd.centre]).mark_circle(filled=False, color="#111", strokeWidth=2, size=900).encode(x="x:Q", y="y:Q")
+    ring = alt.Chart(nd[nd.known_bad | nd.centre]).mark_circle(filled=False, color=ui.INK, strokeWidth=2, size=900).encode(x="x:Q", y="y:Q")
     st.altair_chart((lines + dots + ring).properties(height=520).configure_view(strokeWidth=0), width="stretch")
     st.caption("Bigger dot = higher risk. Black ring = the centre merchant or a known-bad merchant. Hover a line to see what is shared.")

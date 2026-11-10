@@ -48,6 +48,8 @@ streamlit run app/dashboard.py
 
 A browser tab opens at `http://localhost:8501`. To stop it, press `Ctrl + C` in the terminal.
 
+It follows your computer's light/dark setting. To switch by hand: the ⋮ menu (top right) → **Settings** → **Theme**.
+
 ## The dashboard pages
 
 The menu on the left has 16 pages. File 03 lists what each is for, and file 12 explains how to put

@@ -5,19 +5,22 @@ import pandas as pd
 import streamlit as st
 
 import state
+import ui
 from src import cases as K
 from src import config as C
 from src import reporting as RPT
 
 # a small status dot carries the state; colours only where they mean something
-STATUS_COLOR = {"Awaiting merchant": "#1f5fae", "Under review": "#1f5fae", "Appealed": "#b45309",
-                "Closed: confirmed": "#7f1d1d", "Appeal upheld": "#7f1d1d",
-                "Closed: cleared": "#16a34a", "Appeal overturned": "#16a34a"}
+def status_color(status: str) -> str:
+    lv = ui.LEVEL_COLOR
+    return {"Awaiting merchant": lv[1], "Under review": lv[1], "Appealed": lv[2],
+            "Closed: confirmed": lv[4], "Appeal upheld": lv[4],
+            "Closed: cleared": ui.GOOD, "Appeal overturned": ui.GOOD}.get(status, lv[0])
 
 
 def status_dot(status: str) -> str:
     return (f"<span style='display:inline-block;width:8px;height:8px;border-radius:4px;margin-right:8px;"
-            f"background:{STATUS_COLOR.get(status, '#9aa3b2')}'></span>{status}")
+            f"background:{status_color(status)}'></span>{status}")
 
 
 def page():

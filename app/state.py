@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 from src import config as C  # noqa: E402
 from src import engine  # noqa: E402
 
-from ui import LEVEL_COLOR, pips  # noqa: E402
+from ui import pips  # noqa: E402
 LABEL_NAME = {"legit": "Honest shop", "genuine_drifter": "Honest shop, business changed",
               "betting_front": "Betting front", "rented": "Rented account"}
 REVIEW_COLS = ["merchant_id", "outcome", "note", "source"]

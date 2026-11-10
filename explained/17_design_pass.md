@@ -36,3 +36,17 @@ AI-built interfaces and replaces them with deliberate choices.
 - `site/index.html`: the landing page
 
 Colours still carry meaning only: grey (Monitor), cobalt (Ask), amber (Friction), ember (Review), dark red (Offboard).
+
+## Dark mode
+
+The dashboard has a matching dark theme: deep ink surfaces (`#0b0d14`), light text, and a slightly
+brighter cobalt (`#3a76c4` for buttons, `#5b93d9` in charts) so contrast stays readable. The ladder colours
+have night versions too.
+
+- **It follows the viewer's system setting automatically** (a laptop in dark mode gets the dark dashboard).
+- **To switch by hand:** the ⋮ menu (top right) → **Settings** → **Theme**: Light, Dark, or Use system setting.
+- Everything drawn by our own code (ladder pips, thin-bar lists, charts, network picture) looks up the
+  viewer's current palette when it draws, in `app/ui.py` (`PALETTES`), so two people on different themes
+  never affect each other.
+- The customer's payment-screen mock-up stays light on purpose: it shows a phone app.
+- On Streamlit Cloud, **reboot the app** after this update, because theme settings are only read at start-up.

@@ -1,6 +1,7 @@
 # Look and feel, following an "unslop" pass (unslop by Damir Sokolovsky, @heydamir, CC BY 4.0).
-# Direction: a compliance desk. Cool ink-grey neutrals, one cobalt accent, IBM Plex for an
-# exact, accountable voice, IBM Plex Mono for figures and meta.
+# Direction: a compliance desk. Ink-grey neutrals, one cobalt accent, IBM Plex for an exact,
+# accountable voice, IBM Plex Mono for figures and meta. Light and dark share everything but colour;
+# viewers switch with the menu (⋮ → Settings → Theme) or follow their system setting.
 
 [server]
 # CSV/Excel uploads up to 200 MB
@@ -14,18 +15,6 @@ gatherUsageStats = false
 toolbarMode = "viewer"
 
 [theme]
-base = "light"
-primaryColor = "#1f5fae"
-backgroundColor = "#ffffff"
-secondaryBackgroundColor = "#f4f6f9"
-textColor = "#111827"
-linkColor = "#1f5fae"
-linkUnderline = false
-borderColor = "#e3e7ee"
-dataframeBorderColor = "#e9ecf1"
-dataframeHeaderBackgroundColor = "#f7f8fa"
-dataframeHeaderTextColor = "#4b5565"
-showWidgetBorder = true
 font = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap, sans-serif"
 headingFont = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap, sans-serif"
 codeFont = "IBM Plex Mono:https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap, monospace"
@@ -36,6 +25,19 @@ metricValueFontSize = "28px"
 metricValueFontWeight = 500
 baseRadius = "8px"
 buttonRadius = "8px"
+linkUnderline = false
+showWidgetBorder = true
+
+[theme.light]
+primaryColor = "#1f5fae"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f6f9"
+textColor = "#111827"
+linkColor = "#1f5fae"
+borderColor = "#e3e7ee"
+dataframeBorderColor = "#e9ecf1"
+dataframeHeaderBackgroundColor = "#f7f8fa"
+dataframeHeaderTextColor = "#4b5565"
 blueColor = "#1f5fae"
 greenColor = "#16a34a"
 redColor = "#c0392b"
@@ -43,6 +45,28 @@ orangeColor = "#b45309"
 yellowColor = "#a16207"
 chartCategoricalColors = ["#1f5fae", "#9aa3b2", "#b45309", "#c2410c", "#5b6b85", "#7f1d1d"]
 
-[theme.sidebar]
+[theme.light.sidebar]
 backgroundColor = "#f4f6f9"
 secondaryBackgroundColor = "#eceff4"
+
+[theme.dark]
+# ink ramp at night: deep ink surfaces, light text, a brighter cobalt that still reads on dark
+primaryColor = "#3a76c4"
+backgroundColor = "#0b0d14"
+secondaryBackgroundColor = "#1a1e28"
+textColor = "#eef0f5"
+linkColor = "#7aa8e3"
+borderColor = "#262b36"
+dataframeBorderColor = "#232833"
+dataframeHeaderBackgroundColor = "#11141c"
+dataframeHeaderTextColor = "#a3a9b8"
+blueColor = "#5b93d9"
+greenColor = "#4cc38a"
+redColor = "#e5484d"
+orangeColor = "#d08a3a"
+yellowColor = "#d4a72c"
+chartCategoricalColors = ["#5b93d9", "#6b7385", "#d08a3a", "#e0703f", "#8a98b8", "#d05a5a"]
+
+[theme.dark.sidebar]
+backgroundColor = "#07080d"
+secondaryBackgroundColor = "#11141c"
