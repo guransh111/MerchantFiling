@@ -131,7 +131,7 @@ def style(current: str = ""):
             z-index: 2; }}
         [data-testid="stSidebarUserContent"] {{ padding-top: 14px; }}
         [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{ gap: 2px; }}
-        .st-key-nav_search {{ margin: 0 0 12px; }}
+        .st-key-nav_search {{ margin: 24px 0 12px; }}
         .st-key-nav_search [data-testid="stTextInputRootElement"] {{ height: 32px; min-height: 32px;
             background: {p['PANEL']}; border: 1px solid {p['HAIRLINE']}; border-radius: 8px; }}
         .st-key-nav_search input {{ font-size: 13px; background: transparent; }}
@@ -145,8 +145,13 @@ def style(current: str = ""):
             background: {p['ACTIVE']}; box-shadow: inset 0 0 0 1px {p['HAIRLINE']}; }}
         [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"][href="{current}"] span,
         [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"][href="{current}"] p {{ color: {p['INK']}; }}
-        .nav-label {{ font-size: 12px; line-height: 16px; color: {p['MUTED']}; padding: 16px 8px 4px; }}
-        [data-testid="stMarkdownContainer"]:has(> .nav-label) {{ margin-bottom: 0; }}
+        /* each section starts under a thin grey line, so the groups read apart */
+        .nav-label {{ font-size: 12px; line-height: 16px; color: {p['MUTED']}; padding: 16px 8px 4px;
+            margin-top: 12px; border-top: 1px solid {p['HAIRLINE']}; }}
+        .nav-rule {{ height: 1px; background: {p['HAIRLINE']}; margin: 12px 0 16px; }}
+        [data-testid="stMarkdownContainer"]:has(> .nav-label),
+        [data-testid="stMarkdownContainer"]:has(> .wordmark),
+        [data-testid="stMarkdownContainer"]:has(> .nav-rule) {{ margin-bottom: 0; }}
         </style>""",
         unsafe_allow_html=True,
     )
@@ -159,7 +164,7 @@ def wordmark() -> str:
     mark = (f"<svg width='22' height='22' viewBox='0 0 18 18' fill='{p['INK']}' aria-hidden='true'>"
             f"<path d='M6 12.5 13.5 5' stroke='{p['INK']}' stroke-width='2.5' stroke-linecap='round'/>"
             "<circle cx='6' cy='12' r='4.5'/><circle cx='14' cy='4.5' r='3'/></svg>")
-    return (f"<div style='display:flex;align-items:center;gap:10px;height:28px;padding:0 8px;margin-bottom:16px'>"
+    return (f"<div class='wordmark' style='display:flex;align-items:center;gap:10px;height:28px;padding:0 8px'>"
             f"{mark}<span style='font-size:20px;line-height:28px;font-weight:500;letter-spacing:-0.01em;"
             f"color:{p['INK']}'>Trace</span></div>")
 

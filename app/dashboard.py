@@ -133,7 +133,7 @@ with st.sidebar:
         for pg in group:
             st.page_link(pg, label=pg.title, icon=pg.icon, width="stretch")
 
-    st.markdown(f"<div style='height:1px;background:{ui.HAIRLINE};margin:20px 0 12px'></div>", unsafe_allow_html=True)
+    st.markdown("<div class='nav-rule'></div>", unsafe_allow_html=True)
     p = state.prepared()
     st.caption(f"Data: {p.name}")
     if state.has_truth():

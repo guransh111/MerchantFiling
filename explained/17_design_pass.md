@@ -76,6 +76,9 @@ raised grey panels, and a small search bar in the sidebar.
   dense 32px rows with small grey section names; the open page gets a soft grey highlight.
   The menu is drawn by our own code now (`st.navigation(position="hidden")` plus `st.page_link`), which is
   what makes the search and the custom rows possible.
+- **Sidebar spacing, follow-up.** The logo now has about 28px of room above the search bar instead of 14px.
+  Each group (Results, Operations, Tools, People) starts under a thin grey line, so the groups read apart;
+  the same line separates the page list from the data info at the bottom.
 
 - **A simpler Home.** The five-box ladder strip (Monitor to Offboard) is gone from Home; the ladder still
   appears on Overview and next to every merchant. Home now shows the top of the risk queue, then
