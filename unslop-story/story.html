@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrustLoop landing page: unslop story</title>
+<meta name="unslop-steps" content="Spacing, Color and type, Copy, Details and visual">
+<meta name="unslop-frame" content="136 0 1168">
+<!-- Story file for a short video: the original landing page (step 0) unslopping itself into the current one.
+     unslop by Damir Sokolovsky (@heydamir), CC BY 4.0. Fonts: IBM Plex, SIL Open Font License (fonts/OFL-IBM-Plex.txt). -->
+<style>
+  @font-face { font-family: "Plex Sans"; src: url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Plex Sans"; src: url(fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); font-weight: 500; }
+  @font-face { font-family: "Plex Sans"; src: url(fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); font-weight: 600 700; }
+  @font-face { font-family: "Plex Mono"; src: url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Plex Mono"; src: url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); font-weight: 500 700; }
+
+  /* ---------------- step 0: the original page, as it was ---------------- */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { width: 1440px; min-height: 1180px; background-color: #fcfcfb; color: #0b0b0b;
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { width: 1168px; margin: 0 auto; padding: 0 24px 64px; }
+  nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; color: #0b0b0b; }
+  .navlink { color: #52514e; font-size: 15px; }
+  .pip { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: #e6e3dc; margin-right: 3px; }
+
+  .hero { display: grid; grid-template-columns: 1fr 0fr; column-gap: 0px; align-items: center; padding: 16px 0 24px; }
+  .copy { min-width: 0; }
+  .eyebrow { color: #2a78d6; font-weight: 600; letter-spacing: 0.04em; font-size: 13px; margin: 0; }
+  .eyebrow .from { text-transform: uppercase; }
+  h1 { font-size: 46px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin: 10px 0 14px; max-width: 900px; }
+  .lede { font-size: 19px; line-height: 1.6; color: #52514e; max-width: 720px; margin: 0 0 26px; }
+  .cta { display: flex; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; height: 46px; padding: 0 20px; border-radius: 10px; font-weight: 600; font-size: 15px; }
+  .primary { background-color: #2a78d6; color: #ffffff; }
+  .secondary { background-color: #ffffff; color: #0b0b0b; border: 1px solid #e4e3df; }
+  .note { color: #8a8984; font-size: 13px; margin: 10px 0 0; }
+
+  .preview-col { min-width: 0; overflow: hidden; }
+  .preview { width: 520px; background-color: #ffffff; border: 1px solid rgba(17,24,39,0.08); border-radius: 16px; padding: 24px;
+             box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+  .pv-head { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(17,24,39,0.08); }
+  .pv-id { font: 500 16px/1.4 "Plex Mono", monospace; }
+  .pv-meta { color: #6b7487; font-size: 13px; }
+  .pv-title { font-size: 13px; color: #6b7487; margin: 20px 0 4px; }
+  .cmp { padding: 12px 0; border-bottom: 1px solid rgba(17,24,39,0.08); }
+  .cmp:last-of-type { border-bottom: 0; }
+  .cmp-top { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .fig-s { font: 13px "Plex Mono", monospace; color: #4b5565; }
+  .bars { display: grid; grid-template-columns: 64px 1fr; gap: 6px 10px; align-items: center; margin-top: 8px; font-size: 12px; color: #6b7487; }
+  .track { height: 6px; background-color: #eef1f5; border-radius: 3px; }
+  .fill { height: 6px; border-radius: 3px; }
+  .pv-foot { margin-top: 16px; padding: 12px 14px; background-color: #eceff4; border-radius: 10px; font-size: 13px; color: #4b5565; }
+
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 6px; }
+  .sub { color: #52514e; margin: 0 0 18px; font-size: 16px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat { background-color: #ffffff; border: 1px solid #e4e3df; border-radius: 14px; padding: 18px; }
+  .fig { font-size: 32px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
+  .lab { color: #52514e; font-size: 14px; margin-top: 8px; }
+
+  /* ---------------- step 1: spacing on the 4px scale ---------------- */
+  .s1 .hero { padding: 48px 0 64px; }
+  .s1 .eyebrow { margin: 0 0 16px; }
+  .s1 h1 { margin: 0 0 20px; }
+  .s1 .lede { margin: 0 0 32px; }
+  .s1 .note { margin: 16px 0 0; }
+  .s1 h2 { margin: 48px 0 8px; }
+  .s1 .sub { margin: 0 0 24px; }
+  .s1 .stats { gap: 12px; }
+  .s1 .stat { padding: 20px; }
+  .s1 .lab { margin-top: 12px; }
+
+  /* ---------------- step 2: ink-grey neutrals, one cobalt accent, IBM Plex ---------------- */
+  .s2 body { background-color: #f5f7fa; color: #111827; font-family: "Plex Sans", system-ui, sans-serif; }
+  .s2 .logo { color: #111827; }
+  .s2 .navlink { color: #4b5565; }
+  .s2 .eyebrow { color: #6b7487; font-weight: 400; letter-spacing: 0; font-size: 14px; }
+  .s2 h1 { font-weight: 500; letter-spacing: -0.03em; line-height: 1.06; font-size: 52px; }
+  .s2 .lede { color: #4b5565; font-size: 18px; }
+  .s2 .btn { font-weight: 500; }
+  .s2 .primary { background-color: #1f5fae; }
+  .s2 .secondary { color: #111827; border-color: rgba(17,24,39,0.10); }
+  .s2 .note { color: #6b7487; }
+  .s2 h2 { font-weight: 500; font-size: 28px; }
+  .s2 .sub { color: #4b5565; }
+  .s2 .stat { border-color: rgba(17,24,39,0.08); }
+  .s2 .fig { font-weight: 500; font-family: "Plex Mono", monospace; letter-spacing: 0; font-size: 30px; }
+  .s2 .lab { color: #111827; }
+  .s2 .pip.on1 { background-color: #1f5fae; }
+
+  /* ---------------- step 3: copy ---------------- */
+
+  /* ---------------- step 4: details and the product preview ---------------- */
+  .s4 .hero { grid-template-columns: 1fr 1fr; column-gap: 48px; }
+  .s4 h1 { font-size: 50px; }
+  .s4 .btn { border-radius: 10px; }
+  .s4 .stat { border-radius: 12px; }
+  .s4 .preview-col { overflow: visible; }
+</style>
+</head>
+<body>
+<main>
+  <nav data-gap="hero">
+    <div class="logo" data-in="2"><span><i class="pip on1"></i><i class="pip on1"></i><i class="pip"></i></span>TrustLoop</div>
+    <span class="navlink" data-in="2">Code and guide</span>
+  </nav>
+
+  <div class="hero">
+    <div class="copy">
+      <p class="eyebrow swap" data-at="3" data-gap="hero" data-slop="Tracked caps"><span class="from">Merchant Legitimacy Challenge</span><span class="to">For payment providers' risk and compliance teams</span></p>
+      <h1 class="swap" data-at="3" data-gap="hero" data-slop="Weight 700"><span class="from">TrustLoop: does this merchant's money match its declared business?</span><span class="to">Does this merchant's money match the business it declared?</span></h1>
+      <p class="lede" data-gap="hero">TrustLoop compares every UPI merchant with similar shops in the same week. Betting collections posing as kirana stores stand out; a sweet shop's Diwali rush doesn't. Every action comes with a reason the merchant can answer.</p>
+      <div class="cta" data-gap="hero">
+        <span class="btn primary">Open the live dashboard</span>
+        <span class="btn secondary swap" data-at="3"><span class="from">Code &amp; plain-English guide</span><span class="to">See the results</span></span>
+      </div>
+      <p class="note" data-gap="hero">The dashboard runs on a free server that sleeps when idle; the first load can take a minute</p>
+    </div>
+
+    <div class="preview-col">
+      <div class="preview" data-in="4">
+        <div class="pv-head">
+          <div><div class="pv-id">M0002</div><div class="pv-meta">Declared as kirana · Pune, tier 2 · expects ₹48,000/month</div></div>
+          <div style="display:flex;align-items:center;white-space:nowrap"><i class="pip" style="background-color:#c2410c"></i><i class="pip" style="background-color:#c2410c"></i><i class="pip" style="background-color:#c2410c"></i><i class="pip" style="background-color:#c2410c"></i><i class="pip"></i><span style="color:#c2410c;font-weight:500;font-size:14px;margin-left:6px">Review</span></div>
+        </div>
+        <p class="pv-title">This merchant vs similar kirana stores in tier-2 cities</p>
+        <div class="cmp"><div class="cmp-top"><span>Money received during cricket match hours</span><span class="fig-s">57% vs 10%</span></div>
+          <div class="bars"><span>M0002</span><div class="track"><div class="fill" style="width:57%;background-color:#1f5fae"></div></div><span>Peers</span><div class="track"><div class="fill" style="width:10%;background-color:#b8bfcc"></div></div></div></div>
+        <div class="cmp"><div class="cmp-top"><span>Money sent straight back out the same day</span><span class="fig-s">86% vs 24%</span></div>
+          <div class="bars"><span>M0002</span><div class="track"><div class="fill" style="width:86%;background-color:#1f5fae"></div></div><span>Peers</span><div class="track"><div class="fill" style="width:24%;background-color:#b8bfcc"></div></div></div></div>
+        <div class="cmp"><div class="cmp-top"><span>Takings vs turnover declared at sign-up</span><span class="fig-s">21.9× vs 1.1×</span></div>
+          <div class="bars"><span>M0002</span><div class="track"><div class="fill" style="width:100%;background-color:#1f5fae"></div></div><span>Peers</span><div class="track"><div class="fill" style="width:5%;background-color:#b8bfcc"></div></div></div></div>
+        <div class="pv-foot">UPI ID found on a public betting page; shares phones, a bank account and gamblers with 6 other merchants</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Results</h2>
+  <p class="sub">On a simulated world of 1,000 merchants over 37 weeks, calibrated to NPCI's July 2025 category data</p>
+  <div class="stats">
+    <div class="stat" data-radius><div class="fig">100%</div><div class="lab">of fronts and rented accounts penalised</div></div>
+    <div class="stat"><div class="fig swap" data-at="3"><span class="from">0 / 920</span><span class="to">0 of 920</span></div><div class="lab">honest shops penalised</div></div>
+    <div class="stat"><div class="fig swap" data-at="3"><span class="from">62% → 1%</span><span class="to">1%</span></div><div class="lab">Diwali false alarms</div></div>
+    <div class="stat" data-radius><div class="fig">7 days</div><div class="lab">median from first bet to a penalty</div></div>
+  </div>
+</main>
+</body>
+</html>
