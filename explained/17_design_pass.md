@@ -37,7 +37,63 @@ AI-built interfaces and replaces them with deliberate choices.
 
 Colours still carry meaning only: grey (Monitor), cobalt (Ask), amber (Friction), ember (Review), dark red (Offboard).
 
-## Dark mode
+## Second pass on Home (November 2026)
+
+A follow-up unslop check of the live Home page found only small problems, so the look stayed the same
+and just these were fixed:
+
+| Problem | Fixed to |
+|---|---|
+| The merchant count said twice ("Demo (simulated 1,000 merchants) · 1,000 merchants") | Said once |
+| A permanent "Light or dark: menu → Settings → Theme" note in the sidebar | Removed (this page still explains how to switch) |
+| "Open the risk queue" sat higher than the Load data button, which was stretched wide | One row, lined up, button only as wide as its label |
+| Uneven space around the ladder strip; a big empty band at the top and bottom | Even spacing; less padding at the top of every page |
+| Feature descriptions in pale caption grey, hard to read | Normal secondary text colour |
+| The sidebar hid five pages behind "View 5 more" | Every page is listed |
+| Home showed counts but nothing the system actually produces | **Top of the risk queue**: the three most serious merchants, each with its shop, the main reason in plain words, and the ladder pips |
+
+The preview uses the same live results as the Risk queue, so it changes when you load data or edit settings.
+Code: `home()` in `app/dashboard.py`, `queue_preview()` in `app/ui.py`.
+
+## Dark, soft-panel redesign (November 2026)
+
+Modelled on an Apple-style reference screenshot: dark graphite, soft rounded corners, sections on slightly
+raised grey panels, and a small search bar in the sidebar.
+
+**What changed**
+
+- **Dark for everyone.** The site no longer follows the viewer's computer setting; it is always dark.
+  Page `#111113`, panels `#1a1a1d`, controls `#222226`, sidebar `#0b0b0d`, faint edges `#2a2a2f`.
+  The greys are neutral (no blue tint), so the colour that remains means something: cobalt for the
+  main button and charts, and the five ladder colours.
+- **Sections sit on panels.** Each main section (a chart, a list, the analyst decision, the network picture,
+  the settings form) is on a raised panel with 14px corners. Every figure (`st.metric`) is its own small card.
+  Tables, expanders and notices get the same soft corners.
+- **Softer corners everywhere.** Buttons and inputs 10px, cards 12px, panels 14px.
+- **A new sidebar.** The Trace logo (a flat off-white mark of two linked merchants, a big one and a small one
+  tied to it, for "follow the links") and name, then a **search bar**: type a page name
+  ("network") to open that page, or a merchant ID ("M0002") to open its case file. Below it, every page in
+  dense 32px rows with small grey section names; the open page gets a soft grey highlight.
+  The menu is drawn by our own code now (`st.navigation(position="hidden")` plus `st.page_link`), which is
+  what makes the search and the custom rows possible.
+
+- **A simpler Home.** The five-box ladder strip (Monitor to Offboard) is gone from Home; the ladder still
+  appears on Overview and next to every merchant. Home now shows the top of the risk queue, then
+  **How Trace decides**: the three ideas side by side on one panel, numbered 01 to 03, split by faint lines.
+
+**Where it lives**
+
+- `.streamlit/config.toml`: the dark colours, corner sizes, fonts
+- `app/ui.py`: `style()` (panels, cards, sidebar), `panel()` (wraps a section), `wordmark()`, the palettes
+- `app/dashboard.py`: the sidebar (search and page list)
+- Pages put sections on panels with `with ui.panel("name"):`
+
+**Limits:** Streamlit draws some parts itself (the ⋮ menu, table headers, dropdown lists). They follow the
+dark colours but can't be shaped exactly like the reference. On Streamlit Cloud, **reboot the app** after
+this update, because theme settings are only read at start-up.
+
+## Earlier dark mode (replaced by the section above)
+
 
 The dashboard has a matching dark theme: deep ink surfaces (`#0b0d14`), light text, and a slightly
 brighter cobalt (`#3a76c4` for buttons, `#5b93d9` in charts) so contrast stays readable. The ladder colours

@@ -53,7 +53,7 @@ def merchant_view():
         if len(st.session_state.extra_decl) and mid in set(st.session_state.extra_decl.merchant_id):
             st.success("Explanation received. A person will review it within 72 hours. You can appeal to our grievance "
                        f"officer if you disagree. Current action: **{C.LEVEL_SHORT[int(row.level)]}**.")
-    with right:
+    with right, ui.panel("mv_tier"):
         st.markdown("##### Your trust tier")
         tier = {0: ("Gold", "same-day settlement"), 1: ("Silver", "next-day settlement"),
                 2: ("Bronze", "T+2 settlement"), 3: ("Under review", "20% reserve held"),

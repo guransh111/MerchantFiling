@@ -1,13 +1,16 @@
 """Shared look: palettes for light and dark, chart theme, ladder colours and the 'ladder pips' signature.
 
 Design pass after unslop by Damir Sokolovsky (@heydamir, CC BY 4.0):
-quiet ink-grey chrome, one cobalt accent, colour only where it means something.
+quiet graphite chrome, sections on soft raised panels, one cobalt accent, colour only where it means
+something.
 
-Light or dark follows the viewer's choice (menu ⋮ → Settings → Theme, or their system setting).
+The app is dark for everyone; the light palette is kept for a future light theme.
 Colours are looked up per session when something is drawn, so two viewers on different themes
 never affect each other: `ui.ACCENT`, `ui.INK` etc. always return the current viewer's palette.
 """
 from __future__ import annotations
+
+import html
 
 import altair as alt
 import streamlit as st
@@ -16,30 +19,31 @@ MONO = "IBM Plex Mono, ui-monospace, monospace"
 SANS = "IBM Plex Sans, system-ui, sans-serif"
 LEVEL_NAME = {0: "Monitor", 1: "Ask", 2: "Friction", 3: "Review", 4: "Offboard"}
 
-# ink ramp, light and dark (unslop tokens). The ladder colours step from quiet to serious.
+# graphite ramp, dark (the default) and light. PANEL is the raised surface a section sits on, one step
+# lighter than the page; HAIRLINE is its edge. The ladder colours step from quiet to serious.
 PALETTES = {
-    "light": {
-        "INK": "#111827", "INK_2": "#4b5565", "MUTED": "#6b7487",
-        "HAIRLINE": "#e3e7ee", "RAISED": "#f4f6f9", "TRACK": "#eef1f5", "BAND": "#f1f3f7",
-        "ACCENT": "#1f5fae", "NEUTRAL_BAR": "#b8bfcc", "EDGE": "#c9ced8", "GOOD": "#16a34a", "BG": "#ffffff",
-        "LEVEL_COLOR": {0: "#9aa3b2", 1: "#1f5fae", 2: "#b45309", 3: "#c2410c", 4: "#7f1d1d"},
-    },
     "dark": {
-        "INK": "#eef0f5", "INK_2": "#a3a9b8", "MUTED": "#8a91a3",
-        "HAIRLINE": "#262b36", "RAISED": "#1a1e28", "TRACK": "#1f2430", "BAND": "#161a23",
-        "ACCENT": "#5b93d9", "NEUTRAL_BAR": "#4a5263", "EDGE": "#3a4150", "GOOD": "#4cc38a", "BG": "#0b0d14",
-        "LEVEL_COLOR": {0: "#6b7385", 1: "#5b93d9", 2: "#d08a3a", 3: "#e0703f", 4: "#d05a5a"},
+        "INK": "#ededef", "INK_2": "#a1a1a8", "MUTED": "#85858d",
+        "BG": "#111113", "PANEL": "#1a1a1d", "RAISED": "#222226", "HAIRLINE": "#2a2a2f",
+        "TRACK": "#2c2c31", "BAND": "#222226", "ACTIVE": "#232327",
+        "ACCENT": "#5b93d9", "NEUTRAL_BAR": "#4a4a51", "EDGE": "#3a3a40", "GOOD": "#4cc38a",
+        "LEVEL_COLOR": {0: "#76767e", 1: "#5b93d9", 2: "#d08a3a", 3: "#e0703f", 4: "#d05a5a"},
+    },
+    "light": {
+        "INK": "#1c1c1f", "INK_2": "#56565e", "MUTED": "#6e6e76",
+        "BG": "#f5f5f7", "PANEL": "#ffffff", "RAISED": "#ececef", "HAIRLINE": "#e2e2e6",
+        "TRACK": "#e8e8ec", "BAND": "#efeff2", "ACTIVE": "#dedee3",
+        "ACCENT": "#1f5fae", "NEUTRAL_BAR": "#bdbdc4", "EDGE": "#cbcbd1", "GOOD": "#16a34a",
+        "LEVEL_COLOR": {0: "#9a9aa2", 1: "#1f5fae", 2: "#b45309", 3: "#c2410c", 4: "#7f1d1d"},
     },
 }
 
 
 def mode() -> str:
-    """'dark' or 'light' for the current viewer (light until the browser has told us)."""
-    try:
-        t = st.context.theme.type
-    except Exception:  # outside a Streamlit run (tests, scripts)
-        t = None
-    return "dark" if t == "dark" else "light"
+    """The palette to draw with. The app is dark for everyone (.streamlit/config.toml), and Streamlit reports
+    the browser's own light/dark setting rather than the app's, so this stays dark. The light palette is kept
+    for printing or a future light theme."""
+    return "dark"
 
 
 def pal() -> dict:
@@ -87,18 +91,82 @@ def pips(level: int, label: bool = True) -> str:
     return f"<span style='display:inline-flex;align-items:center;vertical-align:middle' title='{LEVEL_NAME[level]}'>{cells}{text}</span>"
 
 
-def style():
-    """Small finishing touches the theme can't express."""
+def style(current: str = ""):
+    """Finishing touches the theme can't express: panels, soft corners, the sidebar.
+
+    `current` is the open page's address, so its sidebar row gets the highlight."""
     p = pal()
     st.markdown(
         f"""<style>
-        [data-testid="stMetricValue"] {{ font-variant-numeric: tabular-nums; }}
-        [data-testid="stMetricLabel"] p {{ color: {p['INK_2']}; }}
-        [data-testid="stCaptionContainer"] {{ color: {p['MUTED']}; }}
+        [data-testid="stMainBlockContainer"] {{ padding-top: 48px; max-width: 1440px; }}
         h1 {{ letter-spacing: -0.01em; }}
+        [data-testid="stCaptionContainer"] {{ color: {p['MUTED']}; }}
+
+        /* sections sit on soft raised panels (ui.panel), one step lighter than the page */
+        [class*="st-key-panel_"], [data-testid="stForm"] {{
+            background: {p['PANEL']}; border: 1px solid {p['HAIRLINE']} !important;
+            border-radius: 14px !important; padding: 20px 24px !important; }}
+        [class*="st-key-panel_"] h5 {{ padding-top: 0; }}
+
+        /* figures: each metric is a small card */
+        [data-testid="stMetric"] {{ background: {p['PANEL']}; border: 1px solid {p['HAIRLINE']};
+            border-radius: 12px; padding: 16px 20px; height: 100%; }}
+        [class*="st-key-panel_"] [data-testid="stMetric"] {{ background: {p['RAISED']}; border-color: transparent;
+            border-radius: 10px; padding: 12px 16px; }}
+        [data-testid="stMetricValue"] {{ font-variant-numeric: tabular-nums; font-family: {MONO}; }}
+        [data-testid="stMetricLabel"] p {{ color: {p['INK_2']}; }}
+        [data-testid="stMetricLabel"] div, [data-testid="stMetricLabel"] p {{ white-space: normal !important;
+            overflow: visible !important; text-overflow: clip !important; }}
+
+        /* tables, expanders, notices: same soft corners */
+        [data-testid="stDataFrame"] > div {{ border-radius: 12px; overflow: hidden; }}
+        [data-testid="stExpander"] details {{ background: {p['PANEL']}; border-color: {p['HAIRLINE']};
+            border-radius: 12px; }}
+        [data-testid="stAlert"] > div {{ border-radius: 10px; }}
+
+        /* sidebar: a wordmark, a small search, dense rows with a soft grey highlight */
+        /* Streamlit keeps an empty 56px band at the top for its collapse button; float the button in the
+           top-right corner instead, so the logo can sit at the top beside it */
+        [data-testid="stSidebarHeader"] {{ position: absolute; top: 0; right: 16px; width: auto; height: 56px;
+            z-index: 2; }}
+        [data-testid="stSidebarUserContent"] {{ padding-top: 14px; }}
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{ gap: 2px; }}
+        .st-key-nav_search {{ margin: 0 0 12px; }}
+        .st-key-nav_search [data-testid="stTextInputRootElement"] {{ height: 32px; min-height: 32px;
+            background: {p['PANEL']}; border: 1px solid {p['HAIRLINE']}; border-radius: 8px; }}
+        .st-key-nav_search input {{ font-size: 13px; background: transparent; }}
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stPageLink"]) {{ margin: 0; }}
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] {{ height: 32px; min-height: 32px; margin: 0;
+            padding: 0 8px; border-radius: 8px; background: transparent; transition: background-color 120ms ease-out; }}
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"]:hover {{ background: {p['PANEL']}; }}
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] p {{ font-size: 14px; font-weight: 400; }}
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] span {{ color: {p['INK_2']}; }}
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"][href="{current}"] {{
+            background: {p['ACTIVE']}; box-shadow: inset 0 0 0 1px {p['HAIRLINE']}; }}
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"][href="{current}"] span,
+        [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"][href="{current}"] p {{ color: {p['INK']}; }}
+        .nav-label {{ font-size: 12px; line-height: 16px; color: {p['MUTED']}; padding: 16px 8px 4px; }}
+        [data-testid="stMarkdownContainer"]:has(> .nav-label) {{ margin-bottom: 0; }}
         </style>""",
         unsafe_allow_html=True,
     )
+
+
+def wordmark() -> str:
+    """The logo: a flat mark in one solid colour, then the name. The mark is two linked merchants, a big one
+    and a small one tied to it, for what Trace does: follow the links between accounts."""
+    p = pal()
+    mark = (f"<svg width='22' height='22' viewBox='0 0 18 18' fill='{p['INK']}' aria-hidden='true'>"
+            f"<path d='M6 12.5 13.5 5' stroke='{p['INK']}' stroke-width='2.5' stroke-linecap='round'/>"
+            "<circle cx='6' cy='12' r='4.5'/><circle cx='14' cy='4.5' r='3'/></svg>")
+    return (f"<div style='display:flex;align-items:center;gap:10px;height:28px;padding:0 8px;margin-bottom:16px'>"
+            f"{mark}<span style='font-size:20px;line-height:28px;font-weight:500;letter-spacing:-0.01em;"
+            f"color:{p['INK']}'>Trace</span></div>")
+
+
+def panel(key: str):
+    """A section on a soft raised panel. Use as `with ui.panel("overview_trend"):` (keys unique per page)."""
+    return st.container(key=f"panel_{key}")
 
 
 # lucide line icons (stroke 1.5) for the few places that render raw HTML
@@ -147,18 +215,33 @@ def ladder_list(counts: dict, describe: bool = True) -> str:
     return "".join(rows)
 
 
-def ladder_strip(counts: dict) -> str:
-    """The ladder at a glance, in one row: pips, step name and how many merchants sit there."""
+def queue_preview(rows) -> str:
+    """A few merchants from the top of the queue: ID and declared shop, the main reason, and the pips."""
+    p = pal()
+    out = []
+    for i, r in enumerate(rows.itertuples()):
+        shop = f"{str(r.category).replace('_', ' ').capitalize()} · {r.city}"
+        reason = html.escape(str(r.reason_1 or "")) or "Network or account change only"
+        border = "none" if i == 0 else f"1px solid {p['HAIRLINE']}"
+        out.append(
+            f"<div style='display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding:16px 20px;border-top:{border}'>"
+            f"<div style='width:160px'><div style='font-family:{MONO};font-size:14px;color:{p['INK']}'>{r.merchant_id}</div>"
+            f"<div style='font-size:13px;color:{p['MUTED']};margin-top:2px'>{shop}</div></div>"
+            f"<div style='flex:1;min-width:240px;font-size:14px;line-height:1.5;color:{p['INK_2']}'>{reason}</div>"
+            f"<div style='width:132px'>{pips(int(r.level))}</div></div>")
+    return (f"<div style='background:{p['PANEL']};border:1px solid {p['HAIRLINE']};border-radius:14px;overflow:hidden'>"
+            + "".join(out) + "</div>")
+
+
+def principles(items) -> str:
+    """Home's three ideas: one panel, three equal columns split by hairlines, a title and a line each."""
     p = pal()
     cells = []
-    for lvl in range(5):
-        color = p["LEVEL_COLOR"][lvl] if lvl else p["INK_2"]
+    for i, (title, text) in enumerate(items):
         cells.append(
-            f"<div style='flex:1;min-width:120px;padding:16px 20px;"
-            f"border-left:{'none' if lvl == 0 else '1px solid ' + p['HAIRLINE']}'>"
-            f"<div>{pips(lvl, label=False)}</div>"
-            f"<div style='font-family:{MONO};font-size:28px;font-weight:500;color:{p['INK']};margin-top:10px;"
-            f"font-variant-numeric:tabular-nums'>{int(counts.get(lvl, 0)):,}</div>"
-            f"<div style='font-size:14px;color:{color};font-weight:500'>{LEVEL_NAME[lvl]}</div></div>")
-    return (f"<div style='display:flex;flex-wrap:wrap;border:1px solid {p['HAIRLINE']};border-radius:12px;"
-            f"overflow:hidden'>" + "".join(cells) + "</div>")
+            f"<div style='flex:1 1 220px;padding:20px 24px;border-left:{'none' if i == 0 else '1px solid ' + p['HAIRLINE']}'>"
+            f"<div style='font-family:{MONO};font-size:12px;color:{p['MUTED']}'>{i + 1:02d}</div>"
+            f"<div style='font-size:15px;font-weight:500;color:{p['INK']};margin-top:8px'>{title}</div>"
+            f"<div style='font-size:14px;line-height:1.55;color:{p['INK_2']};margin-top:4px'>{text}</div></div>")
+    return (f"<div style='display:flex;flex-wrap:wrap;background:{p['PANEL']};border:1px solid {p['HAIRLINE']};"
+            f"border-radius:14px;overflow:hidden'>" + "".join(cells) + "</div>")

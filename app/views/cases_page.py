@@ -67,53 +67,54 @@ def page():
     st.dataframe(v.sort_values(["overdue", "opened"], ascending=[False, False]).drop(columns=["level_at_open"]),
                  hide_index=True, width="stretch", height=320)
 
-    st.markdown("##### Work a case")
-    order = v.sort_values("opened", ascending=False).case_id.tolist()
-    if not order:
-        return
-    cid = st.selectbox("Case", order, format_func=lambda x: f"{x} · {c.set_index('case_id').loc[x, 'merchant_id']} · "
-                                                         f"{c.set_index('case_id').loc[x, 'status']}")
-    case = c.set_index("case_id").loc[cid]
-    mid = case.merchant_id
-    row = d.set_index("merchant_id").loc[mid]
-    left, right = st.columns([3, 2])
-    with left:
-        st.markdown(f"**{mid}** · {str(row.category).replace('_', ' ')} · {row.city} · system action "
-                    f"{state.level_badge(int(row.level))} · risk {row.risk_score:.0f}", unsafe_allow_html=True)
-        for x in [row.reason_1, row.reason_2, row.reason_3]:
-            if isinstance(x, str) and x:
-                st.markdown(f"- {x}")
-        due = pd.Timestamp(case.due)
-        if case.status in K.OPEN:
-            hrs = (due - now).total_seconds() / 3600
-            (st.error if hrs < 0 else st.warning if hrs < 24 else st.caption)(
-                f"Deadline {due:%d %b %H:%M}: " + (f"overdue by {-hrs:.0f}h" if hrs < 0 else f"{hrs:.0f}h left"))
-        st.markdown("##### Audit log")
-        log = e[e.case_id == cid].sort_values("ts")
-        st.dataframe(log[["ts", "actor", "action", "note"]], hide_index=True, width="stretch")
-    with right:
-        st.markdown(f"Status: {status_dot(case.status)}", unsafe_allow_html=True)
-        allowed = K.ACTIONS.get(case.status, [])
-        if not allowed:
-            st.caption("This case is closed. No further actions.")
-        else:
-            actor = st.text_input("Your name", value=st.session_state.get("analyst_name", "Analyst"), key="actor")
-            st.session_state.analyst_name = actor
-            note = st.text_area("Note / evidence", key=f"cnote_{cid}")
-            for a in allowed:
-                if st.button(K.ACTION_LABEL[a], key=f"{cid}_{a}", type="primary" if a in ("confirm", "uphold") else "secondary"):
-                    who = "merchant" if a in ("merchant_responded", "appeal") else actor
-                    c2, e2 = K.act(c.copy(), e.copy(), cid, a, now, who, note)
-                    state.save_cases(c2, e2)
-                    if a in ("confirm", "uphold"):
-                        state.add_review(mid, "confirmed", f"{cid}: {note}", source="case management")
-                    elif a in ("clear", "overturn"):
-                        state.add_review(mid, "cleared", f"{cid}: {note}", source="case management")
-                    st.rerun()
-        if case.outcome == "confirmed":
-            st.markdown("##### Regulatory reporting")
-            st.download_button("Draft STR for FIU-IND (Markdown)", RPT.str_draft(mid, r, state.prepared(), case_id=cid,
-                               events=e[e.case_id == cid]), f"STR_draft_{mid}.md", key=f"str_{cid}")
+    with ui.panel("case_work"):
+        st.markdown("##### Work a case")
+        order = v.sort_values("opened", ascending=False).case_id.tolist()
+        if not order:
+            return
+        cid = st.selectbox("Case", order, format_func=lambda x: f"{x} · {c.set_index('case_id').loc[x, 'merchant_id']} · "
+                                                             f"{c.set_index('case_id').loc[x, 'status']}")
+        case = c.set_index("case_id").loc[cid]
+        mid = case.merchant_id
+        row = d.set_index("merchant_id").loc[mid]
+        left, right = st.columns([3, 2])
+        with left:
+            st.markdown(f"**{mid}** · {str(row.category).replace('_', ' ')} · {row.city} · system action "
+                        f"{state.level_badge(int(row.level))} · risk {row.risk_score:.0f}", unsafe_allow_html=True)
+            for x in [row.reason_1, row.reason_2, row.reason_3]:
+                if isinstance(x, str) and x:
+                    st.markdown(f"- {x}")
+            due = pd.Timestamp(case.due)
+            if case.status in K.OPEN:
+                hrs = (due - now).total_seconds() / 3600
+                (st.error if hrs < 0 else st.warning if hrs < 24 else st.caption)(
+                    f"Deadline {due:%d %b %H:%M}: " + (f"overdue by {-hrs:.0f}h" if hrs < 0 else f"{hrs:.0f}h left"))
+            st.markdown("##### Audit log")
+            log = e[e.case_id == cid].sort_values("ts")
+            st.dataframe(log[["ts", "actor", "action", "note"]], hide_index=True, width="stretch")
+        with right:
+            st.markdown(f"Status: {status_dot(case.status)}", unsafe_allow_html=True)
+            allowed = K.ACTIONS.get(case.status, [])
+            if not allowed:
+                st.caption("This case is closed. No further actions.")
+            else:
+                actor = st.text_input("Your name", value=st.session_state.get("analyst_name", "Analyst"), key="actor")
+                st.session_state.analyst_name = actor
+                note = st.text_area("Note / evidence", key=f"cnote_{cid}")
+                for a in allowed:
+                    if st.button(K.ACTION_LABEL[a], key=f"{cid}_{a}", type="primary" if a in ("confirm", "uphold") else "secondary"):
+                        who = "merchant" if a in ("merchant_responded", "appeal") else actor
+                        c2, e2 = K.act(c.copy(), e.copy(), cid, a, now, who, note)
+                        state.save_cases(c2, e2)
+                        if a in ("confirm", "uphold"):
+                            state.add_review(mid, "confirmed", f"{cid}: {note}", source="case management")
+                        elif a in ("clear", "overturn"):
+                            state.add_review(mid, "cleared", f"{cid}: {note}", source="case management")
+                        st.rerun()
+            if case.outcome == "confirmed":
+                st.markdown("##### Regulatory reporting")
+                st.download_button("Draft STR for FIU-IND (Markdown)", RPT.str_draft(mid, r, state.prepared(), case_id=cid,
+                                   events=e[e.case_id == cid]), f"STR_draft_{mid}.md", key=f"str_{cid}")
 
     a, b = st.columns(2)
     a.download_button("Download all cases (CSV)", c.to_csv(index=False), "cases.csv")

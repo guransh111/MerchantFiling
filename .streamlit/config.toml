@@ -1,7 +1,8 @@
-# Look and feel, following an "unslop" pass (unslop by Damir Sokolovsky, @heydamir, CC BY 4.0).
-# Direction: a compliance desk. Ink-grey neutrals, one cobalt accent, IBM Plex for an exact,
-# accountable voice, IBM Plex Mono for figures and meta. Light and dark share everything but colour;
-# viewers switch with the menu (⋮ → Settings → Theme) or follow their system setting.
+# Look and feel, following "unslop" passes (unslop by Damir Sokolovsky, @heydamir, CC BY 4.0).
+# Direction: a compliance desk at night. Dark by default: soft graphite greys, sections on slightly
+# raised panels, soft rounded corners, one cobalt accent. IBM Plex Sans for text, IBM Plex Mono for
+# figures. Everyone sees the dark theme; the light palette in app/ui.py is used only if a viewer
+# picks Streamlit's Light theme from the menu.
 
 [server]
 # CSV/Excel uploads up to 200 MB
@@ -20,53 +21,33 @@ headingFont = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+S
 codeFont = "IBM Plex Mono:https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap, monospace"
 baseFontSize = 15
 headingFontWeights = [500, 500, 500, 500, 500, 500]
-headingFontSizes = ["30px", "22px", "18px", "16px", "15px", "14px"]
-metricValueFontSize = "28px"
+headingFontSizes = ["28px", "22px", "18px", "15px", "15px", "14px"]
+metricValueFontSize = "26px"
 metricValueFontWeight = 500
-baseRadius = "8px"
-buttonRadius = "8px"
+baseRadius = "10px"
+buttonRadius = "10px"
 linkUnderline = false
 showWidgetBorder = true
 
-[theme.light]
-primaryColor = "#1f5fae"
-backgroundColor = "#ffffff"
-secondaryBackgroundColor = "#f4f6f9"
-textColor = "#111827"
-linkColor = "#1f5fae"
-borderColor = "#e3e7ee"
-dataframeBorderColor = "#e9ecf1"
-dataframeHeaderBackgroundColor = "#f7f8fa"
-dataframeHeaderTextColor = "#4b5565"
-blueColor = "#1f5fae"
-greenColor = "#16a34a"
-redColor = "#c0392b"
-orangeColor = "#b45309"
-yellowColor = "#a16207"
-chartCategoricalColors = ["#1f5fae", "#9aa3b2", "#b45309", "#c2410c", "#5b6b85", "#7f1d1d"]
-
-[theme.light.sidebar]
-backgroundColor = "#f4f6f9"
-secondaryBackgroundColor = "#eceff4"
-
-[theme.dark]
-# ink ramp at night: deep ink surfaces, light text, a brighter cobalt that still reads on dark
+# graphite at night: the page, raised panels one step lighter, controls one step lighter again
+base = "dark"
 primaryColor = "#3a76c4"
-backgroundColor = "#0b0d14"
-secondaryBackgroundColor = "#1a1e28"
-textColor = "#eef0f5"
+backgroundColor = "#111113"
+secondaryBackgroundColor = "#222226"
+textColor = "#ededef"
 linkColor = "#7aa8e3"
-borderColor = "#262b36"
-dataframeBorderColor = "#232833"
-dataframeHeaderBackgroundColor = "#11141c"
-dataframeHeaderTextColor = "#a3a9b8"
+borderColor = "#2a2a2f"
+dataframeBorderColor = "#2a2a2f"
+dataframeHeaderBackgroundColor = "#1f1f23"
+dataframeHeaderTextColor = "#a1a1a8"
 blueColor = "#5b93d9"
 greenColor = "#4cc38a"
 redColor = "#e5484d"
 orangeColor = "#d08a3a"
 yellowColor = "#d4a72c"
-chartCategoricalColors = ["#5b93d9", "#6b7385", "#d08a3a", "#e0703f", "#8a98b8", "#d05a5a"]
+chartCategoricalColors = ["#5b93d9", "#6e6e76", "#d08a3a", "#e0703f", "#9a9aa2", "#d05a5a"]
 
-[theme.dark.sidebar]
-backgroundColor = "#07080d"
-secondaryBackgroundColor = "#11141c"
+[theme.sidebar]
+backgroundColor = "#0b0b0d"
+secondaryBackgroundColor = "#1a1a1d"
+borderColor = "#1f1f23"

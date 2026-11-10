@@ -2,7 +2,7 @@
 
 Pages
 -----
-Home                       what Trace does, the ladder at a glance, and the Load data window
+Home                       what Trace does, the top of the risk queue, how Trace decides, and the Load data window
                            (upload your own CSV/Excel, generate a simulated world, templates)
 Overview / Risk queue      what the system recommends
 Merchant drill-down        full case file + analyst confirm / clear buttons
@@ -34,7 +34,6 @@ from views import (analysis, cases_page, check_one, data_page, experience, intel
 
 st.set_page_config(page_title="Trace", layout="wide", page_icon=":material/sync_alt:")
 state.init()
-ui.style()
 
 
 PAGE_LINKS: dict = {}  # filled once the pages exist, used by Home's link to the risk queue
@@ -53,27 +52,29 @@ def home():
         st.toast(msg, icon=":material/check_circle:")
 
     st.title("Trace")
-    st.markdown(f"<p style='font-size:19px;line-height:1.5;color:{ui.INK_2};max-width:38rem;margin:-4px 0 20px'>"
+    st.markdown(f"<p style='font-size:19px;line-height:1.5;color:{ui.INK_2};max-width:38rem;margin:-4px 0 24px'>"
                 "Finds UPI merchants whose money doesn't match the business they declared, "
                 "without punishing honest shops.</p>", unsafe_allow_html=True)
-    a, b, _ = st.columns([1, 1.3, 3])
-    if a.button("Load data", type="primary", icon=":material/upload_file:", width="stretch"):
+    row = st.container(horizontal=True, vertical_alignment="center", gap="medium")
+    if row.button("Load data", type="primary", icon=":material/upload_file:"):
         load_data_window()
-    b.page_link(PAGE_LINKS["queue"], label="Open the risk queue", icon=":material/arrow_forward:")
-    st.caption(f"{p.name} · {len(d):,} merchants · as of {state.clock():%d %b %Y}")
+    row.page_link(PAGE_LINKS["queue"], label="Open the risk queue", icon=":material/arrow_forward:")
+    # the dataset name may already carry the merchant count; say it once
+    count = "" if "merchants" in p.name else f" · {len(d):,} merchants"
+    st.caption(f"{p.name}{count} · as of {state.clock():%d %b %Y}")
 
-    st.write("")
-    st.markdown(ui.ladder_strip(d.level.value_counts().to_dict()), unsafe_allow_html=True)
-    st.write("")
+    top = d[d.level >= 1].sort_values(["level", "risk_score"], ascending=False).head(3)
+    if len(top):
+        st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+        st.markdown("##### Top of the risk queue")
+        st.markdown(f"<div style='margin:-4px 0 40px'>{ui.queue_preview(top)}</div>", unsafe_allow_html=True)
 
-    cols = st.columns(3, gap="large")
-    for col, (title, text) in zip(cols, [
+    st.markdown("##### How Trace decides")
+    st.markdown(ui.principles([
         ("Compare with peers", "Each merchant against similar shops in the same week, so festival rushes stay normal"),
         ("Follow the links", "Shared phones, bank accounts and gamblers tie fronts to known betting accounts"),
         ("Ask before you punish", "Every action has a reason; money is held only with a second source of evidence"),
-    ]):
-        col.markdown(f"##### {title}")
-        col.caption(text)
+    ]), unsafe_allow_html=True)
 
 
 pages = {
@@ -93,12 +94,48 @@ pages = {
     "People": [st.Page(experience.merchant_view, title="Merchant's view", icon=":material/storefront:", url_path="merchant-view"),
                st.Page(experience.payer_view, title="Customer's payment screen", icon=":material/smartphone:", url_path="payer")],
 }
-PAGE_LINKS.update(queue=pages["Results"][1])
-nav = st.navigation(pages)
+PAGE_LINKS.update(queue=pages["Results"][1], merchant=pages["Results"][2])
+nav = st.navigation(pages, position="hidden")  # the sidebar below draws the menu itself
+ui.style(current="" if nav.url_path in ("", "home") else nav.url_path)  # Home links to "" as the default page
+ALL_PAGES = [pg for group in pages.values() for pg in group]
+
+
+def _search_submitted():
+    """Remember what was typed and clear the box; the jump happens below, outside the callback."""
+    st.session_state._search_go = st.session_state.nav_search.strip()
+    st.session_state.nav_search = ""
+
+
+def _run_search(q: str):
+    """A page name opens that page; a merchant ID opens its case file in Merchant drill-down."""
+    ql = q.lower()
+    for pg in ALL_PAGES:
+        if ql in pg.title.lower():
+            st.switch_page(pg)
+    ids = state.results().decisions.merchant_id
+    hit = ids[ids.str.lower() == ql]
+    if hit.empty:
+        hit = ids[ids.str.lower().str.contains(ql, regex=False)]
+    if len(hit):
+        st.session_state.focus_merchant = hit.iloc[0]
+        st.switch_page(PAGE_LINKS["merchant"])
+    st.toast(f"Nothing matches \"{q}\"", icon=":material/search_off:")
+
 
 with st.sidebar:
+    st.markdown(ui.wordmark(), unsafe_allow_html=True)
+    st.text_input("Search", key="nav_search", placeholder="Search", icon=":material/search:",
+                  label_visibility="collapsed", on_change=_search_submitted,
+                  help="A page name, or a merchant ID such as M0002")
+    for section, group in pages.items():
+        if section:
+            st.markdown(f"<div class='nav-label'>{section}</div>", unsafe_allow_html=True)
+        for pg in group:
+            st.page_link(pg, label=pg.title, icon=pg.icon, width="stretch")
+
+    st.markdown(f"<div style='height:1px;background:{ui.HAIRLINE};margin:20px 0 12px'></div>", unsafe_allow_html=True)
     p = state.prepared()
-    st.caption(f"**Data:** {p.name}")
+    st.caption(f"Data: {p.name}")
     if state.has_truth():
         st.toggle("Show hidden truth", key="reveal",
                   help="Synthetic data knows which merchants are really fronts. A real provider never has this; "
@@ -106,8 +143,10 @@ with st.sidebar:
     n_rev, n_dec = len(st.session_state.reviews), len(st.session_state.extra_decl)
     if n_rev or n_dec:
         st.caption(f"This session: {n_rev} analyst decisions, {n_dec} merchant explanations")
-    st.caption("Light or dark: menu ⋮ → Settings → Theme")
     if st.session_state.tl_settings != state.C.Settings():
         st.caption("Custom settings active")
+
+if q := st.session_state.pop("_search_go", ""):
+    _run_search(q)
 
 nav.run()
