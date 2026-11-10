@@ -97,6 +97,25 @@ raised grey panels, and a small search bar in the sidebar.
   appears on Overview and next to every merchant. Home now shows
   **How Trace decides**: the three ideas side by side on one panel, numbered 01 to 03, split by faint lines.
 
+- **Infographics on three more pages.** Same idea as Overview: a strip of big figures at the top, then pictures
+  instead of plain lists. All of it comes from the live results; none of it uses the hidden truth.
+  - **Merchant drill-down.** A header panel with the merchant, its ladder step, and its risk score drawn on a
+    0-100 scale over the ladder bands (Monitor, Ask, Friction, Review, with the threshold numbers). Under it, a
+    strip of the four scores behind the decision (drift, network, learned model, anomaly), each with a bar.
+    **Why** now draws every reason as two bars, this merchant against similar shops (e.g. 57% vs 10%).
+    UPI-vs-GST figures sit in their own strip; links to other merchants and the hour-of-day chart are on panels.
+  - **Case management.** "63 cases: 3 open, 48 confirmed, 12 cleared" as a strip (all cases has one stacked bar
+    split by outcome). Then **Open cases against the 72-hour clock**: one bar per open case showing how much of
+    its allowed time is used (blue, orange in the last third, red when overdue), and **How the desk is doing**:
+    replies within 72h, share cleared as genuine, appeals overturned. The table has readable column names and
+    dates; reasons in **Work a case** are drawn as bars too.
+  - **Learning loop.** "From 82 analyst decisions to new weights" as a strip: decisions used (split confirmed /
+    cleared), confirmed, cleared, and the cross-validated AUC on a 0.5-1.0 bar. Next to **What it learned**,
+    a new **Weights now and suggested** chart: one row per signal, a grey dot for today's weight, a blue dot for
+    the suggested one, a line between them; the exact table is in an expander under the Apply button.
+  - Code: `funnel()` (now takes text figures and stacked bars), `reason_compare()`, `risk_scale()`,
+    `clock_rows()` in `app/ui.py`; the pages in `app/views/analysis.py`, `cases_page.py`, `learning_perf.py`.
+
 **Where it lives**
 
 - `.streamlit/config.toml`: the dark colours, corner sizes, fonts

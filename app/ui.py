@@ -11,6 +11,9 @@ never affect each other: `ui.ACCENT`, `ui.INK` etc. always return the current vi
 from __future__ import annotations
 
 
+import html
+import re
+
 import altair as alt
 import streamlit as st
 
@@ -240,20 +243,28 @@ def principles(items) -> str:
 
 
 def funnel(steps) -> str:
-    """Home's main figure: how the watched merchants narrow down the ladder. Each step is
-    (figure, label, note, colour, share of all merchants); the thin bar under each figure shows that share."""
+    """A strip of big figures on one panel, the main figure at the top of a page. Each step is
+    (figure, label, note, colour, bar): figure is a number or text; bar is a share 0..1 drawn as a thin bar,
+    a list of (share, colour) drawn as one stacked bar, or None for no bar."""
     p = pal()
     cells = []
-    for i, (figure, label, note, color, share) in enumerate(steps):
-        w = max(0.0, min(1.0, share)) * 100
+    for i, (figure, label, note, color, bar) in enumerate(steps):
+        fig = f"{figure:,}" if isinstance(figure, (int, float)) and not isinstance(figure, bool) else str(figure)
+        if bar is None:
+            bar_html = f"<div style='height:4px;margin-top:12px'></div>"
+        else:
+            segs = bar if isinstance(bar, (list, tuple)) else [(bar, color)]
+            inner = "".join(f"<div style='width:{max(0.0, min(1.0, sh)) * 100:.2f}%;min-width:{4 if sh > 0 else 0}px;"
+                            f"height:4px;background:{c}'></div>" for sh, c in segs)
+            bar_html = (f"<div style='display:flex;gap:2px;height:4px;background:{p['TRACK']};border-radius:2px;"
+                        f"overflow:hidden;margin-top:12px'>{inner}</div>")
+        dot = f"<span style='width:8px;height:8px;border-radius:2px;background:{color}'></span>" if color else ""
         cells.append(
             f"<div style='flex:1 1 200px;padding:20px 24px;border-left:{'none' if i == 0 else '1px solid ' + p['HAIRLINE']}'>"
-            f"<div style='display:flex;align-items:center;gap:8px;font-size:14px;color:{p['INK_2']}'>"
-            f"<span style='width:8px;height:8px;border-radius:2px;background:{color}'></span>{label}</div>"
+            f"<div style='display:flex;align-items:center;gap:8px;font-size:14px;color:{p['INK_2']}'>{dot}{label}</div>"
             f"<div style='font-family:{MONO};font-size:32px;line-height:40px;font-weight:500;color:{p['INK']};"
-            f"margin-top:8px;font-variant-numeric:tabular-nums'>{figure:,}</div>"
-            f"<div style='height:4px;background:{p['TRACK']};border-radius:2px;margin-top:12px'>"
-            f"<div style='width:{w:.2f}%;min-width:4px;height:4px;background:{color};border-radius:2px'></div></div>"
+            f"margin-top:8px;font-variant-numeric:tabular-nums;white-space:nowrap'>{fig}</div>"
+            f"{bar_html}"
             f"<div style='font-size:13px;line-height:1.5;color:{p['MUTED']};margin-top:12px'>{note}</div></div>")
     return (f"<div style='display:flex;flex-wrap:wrap;background:{p['PANEL']};border:1px solid {p['HAIRLINE']};"
             f"border-radius:14px;overflow:hidden'>" + "".join(cells) + "</div>")
@@ -307,3 +318,74 @@ def ladder_steps(counts: dict) -> str:
             f"title='{LEVEL_NAME[lvl]}'></div>"
             f"<div style='font-size:11px;color:{p['MUTED']};text-align:center;margin-top:4px'>{LEVEL_NAME[lvl]}</div></div>")
     return f"<div style='display:flex;gap:4px;width:100%;align-items:flex-end'>{''.join(cells)}</div>"
+
+
+def _num(text: str) -> float | None:
+    m = re.search(r"-?[\d,]*\.?\d+", text or "")
+    return float(m.group(0).replace(",", "")) if m else None
+
+
+def reason_compare(reason: str, color: str | None = None) -> str:
+    """One reason drawn as a comparison: 'Share of money in match hours: 57% vs 10% for similar kirana stores'
+    becomes the signal name, then two bars (this merchant, similar shops) with the figures. Plain text if the
+    reason has no 'A vs B for ...' shape."""
+    p = pal()
+    m = re.match(r"^(.*?):\s*(.+?)\s+vs\s+(.+?)\s+for\s+(.*)$", reason or "")
+    a, b = (_num(m.group(2)), _num(m.group(3))) if m else (None, None)
+    if not m or a is None or b is None:
+        return f"<div style='font-size:14px;line-height:1.5;color:{p['INK']};padding:12px 0'>{html.escape(reason or '')}</div>"
+    title, a_txt, b_txt, peers = (html.escape(x) for x in m.groups())
+    top = max(abs(a), abs(b)) or 1
+    color = color or p["LEVEL_COLOR"][3]
+    rows = ""
+    for label, txt, v, c in (("This merchant", a_txt, a, color), ("Similar shops", b_txt, b, p["NEUTRAL_BAR"])):
+        rows += (f"<div style='display:grid;grid-template-columns:104px 1fr 120px;align-items:center;gap:12px;margin-top:8px'>"
+                 f"<span style='font-size:12px;color:{p['INK_2']}'>{label}</span>"
+                 f"<div style='height:8px;background:{p['TRACK']};border-radius:4px'>"
+                 f"<div style='width:{abs(v) / top * 100:.1f}%;min-width:4px;height:8px;background:{c};border-radius:4px'></div></div>"
+                 f"<span style='font-family:{MONO};font-size:12px;color:{p['INK']};text-align:right;white-space:nowrap;"
+                 f"font-variant-numeric:tabular-nums'>{txt}</span></div>")
+    return (f"<div style='padding:16px 0;border-top:1px solid {p['HAIRLINE']}'>"
+            f"<div style='font-size:14px;font-weight:500;color:{p['INK']}'>{title}</div>{rows}"
+            f"<div style='font-size:12px;color:{p['MUTED']};margin-top:8px'>Against {peers}</div></div>")
+
+
+def risk_scale(score: float, ask: float, friction: float, review: float, level: int) -> str:
+    """Where a merchant's risk score sits on 0-100, over the ladder's bands (Monitor, Ask, Friction, Review)."""
+    p = pal()
+    lc = p["LEVEL_COLOR"]
+    s = max(0.0, min(100.0, float(score)))
+    bands = [(0, ask, lc[0]), (ask, friction, lc[1]), (friction, review, lc[2]), (review, 100, lc[3])]
+    segs = "".join(f"<div style='position:absolute;left:{lo}%;width:{hi - lo}%;top:0;bottom:0;background:{c};"
+                   f"opacity:{0.9 if lo <= s < hi or (hi == 100 and s >= lo) else 0.25}'></div>" for lo, hi, c in bands)
+    ticks = "".join(f"<span style='position:absolute;left:{t}%;transform:translateX(-50%);font-family:{MONO};"
+                    f"font-size:11px;color:{p['MUTED']}'>{t:.0f}</span>" for t in (ask, friction, review))
+    names = "".join(f"<span style='position:absolute;left:{(lo + hi) / 2}%;transform:translateX(-50%);font-size:11px;"
+                    f"color:{p['INK_2'] if lo <= s < hi or (hi == 100 and s >= lo) else p['MUTED']};white-space:nowrap'>"
+                    f"{LEVEL_NAME[i]}</span>" for i, (lo, hi, _) in enumerate(bands))
+    marker = (f"<div style='position:absolute;left:{s}%;top:-6px;width:2px;height:20px;background:{p['INK']};"
+              f"transform:translateX(-1px);border-radius:1px'></div>")
+    return (f"<div style='position:relative;height:16px;margin-top:4px'>{names}</div>"
+            f"<div style='position:relative;height:8px;border-radius:4px;overflow:visible;margin-top:8px'>"
+            f"<div style='position:absolute;inset:0;border-radius:4px;overflow:hidden'>{segs}</div>{marker}</div>"
+            f"<div style='position:relative;height:16px;margin-top:8px'>{ticks}</div>")
+
+
+def clock_rows(rows) -> str:
+    """Open cases against their deadline: label, meta, and a bar for the share of the allowed time used.
+    Each row is (label, meta, used 0..1+, text on the right); past the deadline the bar turns red."""
+    p = pal()
+    out = []
+    for label, meta, used, right in rows:
+        over = used >= 1
+        color = p["LEVEL_COLOR"][4] if over else p["LEVEL_COLOR"][2] if used >= 2 / 3 else p["ACCENT"]
+        out.append(
+            "<div style='padding:12px 0;border-top:1px solid " + p["HAIRLINE"] + "'>"
+            "<div style='display:flex;justify-content:space-between;gap:16px;font-size:14px'>"
+            f"<span style='color:{p['INK']}'>{label} <span style='color:{p['MUTED']}'>{meta}</span></span>"
+            f"<span style='font-family:{MONO};font-size:13px;color:{color if over else p['INK_2']};"
+            f"font-variant-numeric:tabular-nums'>{right}</span></div>"
+            f"<div style='height:4px;background:{p['TRACK']};border-radius:2px;margin-top:8px'>"
+            f"<div style='width:{min(1.0, max(0.0, used)) * 100:.1f}%;min-width:4px;height:4px;background:{color};"
+            f"border-radius:2px'></div></div></div>")
+    return "".join(out)

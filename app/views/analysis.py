@@ -155,37 +155,49 @@ def merchant():
     row = d.set_index("merchant_id").loc[mid]
     mw = r.weekly[r.weekly.merchant_id == mid].sort_values("week_start")
 
-    head, act = st.columns([3, 2])
-    with head:
-        turnover = f" · expects ₹{row.declared_monthly_turnover:,.0f}/month" if pd.notna(row.declared_monthly_turnover) else ""
-        st.markdown(f"### {mid} {state.level_badge(int(row.level))}", unsafe_allow_html=True)
-        st.markdown(f"Declared as {str(row.category).replace('_', ' ')} · {row.city}, tier {row.tier}{turnover}")
-        detail = row.action.partition(": ")[2]
-        st.caption(detail[:1].upper() + detail[1:] if detail else "No action: monitoring only")
-        if st.session_state.reveal and "label" in d:
-            st.info(f"Hidden truth: **{state.LABEL_NAME.get(row.label, row.label)}**"
-                    + (f" ({row.drift_type})" if isinstance(row.get("drift_type"), str) and row.drift_type else ""))
-    with act:
-        m = st.columns(3)
-        m[0].metric("Risk", f"{row.risk_score:.0f}")
-        m[1].metric("Drift", f"{row.drift_score:.0f}")
-        m[2].metric("Network", f"{row.network_score:.0f}")
-        m = st.columns(2)
-        m[0].metric("Learned model", f"{row.learned_prob:.0%}" if pd.notna(row.learned_prob) else "n/a",
-                    help="Probability it resembles cases analysts confirmed before")
-        m[1].metric("Anomaly percentile", f"{row.anomaly_pct:.0f}" if pd.notna(row.anomaly_pct) else "n/a",
-                    help="How unusual its overall profile is (no labels used)")
+    cfg = st.session_state.tl_settings
+    lvl = int(row.level)
+    lcol = ui.LEVEL_COLOR[lvl] if lvl else ui.ACCENT
+    with ui.panel("mx_head"):
+        who, scale = st.columns([2, 3], gap="large")
+        with who:
+            turnover = f" · expects ₹{row.declared_monthly_turnover:,.0f}/month" if pd.notna(row.declared_monthly_turnover) else ""
+            st.markdown(f"<div style='display:flex;align-items:center;gap:12px'><span style='font-family:{ui.MONO};"
+                        f"font-size:24px;font-weight:500'>{mid}</span>{state.level_badge(lvl)}</div>", unsafe_allow_html=True)
+            st.markdown(f"Declared as {str(row.category).replace('_', ' ')} · {row.city}, tier {row.tier}{turnover}")
+            detail = row.action.partition(": ")[2]
+            st.caption(detail[:1].upper() + detail[1:] if detail else "No action: monitoring only")
+            if st.session_state.reveal and "label" in d:
+                st.info(f"Hidden truth: **{state.LABEL_NAME.get(row.label, row.label)}**"
+                        + (f" ({row.drift_type})" if isinstance(row.get("drift_type"), str) and row.drift_type else ""))
+        with scale:
+            st.markdown(f"<div style='display:flex;align-items:baseline;justify-content:space-between'>"
+                        f"<span style='font-size:14px;color:{ui.INK_2}'>Risk score</span>"
+                        f"<span style='font-family:{ui.MONO};font-size:32px;font-weight:500'>{row.risk_score:.0f}"
+                        f"<span style='font-size:14px;color:{ui.MUTED}'> / 100</span></span></div>"
+                        + ui.risk_scale(row.risk_score, cfg.ask, cfg.friction, cfg.review, lvl), unsafe_allow_html=True)
+            st.caption("Drift score plus network points. Review also needs a second source of evidence")
+
+    pct = lambda v: (v / 100) if pd.notna(v) else None  # noqa: E731
+    st.markdown(ui.funnel([
+        (f"{row.drift_score:.0f}", "Drift", "How far its money moves from similar shops", ui.ACCENT, pct(row.drift_score)),
+        (f"{row.network_score:.0f}", "Network", "Links to known betting accounts", ui.ACCENT, pct(row.network_score)),
+        (f"{row.learned_prob:.0%}" if pd.notna(row.learned_prob) else "n/a", "Learned model",
+         "How much it resembles cases analysts confirmed", ui.ACCENT,
+         row.learned_prob if pd.notna(row.learned_prob) else None),
+        (f"{row.anomaly_pct:.0f}" if pd.notna(row.anomaly_pct) else "n/a", "Anomaly percentile",
+         "How unusual its whole profile is; uses no labels", ui.ACCENT, pct(row.anomaly_pct)),
+    ]), unsafe_allow_html=True)
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
     c1, c2 = st.columns([2, 3], gap="medium")
     with c1, ui.panel("mx_why"):
         st.markdown("##### Why")
-        any_reason = False
-        for x in [row.reason_1, row.reason_2, row.reason_3]:
-            if isinstance(x, str) and x:
-                st.markdown(f"- {x}")
-                any_reason = True
-        if not any_reason:
-            st.markdown("- Behaviour is in line with similar merchants.")
+        reasons = [x for x in [row.reason_1, row.reason_2, row.reason_3] if isinstance(x, str) and x]
+        if reasons:
+            st.markdown("".join(ui.reason_compare(x, lcol) for x in reasons), unsafe_allow_html=True)
+        else:
+            st.caption("Behaviour is in line with similar merchants")
         if isinstance(row.notes, str) and row.notes:
             st.markdown("##### Notes")
             for n in row.notes.split(" | "):
@@ -241,29 +253,48 @@ def merchant():
                 st.caption(f"Distinct payer states that week: {int(peak.payer_states)} "
                            f"(typical peer: {same.payer_states.median():.0f})")
     if pd.notna(row.get("gst_annual_turnover", float("nan"))) or pd.notna(row.get("upi_annual_takings", float("nan"))):
-        g1, g2, g3 = st.columns(3)
-        g1.metric("UPI takings (annualised)", f"₹{row.upi_annual_takings / 1e5:,.1f} lakh" if pd.notna(row.upi_annual_takings) else "n/a")
-        g2.metric("GST-declared turnover", f"₹{row.gst_annual_turnover / 1e5:,.1f} lakh" if pd.notna(row.gst_annual_turnover) else "not registered")
-        g3.metric("UPI ÷ GST", f"{row.gst_ratio:.1f}x" if pd.notna(row.gst_ratio) else "n/a",
-                  help=f"Flagged at {st.session_state.tl_settings.gst_ratio_flag:.1f}x or more")
+        flag = cfg.gst_ratio_flag
+        st.markdown(ui.funnel([
+            (f"₹{row.upi_annual_takings / 1e5:,.1f} L" if pd.notna(row.upi_annual_takings) else "n/a",
+             "UPI takings, annualised", "What the payments add up to over a year", None, None),
+            (f"₹{row.gst_annual_turnover / 1e5:,.1f} L" if pd.notna(row.gst_annual_turnover) else "None",
+             "GST-declared turnover", "Not registered for GST" if pd.isna(row.gst_annual_turnover)
+             else "What the merchant told the tax office", None, None),
+            (f"{row.gst_ratio:.1f}x" if pd.notna(row.gst_ratio) else "n/a", "UPI ÷ GST",
+             f"Flagged at {flag:.1f}x or more", ui.LEVEL_COLOR[3] if pd.notna(row.gst_ratio) and row.gst_ratio >= flag
+             else ui.ACCENT, min(1.0, row.gst_ratio / (flag * 2)) if pd.notna(row.gst_ratio) else None),
+        ]), unsafe_allow_html=True)
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
+    if len(mw):
         peers = r.weekly[(r.weekly.peer_group == peak.peer_group) & (r.weekly.week_start == peak.week_start)].merchant_id
         hp = _hour_profile(mid, peers)
         if hp is not None and len(hp):
-            st.markdown("##### When the money arrives")
-            st.altair_chart(alt.Chart(hp).mark_line(point=True, strokeWidth=2).encode(
-                x=alt.X("hour:O", title="Hour of day"), y=alt.Y("share:Q", axis=alt.Axis(format="%"), title=None),
-                color=alt.Color("who:N", scale=alt.Scale(range=[ui.ACCENT, ui.NEUTRAL_BAR]), legend=alt.Legend(orient="top", title=None)),
-                tooltip=["who", "hour", alt.Tooltip("share:Q", format=".1%")]).properties(height=220), width="stretch")
+            with ui.panel("mx_hours"):
+                st.markdown("##### When the money arrives")
+                st.altair_chart(alt.Chart(hp).mark_line(strokeWidth=2, interpolate="monotone").encode(
+                    x=alt.X("hour:O", title="Hour of day", axis=alt.Axis(labelAngle=0)),
+                    y=alt.Y("share:Q", axis=alt.Axis(format="%"), title=None),
+                    color=alt.Color("who:N", scale=alt.Scale(domain=["This merchant", "Typical peer"],
+                                                             range=[lcol, ui.NEUTRAL_BAR]),
+                                    legend=alt.Legend(orient="top", title=None)),
+                    tooltip=["who", "hour", alt.Tooltip("share:Q", format=".1%")]).properties(height=220), width="stretch")
+                st.caption("Share of the day's takings that arrives in each hour, against the typical similar shop")
 
     links = r.edges[(r.edges.a == mid) | (r.edges.b == mid)].copy()
     if len(links):
         links["other merchant"] = links.a.where(links.b == mid, links.b)
         links = links.merge(d[["merchant_id", "risk_score", "level", "known_bad"]], left_on="other merchant", right_on="merchant_id")
         links["their action"] = links.level.map(C.LEVEL_SHORT)
-        st.markdown("##### What it shares with other merchants")
-        st.dataframe(links[["other merchant", "why", "risk_score", "their action", "known_bad"]].sort_values("risk_score", ascending=False),
-                     hide_index=True, width="stretch")
+        with ui.panel("mx_links"):
+            st.markdown("##### What it shares with other merchants")
+            st.dataframe(links[["other merchant", "why", "risk_score", "their action", "known_bad"]]
+                         .sort_values("risk_score", ascending=False), hide_index=True, width="stretch", column_config={
+                             "other merchant": "Merchant", "why": "What they share",
+                             "risk_score": st.column_config.ProgressColumn("Their risk", min_value=0, max_value=100, format="%.0f"),
+                             "their action": "Their action",
+                             "known_bad": st.column_config.CheckboxColumn("Known betting account")})
+            st.caption(f"{len(links)} links. Merchants tied to a known betting account raise this merchant's network score")
 
     tx = st.session_state.transactions
     if tx is not None:
