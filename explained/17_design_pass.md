@@ -79,9 +79,11 @@ raised grey panels, and a small search bar in the sidebar.
 - **Sidebar spacing, follow-up.** The logo now has about 28px of room above the search bar instead of 14px.
   Each group (Results, Operations, Tools, People) starts under a thin grey line, so the groups read apart;
   the same line separates the page list from the data info at the bottom.
+- **Home, follow-up.** The "Top of the risk queue" preview is gone from Home (the full list is one click away
+  on **Risk queue**). Home is now the headline, Load data, the dataset line and **How Trace decides**.
 
 - **A simpler Home.** The five-box ladder strip (Monitor to Offboard) is gone from Home; the ladder still
-  appears on Overview and next to every merchant. Home now shows the top of the risk queue, then
+  appears on Overview and next to every merchant. Home now shows
   **How Trace decides**: the three ideas side by side on one panel, numbered 01 to 03, split by faint lines.
 
 **Where it lives**

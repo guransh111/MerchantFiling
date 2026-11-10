@@ -2,7 +2,7 @@
 
 Pages
 -----
-Home                       what Trace does, the top of the risk queue, how Trace decides, and the Load data window
+Home                       what Trace does, how Trace decides, and the Load data window
                            (upload your own CSV/Excel, generate a simulated world, templates)
 Overview / Risk queue      what the system recommends
 Merchant drill-down        full case file + analyst confirm / clear buttons
@@ -63,11 +63,7 @@ def home():
     count = "" if "merchants" in p.name else f" · {len(d):,} merchants"
     st.caption(f"{p.name}{count} · as of {state.clock():%d %b %Y}")
 
-    top = d[d.level >= 1].sort_values(["level", "risk_score"], ascending=False).head(3)
-    if len(top):
-        st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
-        st.markdown("##### Top of the risk queue")
-        st.markdown(f"<div style='margin:-4px 0 40px'>{ui.queue_preview(top)}</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:40px'></div>", unsafe_allow_html=True)
 
     st.markdown("##### How Trace decides")
     st.markdown(ui.principles([

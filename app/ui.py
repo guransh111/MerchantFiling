@@ -10,7 +10,6 @@ never affect each other: `ui.ACCENT`, `ui.INK` etc. always return the current vi
 """
 from __future__ import annotations
 
-import html
 
 import altair as alt
 import streamlit as st
@@ -218,24 +217,6 @@ def ladder_list(counts: dict, describe: bool = True) -> str:
                     + (f"<span style='color:{p['MUTED']};font-size:14px'>{what[lvl]}</span>" if describe else "") + "</div>"
                     f"<span style='font-family:{MONO};font-size:15px;color:{p['INK']}'>{int(counts.get(lvl, 0)):,}</span></div>")
     return "".join(rows)
-
-
-def queue_preview(rows) -> str:
-    """A few merchants from the top of the queue: ID and declared shop, the main reason, and the pips."""
-    p = pal()
-    out = []
-    for i, r in enumerate(rows.itertuples()):
-        shop = f"{str(r.category).replace('_', ' ').capitalize()} · {r.city}"
-        reason = html.escape(str(r.reason_1 or "")) or "Network or account change only"
-        border = "none" if i == 0 else f"1px solid {p['HAIRLINE']}"
-        out.append(
-            f"<div style='display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding:16px 20px;border-top:{border}'>"
-            f"<div style='width:160px'><div style='font-family:{MONO};font-size:14px;color:{p['INK']}'>{r.merchant_id}</div>"
-            f"<div style='font-size:13px;color:{p['MUTED']};margin-top:2px'>{shop}</div></div>"
-            f"<div style='flex:1;min-width:240px;font-size:14px;line-height:1.5;color:{p['INK_2']}'>{reason}</div>"
-            f"<div style='width:132px'>{pips(int(r.level))}</div></div>")
-    return (f"<div style='background:{p['PANEL']};border:1px solid {p['HAIRLINE']};border-radius:14px;overflow:hidden'>"
-            + "".join(out) + "</div>")
 
 
 def principles(items) -> str:
