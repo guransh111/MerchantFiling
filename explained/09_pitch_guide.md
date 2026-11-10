@@ -1,5 +1,11 @@
 # 9. Pitch guide
 
+## The deck
+
+A ready 16-slide deck with speaker notes is at **https://claude.ai/artifact/LiTyTSGFHaf2adhkgyjsWM**
+(private until you share it from its Share menu; it downloads as PowerPoint or PDF). Fill in
+`[Team name]`, `[College]` and your Streamlit link on the cover and last slide.
+
 ## The storyline (10 slides)
 
 | # | Slide title (the title *is* the message) | Content |
