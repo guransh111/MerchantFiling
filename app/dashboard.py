@@ -2,7 +2,7 @@
 
 Pages
 -----
-Home                       what Trace does, the funnel from watched to human review, how Trace decides (with live drawings), and the Load data window
+Home                       what Trace does, how Trace decides (with live drawings), and the Load data window
                            (upload your own CSV/Excel, generate a simulated world, templates)
 Overview / Risk queue      what the system recommends
 Merchant drill-down        full case file + analyst confirm / clear buttons
@@ -64,18 +64,7 @@ def home():
     count = "" if "merchants" in p.name else f" · {len(d):,} merchants"
     st.caption(f"{p.name}{count} · as of {state.clock():%d %b %Y}")
 
-    # the main figure: how the watched merchants narrow down the ladder
-    lc = ui.LEVEL_COLOR
-    n, flagged, restricted, human = len(d), int((d.level >= 1).sum()), int((d.level >= 2).sum()), int((d.level >= 3).sum())
-    share = (lambda k: k / n) if n else (lambda k: 0.0)
-    st.markdown("<div style='height:40px'></div>", unsafe_allow_html=True)
-    st.markdown(f"##### From {n:,} merchants to {human:,} human reviews")
-    st.markdown(ui.funnel([
-        (n, "Watched", "Every merchant, every week, against similar shops", ui.NEUTRAL_BAR, 1.0),
-        (flagged, "Flagged", f"{share(flagged):.1%} of merchants, from a neutral question upward", lc[1], share(flagged)),
-        (restricted, "Restricted", "Lower limits, slower settlement or a reserve", lc[2], share(restricted)),
-        (human, "With a human", "Money is held only with a second source of evidence", lc[3], share(human)),
-    ]), unsafe_allow_html=True)
+    n = len(d)
     st.markdown("<div style='height:40px'></div>", unsafe_allow_html=True)
 
     # one real flagged merchant against its peers, e.g. "57% vs 10% for similar kirana stores"

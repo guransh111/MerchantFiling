@@ -29,12 +29,19 @@ def overview():
 
     vol = r.weekly.groupby("merchant_id").inflow.sum()
     under = vol[vol.index.isin(d.merchant_id[d.level >= 2])].sum() / vol.sum() if vol.sum() else 0
-    m = st.columns(4)
-    m[0].metric("Merchants watched", f"{len(d):,}")
-    m[1].metric("Asked a question", f"{int((d.level == 1).sum()):,}", help="Ask: a neutral prompt, no restriction")
-    m[2].metric("Under friction or review", f"{int(d.level.between(2, 3).sum()):,}")
-    m[3].metric("Payment volume under friction", f"{under:.1%}",
-                help="Business cost of the current settings: share of all money received by merchants at Friction or above")
+    # how the watched merchants narrow down the ladder
+    lc = ui.LEVEL_COLOR
+    n, flagged, restricted, human = len(d), int((d.level >= 1).sum()), int((d.level >= 2).sum()), int((d.level >= 3).sum())
+    share = (lambda k: k / n) if n else (lambda k: 0.0)
+    st.markdown(f"##### From {n:,} merchants to {human:,} human reviews")
+    st.markdown(ui.funnel([
+        (n, "Watched", "Every merchant, every week, against similar shops", ui.NEUTRAL_BAR, 1.0),
+        (flagged, "Flagged", f"{share(flagged):.1%} of merchants, from a neutral question upward", lc[1], share(flagged)),
+        (restricted, "Restricted", f"Limits, slower settlement or a reserve · {under:.0%} of payment volume",
+         lc[2], share(restricted)),
+        (human, "With a human", "Money is held only with a second source of evidence", lc[3], share(human)),
+    ]), unsafe_allow_html=True)
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
     left, right = st.columns([2, 1], gap="large")
     with left, ui.panel("ov_trend"):
