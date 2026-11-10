@@ -20,6 +20,8 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 13 | [The advanced layers](13_advanced_layers.md) | Change points, learning loop, anomaly detector, cost-based thresholds, stress test, clusters |
 | 14 | [Data and method](14_data_and_method.md) | Exactly which data is used (simulated, calibrated to real NPCI figures), how decisions are made, and what real data exists |
 | 15 | [Putting it online](15_putting_it_online.md) | Live dashboard on Streamlit Cloud + landing page on Vercel, step by step |
+| 16 | [Running it as an operation](16_operations.md) | Time-to-detection replay, case management and appeals, GST cross-check, betting-page scanner, consortium sharing, regulator reports |
+| — | [Implementation plan v2](IMPLEMENTATION_PLAN_v2.md) | Your original plan, updated to show what is built (✅) and what is still for the real rollout (⏳) |
 
 ## The 2-minute version
 
@@ -46,6 +48,11 @@ payment provider has to find them without harassing the millions of honest shops
 the day the phone and bank account switch; a **learning loop** that learns from analysts' confirm/clear
 decisions (it found our own assumption about match hours was wrong); an anomaly detector to choose
 what to audit; thresholds set in **rupees**; and a **stress test** against smarter fraudsters.
+
+**Version 3 makes it operational (file 16):** a week-by-week replay shows fronts are penalised in a
+median of **7 days** (the fastest possible); cases get 72-hour deadlines, appeals and an audit log; a
+GST cross-check adds outside evidence; a scanner reads UPI IDs off betting pages; payment providers can share
+offboarded merchants without sharing raw data; and draft STRs for FIU-IND are generated.
 
 **You can now put your own data in (file 12):** upload CSV/Excel with any column names, generate a
 custom world, or type one merchant in with sliders. Analysts can confirm or clear cases, and merchants

@@ -50,7 +50,7 @@ A browser tab opens at `http://localhost:8501`. To stop it, press `Ctrl + C` in 
 
 ## The dashboard pages
 
-The menu on the left has 12 pages. File 03 lists what each is for, and file 12 explains how to put
+The menu on the left has 16 pages. File 03 lists what each is for, and file 12 explains how to put
 your own data in. The ones you'll use most: **Risk queue**, **Merchant drill-down**,
 **Check a merchant** and **Settings & what-if**.
 
@@ -59,7 +59,7 @@ pages are quick.
 
 ## A 5-minute demo script
 
-1. **Overview.** "Out of 1,000 merchants, 937 are never touched. 12 are asked a question. 48 reach
+1. **Overview.** "Out of 1,000 merchants, 937 are never touched. 12 are asked a question. 49 reach
    Review, and every one has both behaviour evidence and a network link."
 2. Turn on **Show hidden truth** in the sidebar. "This only exists because the data is simulated.
    Every Review case is a real front or rented account."
@@ -83,7 +83,14 @@ pages are quick.
    restaurants screen matches too." Optionally press **Apply suggested weights**.
 9. **Load data → Generate.** Set evasion to 1.0 and generate 300 merchants. Show the result on
    Performance: still caught, thanks to the network.
-10. **Customer's payment screen.** "The paying customer sees 'Verified: Kirana, Lucknow'. If they
+10. **Case management.** "Every flag becomes a case with a 72-hour clock, an audit log and an appeal
+    path. Our appeal overturn rate is 6%: that's the metric that tells us if we're over-flagging."
+    Pick the open case at the top and press **Record merchant's reply**, then **Clear: genuine business**.
+11. **Scan a betting page.** Press **Load an example post**: it finds 4 hidden UPI IDs, including one written
+    as "[at]" and one inside a QR link. Add them to the known-bad list.
+12. **Regulator reports.** Choose "All merchants at Review or above" and show the draft STR. "Under PMLA we
+    must file within 7 days; this drafts it in seconds."
+13. **Customer's payment screen.** "The paying customer sees 'Verified: Kirana, Lucknow'. If they
     think they're placing a bet, that's a red flag to them too."
 
 ## Run the tests (optional)

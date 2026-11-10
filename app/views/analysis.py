@@ -92,6 +92,9 @@ def queue():
     show = v[["merchant_id", "category", "city", "risk_score", "drift_score", "network_score", "learned_prob",
               "anomaly_pct", "level", "reason_1", "notes"]].copy()
     show["action"] = show.level.map(C.LEVEL_SHORT)
+    cb, _ = state.cases()
+    if len(cb):
+        show["case"] = show.merchant_id.map(cb.drop_duplicates("merchant_id", keep="last").set_index("merchant_id").status).fillna("")
     show = _with_truth(show.drop(columns="level"), d)
     st.caption(f"{len(v):,} merchants. Click a column to sort. Open **Merchant drill-down** for the full case file.")
     st.dataframe(show, hide_index=True, width="stretch", height=560, column_config={
@@ -190,6 +193,16 @@ def merchant():
             "z (spreads from normal)": st.column_config.NumberColumn(format="%.1f"),
             "risk points": st.column_config.ProgressColumn(min_value=0, max_value=st.session_state.tl_settings.z_cap * 1.2, format="%.1f")})
         st.caption(f"Peers: {peer_phrase(peak.peer_group)}, week of {pd.Timestamp(peak.week_start):%d %b %Y}.")
+        if "payer_states" in peak and pd.notna(peak.payer_states):
+            same = r.weekly[(r.weekly.peer_group == peak.peer_group) & (r.weekly.week_start == peak.week_start)]
+            st.caption(f"Distinct payer states that week: **{int(peak.payer_states)}** "
+                       f"(typical peer: {same.payer_states.median():.0f}).")
+    if pd.notna(row.get("gst_annual_turnover", float("nan"))) or pd.notna(row.get("upi_annual_takings", float("nan"))):
+        g1, g2, g3 = st.columns(3)
+        g1.metric("UPI takings (annualised)", f"₹{row.upi_annual_takings / 1e5:,.1f} lakh" if pd.notna(row.upi_annual_takings) else "n/a")
+        g2.metric("GST-declared turnover", f"₹{row.gst_annual_turnover / 1e5:,.1f} lakh" if pd.notna(row.gst_annual_turnover) else "not registered")
+        g3.metric("UPI ÷ GST", f"{row.gst_ratio:.1f}x" if pd.notna(row.gst_ratio) else "n/a",
+                  help=f"Flagged at {st.session_state.tl_settings.gst_ratio_flag:.1f}x or more")
 
         peers = r.weekly[(r.weekly.peer_group == peak.peer_group) & (r.weekly.week_start == peak.week_start)].merchant_id
         hp = _hour_profile(mid, peers)
@@ -232,3 +245,7 @@ def merchant():
     if current and b3.button("Undo decision"):
         state.add_review(mid, "undo", "")
         st.rerun()
+    if row.level >= 3:
+        from src import reporting as RPT
+        st.download_button("Download draft STR for FIU-IND (Markdown)", RPT.str_draft(mid, r, state.prepared()),
+                           f"STR_draft_{mid}.md")

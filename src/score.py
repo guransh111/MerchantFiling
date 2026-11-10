@@ -87,7 +87,8 @@ def score(f: pd.DataFrame, m: pd.DataFrame, mode: str = "peer", settings: C.Sett
     f["peer_group"] = f.merchant_id.map(peer_groups(m, s.min_peer_group))
     centre, spread = reference_stats(f, mode)
     zs, pts = points(f, centre, spread, s)
-    out = f[["merchant_id", "week", "week_start", "peer_group", "n_txns", "inflow"]].copy()
+    info = [c for c in ["payer_states"] if c in f]
+    out = f[["merchant_id", "week", "week_start", "peer_group", "n_txns", "inflow"] + info].copy()
     raw = np.zeros(len(f))
     for feat in FEATS:
         out[feat] = f[feat]

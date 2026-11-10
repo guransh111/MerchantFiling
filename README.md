@@ -27,6 +27,9 @@ friction second, hold money only with independent corroboration, and offboard on
 | Anomaly detector | Isolation Forest to choose which unflagged merchants to audit |
 | Cost-based thresholds | Picks the cut-off with the lowest expected cost in rupees |
 | Proportionate ladder | Monitor → Ask → Friction → Review → Offboard, with a plain-English reason for every flag |
+| GST cross-check | UPI takings far above GST-declared turnover = independent corroboration |
+| Operations | Case management (72h deadlines, appeals, audit log), betting-page UPI ID scanner, consortium sharing via hashed tokens, draft STRs for FIU-IND, I4C file, versioned policy with change log |
+| Time-to-detection replay | Re-runs the year week by week with no hindsight to measure days to action |
 
 ## Put your own data in
 
@@ -57,6 +60,8 @@ report. Full explanation: [`explained/14_data_and_method.md`](explained/14_data_
 | Honest sweet/electronics shops with a "sales spike" alert in Diwali week | **62%** | **1%** |
 | Rented accounts pinned to their exact handover week | | **10 of 10** |
 | Caught when fraudsters hide as hard as possible (stress test) | | **100%** (behaviour alone: 55%) |
+| Days from start of betting to a penalty (week-by-week replay, no hindsight) | | **7** median (fastest possible) |
+| Honest merchants ever penalised in any week of the year | | **1 of 950** |
 
 Full results and charts: [`reports/results.md`](reports/results.md).
 
@@ -102,7 +107,9 @@ Step-by-step guide: [`explained/15_putting_it_online.md`](explained/15_putting_i
 | `src/actions.py`, `tuning.py` | Response ladder with reasons; cost-based thresholds |
 | `src/evaluate.py` | Accuracy vs hidden truth, charts, stress test → `reports/` |
 | `src/config.py` | Every setting in one `Settings` object |
-| `app/` | Streamlit dashboard (12 pages) |
+| `src/replay.py`, `cases.py`, `scanner.py`, `reporting.py` | Replay; case management; betting-page scanner; STRs, I4C file, consortium tokens |
+| `app/` | Streamlit dashboard (16 pages) |
 | `site/`, `vercel.json` | Landing page for Vercel |
 | `templates/` | Example input files in the right format |
-| `tests/` | 22 automated checks (`pytest -q`) |
+| `tests/` | 31 automated checks (`pytest -q`) |
+| `explained/IMPLEMENTATION_PLAN_v2.md` | The implementation plan updated to what is built |

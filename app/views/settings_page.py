@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import dataclasses
+import json
 
 import pandas as pd
 import streamlit as st
@@ -63,23 +64,28 @@ def page():
         use_cp = c[2].checkbox("Escalate behaviour shift after account change", cur.use_changepoint)
         use_learn = c[3].checkbox("Learning loop can escalate Monitor → Ask", cur.use_learning)
         learn_at = c[4].slider("Learning loop probability needed", 0.5, 0.99, float(cur.learning_escalate_at), 0.01)
+        c = st.columns(3)
+        use_gst = c[0].checkbox("GST cross-check counts as corroboration", cur.use_gst)
+        gst_ratio = c[1].slider("Flag when UPI takings ≥ this × GST turnover", 1.5, 10.0, float(cur.gst_ratio_flag), 0.5)
+        why = c[2].text_input("Reason for this change (goes in the change log)")
         a, b = st.columns(2)
         apply = a.form_submit_button("Apply", type="primary")
         reset = b.form_submit_button("Reset to defaults")
 
     if reset:
-        st.session_state.tl_settings = C.Settings()
+        state.set_settings(C.Settings(), "Reset to defaults")
         st.rerun()
     if apply:
         if not (ask <= fric <= rev):
             st.error("Thresholds must be in order: Ask ≤ Friction ≤ Review.")
             return
-        st.session_state.tl_settings = C.Settings(
+        state.set_settings(C.Settings(
             weights=weights, z_cap=z_cap, squash_k=k, min_peer_group=mpg, worst_weeks=worst,
             ask=ask, friction=fric, review=rev, require_corroboration=corr,
             use_network=use_net, network_weight=nw, network_link_threshold=thr, edge_weights=ew,
             use_declarations=use_decl, use_takeover=use_take, use_changepoint=use_cp,
-            use_learning=use_learn, learning_escalate_at=learn_at)
+            use_learning=use_learn, learning_escalate_at=learn_at, use_gst=use_gst, gst_ratio_flag=gst_ratio),
+            why or "Changed on the Settings page")
         st.session_state.settings_before = before
         st.rerun()
 
@@ -103,3 +109,25 @@ def page():
     diff = {k: v for k, v in dataclasses.asdict(cur).items() if v != dataclasses.asdict(C.Settings())[k]}
     if diff:
         st.caption("Changed from defaults: " + ", ".join(diff))
+
+    st.divider()
+    st.markdown("### Policy file and change log")
+    st.markdown("Thresholds are policy, not code. Save the current settings as a file to version them, share them "
+                "with the risk committee, or load an approved policy.")
+    a, b = st.columns(2)
+    a.download_button("Download current policy (JSON)", json.dumps(dataclasses.asdict(cur), indent=2),
+                      "trustloop_policy.json", mime="application/json")
+    up = b.file_uploader("Load a policy file (JSON)", type=["json"])
+    if up is not None and b.button("Apply loaded policy"):
+        try:
+            data = json.loads(up.getvalue())
+            valid = {f.name for f in dataclasses.fields(C.Settings)}
+            state.set_settings(C.Settings(**{k: v for k, v in data.items() if k in valid}), f"Loaded policy file {up.name}")
+            st.rerun()
+        except (ValueError, TypeError) as err:
+            st.error(f"Could not read that policy file: {err}")
+    log = st.session_state.settings_log
+    if log:
+        st.dataframe(pd.DataFrame(log[::-1]), hide_index=True, width="stretch")
+    else:
+        st.caption("No policy changes in this session yet.")

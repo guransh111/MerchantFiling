@@ -39,7 +39,7 @@ Bad merchants **not** on the known-bad list: 30. Linked to a known-bad merchant 
 |:------------------------------|--------------------------------------------:|-----------------------------------------:|----------:|---------------------------------------------:|
 | Honest shop                   |                                           0 |                                        0 |       920 |                                            0 |
 | Honest shop, business changed |                                          12 |                                        1 |        17 |                                            0 |
-| Betting front                 |                                           0 |                                        1 |         0 |                                           39 |
+| Betting front                 |                                           0 |                                        0 |         0 |                                           40 |
 | Rented account                |                                           0 |                                        1 |         0 |                                            9 |
 
 ![Actions](3_actions_by_label.png)
@@ -93,6 +93,19 @@ Average payment size of honest shops in the simulation vs the real average for t
 | pharmacy    |                                     398 |                      398 | 1.00x              |
 | restaurant  |                                     158 |                      158 | 1.00x              |
 | sweet_shop  |                                     262 |                      262 | 1.00x              |
+
+## 11. How fast does it act? (time-to-detection replay)
+
+Every week from March to November, the system is re-run using **only what was known by then** (payments so far, network links so far, known-bad IDs only once found, declarations and account changes only once they happened). The learning loop is off. The system acts at the end of each week, so 7 days is the fastest possible.
+
+| | Penalised | Median days to penalty | 90% within (days) | Slowest (days) |
+|---|---|---|---|---|
+| Betting front | 40 of 40 | 7 | 14 | 21 |
+| Rented account | 10 of 10 | 7 | 8 | 14 |
+
+Honest merchants **ever** penalised in any week: **1 of 950** (Honest shop, business changed: 1), for a total of 29 merchant-weeks. Honest merchants ever asked a question: 13.
+
+![Time to detection](8_time_to_detection.png)
 
 ## Caveat
 

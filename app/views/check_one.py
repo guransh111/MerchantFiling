@@ -43,16 +43,19 @@ PRESETS = {
 }
 
 
-def _ladder_for(score, network, known_bad, takeover, declared, s: C.Settings):
+def _ladder_for(score, network, known_bad, takeover, declared, s: C.Settings, gst_mismatch=False):
     risk = min(100.0, score + (s.network_weight * (100 if network else 0) if s.use_network else 0))
     if known_bad:
         risk = max(risk, 95)
     link = known_bad or (network and s.use_network)
+    corroborated = link or (gst_mismatch and s.use_gst)
     level = level_for(risk, s)
     notes = []
-    if level == 3 and s.require_corroboration and not link:
+    if gst_mismatch and s.use_gst:
+        notes.append("UPI takings far above GST-declared turnover (independent evidence)")
+    if level == 3 and s.require_corroboration and not corroborated:
         level = 2
-        notes.append("Capped at Friction: no network corroboration")
+        notes.append("Capped at Friction: no independent corroboration")
     if s.use_takeover and takeover:
         level = max(level, 1)
         if link:
@@ -110,13 +113,14 @@ def page():
                                    help=f"{C.FEATURES[f][2]}. Typical peer: {peer_ui:.1f}" if peer_ui is not None else C.FEATURES[f][2])
             vals[f] = from_ui(v)
         st.markdown("**Other evidence**")
-        e = st.columns(4)
+        e = st.columns(5)
         network = e[0].checkbox("Shares phone/bank/customers with a known betting merchant")
         known_bad = e[1].checkbox("UPI ID found on a betting page")
         takeover = e[2].checkbox("Phone and bank account just changed")
         declared = e[3].checkbox("Merchant pre-declared this change")
+        gst_mm = e[4].checkbox("UPI takings ≥ 3× its GST turnover")
         res = S.score_profile(vals, group, base, s)
-        risk, level, notes = _ladder_for(res["score"], network, known_bad, takeover, declared, s)
+        risk, level, notes = _ladder_for(res["score"], network, known_bad, takeover, declared, s, gst_mm)
         st.divider()
         a, b = st.columns([1, 2])
         with a:

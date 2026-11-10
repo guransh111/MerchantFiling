@@ -59,6 +59,15 @@
 | **Stress test** | Re-running the system under deliberately harder conditions (smarter fraudsters) |
 | **Expected cost / cost-based threshold** | Choosing the cut-off that minimises (misses × cost) + (false alarms × cost) |
 | **Column mapping** | Telling the system which of your columns means "amount", "time", etc. |
+| **Replay / back-test** | Re-running the system on past data using only what was known at each date |
+| **SLA** | Service-level agreement: here, the 72-hour deadline for a merchant to reply |
+| **Appeal overturn rate** | Share of appealed decisions reversed; high means over-flagging |
+| **Audit log** | Record of every action on a case: who, when, what, why |
+| **STR** | Suspicious Transaction Report, filed with FIU-IND under PMLA within 7 days of suspicion |
+| **VPA / UPI ID** | Virtual Payment Address, e.g. shop@okaxis |
+| **HMAC / keyed hash / token** | A fingerprint of an identifier made with a secret key; matchable, not reversible without the key |
+| **Consortium** | Group of payment providers sharing intelligence under common rules |
+| **GST / GSTN** | Goods and Services Tax / the network where GST returns are filed |
 
 ## Code tools
 

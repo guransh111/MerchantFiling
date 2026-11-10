@@ -45,13 +45,14 @@ compliance sign-off.
 - ✅ Threshold tuning in the dashboard (Settings page, cost-based tool) → file 13
 - ✅ Random-audit queue driven by an anomaly detector → file 13
 - ✅ Bring-your-own-data upload → file 12
+- ✅ Time-to-detection replay, case management with appeals, GST cross-check, betting-page scanner,
+  consortium sharing, draft STRs and I4C file, versioned policy with change log → file 16 (version 3)
 
 ## Ideas to extend further (if you have time)
 
 1. **Payment-note keywords.** Add a `note` column with occasional "id"/"bet" text for fronts; use
    keyword flags only (privacy).
-2. **Federated sharing demo.** Two simulated payment providers sharing hashed device and account IDs.
-3. **Saving decisions permanently.** Analyst decisions currently last for a session (with download
+2. **Saving decisions permanently.** Analyst decisions currently last for a session (with download
    and upload); a real system would store them in a database with an audit log.
-4. **Gradient boosting** next to the logistic regression, once there are hundreds of labelled cases.
-5. **Separate peer group for legitimate pass-through businesses** (wholesalers, aggregators).
+3. **Gradient boosting** next to the logistic regression, once there are hundreds of labelled cases.
+4. **Separate peer group for legitimate pass-through businesses** (wholesalers, aggregators).

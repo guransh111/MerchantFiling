@@ -14,6 +14,9 @@ changepoint, learn, actions (fast; what the dashboard re-runs on every settings/
 Uploads go through src/schema.py (column mapping + clean) before engine.prepare().
 Dashboard: `streamlit run app/dashboard.py` (pages in app/views/, shared state in app/state.py;
 store values in session_state under names that don't clash with widget keys, e.g. `tl_settings`).
+Operational layer: src/replay.py (week-by-week, no look-ahead), src/cases.py (case lifecycle),
+src/scanner.py (UPI IDs from public pages), src/reporting.py (STR drafts, I4C file, HMAC consortium tokens).
+evaluate.main(stress=True) also runs the stress test and the replay (~8 min on 1,000 merchants).
 Tests: `pytest -q`.
 
 Rules:

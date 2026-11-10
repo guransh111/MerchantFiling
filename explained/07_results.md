@@ -63,6 +63,18 @@ Charts 5 to 7 are new in version 2 (explained in file 13):
 | Cost-based threshold | Lowest cost (₹75,000) for any Friction threshold from 85 to 91 |
 | Stress test (100% evasion) | Full system 100%, behaviour alone 55%, 0 honest merchants penalised |
 
+## Version 3 results
+
+| Layer | Result on demo data |
+|---|---|
+| Time-to-detection replay | Fronts: 40 of 40 penalised, median **7 days** (fastest possible), all within 21. Rented: 10 of 10, median 7 days from handover, all within 14. Honest merchants ever penalised in any week: **1 of 950** |
+| GST cross-check | Flags fronts and rented accounts only; **no honest merchant**. With it, all 40 fronts reach Review (one previously stopped at Friction for lack of corroboration) |
+| Case management (simulated quarter) | Median 59h to decision, 92% of replies within 72h, 20% cleared as genuine, 6% of appeals overturned |
+| Betting-page scanner | The example post reveals 4 fronts not yet on the known-bad list |
+| Consortium check | 7 of 200 new applicants at another provider caught reusing an offboarded front's bank account or phone |
+
+Chart 8: **`8_time_to_detection.png`**: share of fronts and rented accounts penalised vs days since they started.
+
 ## Network result
 
 30 of the 50 bad merchants were **not** on the known-bad list. The network linked 93% of them to a
@@ -86,3 +98,5 @@ known-bad merchant through a shared phone, bank account or gamblers.
 - **93%** of fronts not on the known-bad list found through the network
 - **10 of 10** rented accounts pinned to their exact handover week
 - **55% vs 100%**: behaviour alone vs full system when fraudsters hide as hard as they can
+- **7 days** median from the start of betting to a penalty (the system acts weekly, so that's the fastest possible)
+- **1 of 950** honest merchants ever penalised in any week of the year

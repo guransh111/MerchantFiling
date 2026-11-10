@@ -68,6 +68,8 @@ def build_features(m: pd.DataFrame, tx: pd.DataFrame, cal: pd.DataFrame,
         "match_value": g.v_match.sum(),
         "out_of_state_share": g.oos.mean(),
         "payments_per_payer": g.size() / g.counterparty_id.nunique().replace(0, np.nan),
+        # investigator metric from the implementation plan (not scored): how many states pay this merchant
+        "payer_states": g.counterparty_state.nunique(),
     })
     # variety = Shannon entropy of price bands (bits)
     bc = inn.groupby(keys + ["band"]).size()
@@ -106,7 +108,7 @@ def build_features(m: pd.DataFrame, tx: pd.DataFrame, cal: pd.DataFrame,
     thin = f.n_txns < MIN_TXNS_PER_WEEK
     f.loc[thin, feats] = np.nan
     f["week_start"] = start + pd.to_timedelta(f.week * 7, unit="D")
-    cols = ["merchant_id", "week", "week_start", "n_txns", "inflow"] + feats
+    cols = ["merchant_id", "week", "week_start", "n_txns", "inflow", "payer_states"] + feats
     return f[cols].reset_index(drop=True)
 
 

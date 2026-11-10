@@ -21,7 +21,8 @@ from . import config as C
 # table -> column -> (required?, explanation, synonyms)
 SCHEMA: dict[str, dict[str, tuple[bool, str, list[str]]]] = {
     "merchants": {
-        "merchant_id": (True, "Unique ID of the merchant", ["mid", "merchant", "merchant_code", "merchantid", "vpa", "upi_id"]),
+        "merchant_id": (True, "Unique ID of the merchant", ["mid", "merchant", "merchant_code", "merchantid"]),
+        "upi_id": (False, "Merchant's UPI ID / VPA, e.g. shop@okaxis (lets the betting-page scanner match it)", ["vpa", "upi", "upi_handle", "merchant_vpa"]),
         "category": (True, "Declared business type (kirana, restaurant, ...)", ["mcc", "business_type", "declared_category", "type", "segment"]),
         "city": (False, "City", ["town", "location"]),
         "state": (False, "State code or name (enables the out-of-state signal)", ["merchant_state", "region"]),
@@ -29,6 +30,8 @@ SCHEMA: dict[str, dict[str, tuple[bool, str, list[str]]]] = {
         "declared_monthly_turnover": (False, "Expected monthly turnover from sign-up form, in Rs (enables size signal)",
                                       ["expected_turnover", "monthly_turnover", "declared_turnover", "expected_monthly_volume", "turnover"]),
         "declared_size": (False, "small / medium / large", ["size"]),
+        "gst_annual_turnover": (False, "Annual turnover in GST returns, Rs (enables the GST cross-check; blank = not registered)",
+                                ["gst_turnover", "gstr_turnover", "annual_gst_turnover", "gst_annual"]),
         "settlement_account": (False, "Bank account the money is paid into (enables network links)", ["bank_account", "account_number", "settlement_acc", "payout_account"]),
         "label": (False, "OPTIONAL known truth for evaluation only (legit / betting_front / rented / genuine_drifter)", ["truth", "is_fraud", "fraud_label"]),
     },
@@ -176,6 +179,10 @@ def clean(tables: dict[str, pd.DataFrame]) -> tuple[dict[str, pd.DataFrame], Rep
     m["declared_monthly_turnover"] = pd.to_numeric(m.declared_monthly_turnover, errors="coerce")
     if "settlement_account" not in m:
         m["settlement_account"] = None
+    if "upi_id" not in m:
+        m["upi_id"] = None
+    m["upi_id"] = m.upi_id.astype("string").str.strip().str.lower()
+    m["gst_annual_turnover"] = pd.to_numeric(m.get("gst_annual_turnover"), errors="coerce") if "gst_annual_turnover" in m else np.nan
     if m.state.isna().all():
         rep.info.append("No merchant state: the 'out-of-state payers' signal is switched off.")
     small = m.category.value_counts()
@@ -277,7 +284,8 @@ def template_tables(n_merchants: int = 12) -> dict[str, pd.DataFrame]:
     """Small example tables users can download, fill in, and upload."""
     from .generate import simulate
     m, tx, cal, kb, ev, decl = simulate(n_merchants, seed=7, n_weeks=10)
-    m = m[["merchant_id", "category", "city", "state", "tier", "declared_size", "declared_monthly_turnover", "settlement_account"]]
+    m = m[["merchant_id", "upi_id", "category", "city", "state", "tier", "declared_size", "declared_monthly_turnover",
+           "gst_annual_turnover", "settlement_account"]]
     tx = tx.drop(columns="txn_id")
     return {"merchants": m, "transactions": tx, "known_bad": kb, "declarations": decl, "account_events": ev,
             "calendar": cal[["date", "match_start", "match_end"]]}

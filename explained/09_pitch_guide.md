@@ -23,6 +23,9 @@
 | 8b | The system corrected our own assumption | Learned vs hand-set weights chart: match hours down, out-of-state payers up |
 | 8c | Smarter fraudsters? The layers carry the load | Stress test chart: behaviour alone 55% vs full system 100% at maximum evasion |
 | 8d | We set thresholds in rupees | Cost curve: cheapest between 85 and 91 |
+| 8e | We act within a week | Replay chart: fronts penalised in a median of 7 days; 1 of 950 honest merchants ever penalised |
+| 8f | It runs as an operation, not a model | Case lifecycle with 72h SLA, appeals (6% overturned), audit log, draft STRs, I4C file |
+| 8g | Fraudsters can't just switch provider | Consortium tokens: 7 of 200 re-applicants caught, no raw data shared |
 
 Then do a live dashboard demo (script in file 08) or show screenshots as a backup.
 
@@ -36,6 +39,8 @@ Then do a live dashboard demo (script in file 08) or show screenshots as a backu
 - *"Honest merchants earn faster settlement; fronts never live long enough to earn trust."*
 - *"Every analyst decision makes the system smarter, and it shows you what it learned."*
 - *"We don't pick thresholds by gut feel; we pick the one that costs least in rupees."*
+- *"Replayed week by week with no hindsight, we act within 7 days, and only 1 honest merchant in 950 was ever penalised."*
+- *"Fraudsters can move gateways; their bank account and phone can't hide from the consortium."*
 
 ## How it covers all four solution types the challenge asked for
 
@@ -111,3 +116,20 @@ which is why cross-provider data sharing is in phase 3.
 **"How do you pick thresholds?"**
 In rupees. Enter the cost of a missed front, of a wrongly penalised honest merchant and of review
 time, and the tool shows the cheapest threshold. On our data, anything from 85 to 91 is optimal.
+
+**"How quickly do you catch them?"**
+We replayed the whole year week by week using only the data available at each point. Fronts were penalised
+in a median of 7 days, which is the fastest possible since the system acts weekly, and all within 21 days.
+Rented accounts were caught within a median of 7 days of changing hands.
+
+**"What stops an offboarded merchant from signing up elsewhere?"**
+Consortium tokens: providers share keyed hashes of offboarded merchants' bank accounts and phones. A new
+applicant at another provider who reuses them is flagged at onboarding. No raw data changes hands.
+
+**"How do you handle appeals and prove you're fair?"**
+Every case has a 72-hour reply window, a second analyst decides appeals, and every step is in an audit log.
+We track the appeal overturn rate; 6% in the simulation. If it rises, we're over-flagging and we retune.
+
+**"What do you send to the regulator?"**
+A draft Suspicious Transaction Report for FIU-IND for each confirmed case (PMLA's 7-day deadline), and an
+identifier file for the I4C Suspect Registry. The Principal Officer reviews and files them.

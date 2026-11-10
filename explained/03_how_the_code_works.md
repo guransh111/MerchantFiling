@@ -26,6 +26,10 @@ Think of it as an assembly line. Each station is one Python file in `src/`.
 | `learn.py` | Learning loop, anomaly detector, simulated review history (file 13) |
 | `actions.py` | Ladder + plain-English reasons, including analyst overrides and merchant explanations |
 | `tuning.py` | Cheapest threshold in rupees (file 13) |
+| `replay.py` | Week-by-week replay: days from start of fraud to action (file 16) |
+| `cases.py` | Case lifecycle, 72h deadlines, appeals, audit log, metrics (file 16) |
+| `scanner.py` | Finds UPI IDs on public betting pages and matches them to merchants (file 16) |
+| `reporting.py` | Draft STRs, I4C file, consortium tokens for privacy-safe sharing (file 16) |
 | `engine.py` | Runs it all: `prepare` (slow: payments → signals and links) then `analyse` (fast: seconds) |
 | `evaluate.py` | Grades against the hidden truth, charts, stress test |
 
@@ -135,11 +139,15 @@ A website built with Streamlit, with a menu on the left:
 | Settings & what-if | Every weight and threshold; shows who moved after a change |
 | Learning loop | What it learned, suggested weights, audit queue |
 | Performance & thresholds | Precision/recall, cost-based threshold, stress test |
+| Case management | Cases with 72h deadlines, decisions, appeals, audit log, metrics |
+| Scan a betting page | Paste a public page, find UPI IDs, add matches to the known-bad list |
+| Consortium check | Share offboarded merchants with other providers as hashed tokens |
+| Regulator reports | Draft STRs (zip), I4C Suspect Registry file, consortium tokens |
 | Merchant's view / Customer's payment screen | The human side; merchant explanations feed back in |
 
 ## Tests: `tests/test_pipeline.py`
 
-There are 22 automated checks. Examples: fronts peak on match days; drifters score below fronts; no
+There are 31 automated checks (22 in `test_pipeline.py`, 9 in `test_operations.py`). Examples: fronts peak on match days; drifters score below fronts; no
 Review without a network link; change points find every rented handover; the learning loop trains
 out-of-fold; an analyst's decision overrides the system; messy uploads are mapped correctly; a
 3-column upload still works; the hidden label is never used as an input (that would be cheating,

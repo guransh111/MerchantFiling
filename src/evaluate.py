@@ -308,6 +308,66 @@ def main(stress: bool = False):
         reality.to_csv(C.REPORTS / "reality_check.csv")
     reality = pd.read_csv(C.REPORTS / "reality_check.csv", index_col=0) if (C.REPORTS / "reality_check.csv").exists() else pd.DataFrame()
 
+    # ================================================================ time-to-detection replay
+    from . import replay as RP
+    rp_path = C.REPORTS / "replay_status.csv.gz"
+    tx_path = C.DATA / "transactions.csv"
+    if (stress or not rp_path.exists()) and tx_path.exists():
+        print("Replaying the year week by week as if the system had been live (takes a few minutes)...")
+        tables = {"merchants": m, "transactions": pd.read_csv(tx_path, parse_dates=["ts"]),
+                  "calendar": pd.read_csv(C.DATA / "calendar.csv", parse_dates=["date"]),
+                  "known_bad": pd.read_csv(C.DATA / "known_bad.csv"), "declarations": decl, "account_events": ev}
+        RP.replay(tables, start=C.START_DATE, progress=print).to_csv(rp_path, index=False)
+    rp_md = ["(run `python -m src.evaluate --stress` to compute)"]
+    if rp_path.exists():
+        status = pd.read_csv(rp_path, parse_dates=["as_of"])
+        summ = RP.detection_summary(status, m)
+        summ.to_csv(C.REPORTS / "detection_times.csv", index=False)
+        hl = RP.headline(summ)
+        fig, ax = plt.subplots(figsize=(11, 3.8))
+        for lab in ["betting_front", "rented"]:
+            g = summ[summ.label == lab].days_to_penalty.dropna().sort_values()
+            if len(g):
+                n = (summ.label == lab).sum()
+                xs = np.concatenate([[0], g.values])
+                ys = np.concatenate([[0], np.arange(1, len(g) + 1) / n * 100])
+                ax.step(xs, ys, where="post", color=COLORS[lab], lw=2, label=LABEL_NAME[lab])
+        ax.set_xlim(0, max(28, summ.days_to_penalty.max() + 7 if summ.days_to_penalty.notna().any() else 28))
+        ax.set_xticks(range(0, int(ax.get_xlim()[1]) + 1, 7))
+        ax.set_ylim(0, 105)
+        ax.set_xlabel("Days since the betting started (fronts) or since the account changed hands (rented)", color=MUTED, fontsize=9)
+        ax.set_ylabel("% penalised (Friction or above)", color=MUTED, fontsize=9)
+        ax.set_title("How fast it acts: replaying the year week by week as if the system had been live",
+                     loc="left", fontsize=12, color=INK)
+        ax.legend(frameon=False, fontsize=9, loc="lower right")
+        _style(ax)
+        fig.tight_layout()
+        fig.savefig(C.REPORTS / "8_time_to_detection.png", dpi=150)
+        plt.close(fig)
+        lines = []
+        for lab in ["betting_front", "rented"]:
+            h = hl.get(lab)
+            if h:
+                lines.append(f"| {LABEL_NAME[lab]} | {h['caught']} of {h['n']} | {h['median_days']:.0f} | "
+                             f"{h['p90_days']:.0f} | {h['max_days']:.0f} |")
+        rp_md = [
+            "Every week from March to November, the system is re-run using **only what was known by then** "
+            "(payments so far, network links so far, known-bad IDs only once found, declarations and account "
+            "changes only once they happened). The learning loop is off. The system acts at the end of each week, "
+            "so 7 days is the fastest possible.",
+            "",
+            "| | Penalised | Median days to penalty | 90% within (days) | Slowest (days) |",
+            "|---|---|---|---|---|",
+            *lines,
+            "",
+            f"Honest merchants **ever** penalised in any week: **{hl['honest_ever_penalised']} of {hl['honest_n']}** "
+            f"({', '.join(f'{LABEL_NAME.get(k, k)}: {v}' for k, v in hl['honest_penalised_by_label'].items()) or 'none'}), "
+            f"for a total of {hl['honest_penalised_weeks']} merchant-weeks. Honest merchants ever asked a question: "
+            f"{hl['honest_ever_asked']}.",
+            "",
+            "![Time to detection](8_time_to_detection.png)",
+        ]
+
     # ================================================================ write-up
     n_lab = m.label.value_counts()
     peak_own = fr_own.max()
@@ -399,6 +459,10 @@ def main(stress: bool = False):
         "category from NPCI's July 2025 UPI statistics (`data/real/`).",
         "",
         reality.to_markdown() if len(reality) else "(run the full pipeline to compute)",
+        "",
+        "## 11. How fast does it act? (time-to-detection replay)",
+        "",
+        *rp_md,
         "",
         "## Caveat",
         "",

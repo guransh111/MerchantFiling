@@ -1,22 +1,22 @@
 input,learned_weight,signal,kind
-volume_growth,0.1433899255037731,volume_growth,worst weeks
-size_mismatch,0.23231773879219725,size_mismatch,worst weeks
-round_share,0.22158052272554893,round_share,worst weeks
-match_hours_share,-0.02074170189705308,match_hours_share,worst weeks
-night_share,0.3408691542429128,night_share,worst weeks
+volume_growth,0.14338992550377302,volume_growth,worst weeks
+size_mismatch,0.23231773879219714,size_mismatch,worst weeks
+round_share,0.2215805227255489,round_share,worst weeks
+match_hours_share,-0.020741701897053027,match_hours_share,worst weeks
+night_share,0.34086915424291286,night_share,worst weeks
 out_of_state_share,0.7846443217661597,out_of_state_share,worst weeks
-payments_per_payer,0.3707341263578229,payments_per_payer,worst weeks
+payments_per_payer,0.3707341263578228,payments_per_payer,worst weeks
 ticket_variety,0.6073728162345553,ticket_variety,worst weeks
-pass_through,0.09296635199202348,pass_through,worst weeks
-payout_fanout,0.25574268182669097,payout_fanout,worst weeks
+pass_through,0.0929663519920235,pass_through,worst weeks
+payout_fanout,0.2557426818266909,payout_fanout,worst weeks
 volume_growth_typical,0.11964352087495272,volume_growth,typical week
-size_mismatch_typical,0.20539607389578812,size_mismatch,typical week
+size_mismatch_typical,0.20539607389578804,size_mismatch,typical week
 round_share_typical,0.27812467722449086,round_share,typical week
-match_hours_share_typical,0.12150583389321362,match_hours_share,typical week
+match_hours_share_typical,0.12150583389321352,match_hours_share,typical week
 night_share_typical,0.29103250456106117,night_share,typical week
 out_of_state_share_typical,0.2996223907461588,out_of_state_share,typical week
-payments_per_payer_typical,0.10573532536907063,payments_per_payer,typical week
-ticket_variety_typical,0.27619835460563824,ticket_variety,typical week
-pass_through_typical,0.03997946584829523,pass_through,typical week
-payout_fanout_typical,0.13065014533111594,payout_fanout,typical week
-network_score,0.7159047384919489,network_score,network
+payments_per_payer_typical,0.10573532536907052,payments_per_payer,typical week
+ticket_variety_typical,0.2761983546056381,ticket_variety,typical week
+pass_through_typical,0.03997946584829512,pass_through,typical week
+payout_fanout_typical,0.13065014533111577,payout_fanout,typical week
+network_score,0.7159047384919486,network_score,network

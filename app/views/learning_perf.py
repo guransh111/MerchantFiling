@@ -44,7 +44,8 @@ def learning():
         if st.button("Apply suggested weights", type="primary"):
             new = dict(zip(C.FEATURES, sug.suggested_weight))
             st.session_state.settings_before = r.decisions
-            st.session_state.tl_settings = dataclasses.replace(st.session_state.tl_settings, weights=new)
+            state.set_settings(dataclasses.replace(st.session_state.tl_settings, weights=new),
+                               "Applied weights suggested by the learning loop")
             st.rerun()
         st.caption("Bias warning: analysts mostly review what the system already flags, so the model can only learn "
                    "what the system already sees. That's why random audits (below) matter.")
@@ -131,8 +132,9 @@ def performance():
     if best.threshold != cur and st.button(f"Use {best.threshold:.0f} as the Friction threshold"):
         s = st.session_state.tl_settings
         st.session_state.settings_before = d
-        st.session_state.tl_settings = dataclasses.replace(
-            s, friction=float(best.threshold), ask=min(s.ask, float(best.threshold)), review=max(s.review, float(best.threshold)))
+        state.set_settings(dataclasses.replace(
+            s, friction=float(best.threshold), ask=min(s.ask, float(best.threshold)), review=max(s.review, float(best.threshold))),
+            f"Cost-based threshold (miss Rs {miss:,}, false penalty Rs {fp:,}, review Rs {rv:,})")
         st.rerun()
 
     st.markdown("### Catching fraud vs bothering honest merchants, at every threshold")

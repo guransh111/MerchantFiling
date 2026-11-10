@@ -103,6 +103,16 @@ def decide(m, weekly, scores, net, decl, events, s: C.Settings | None = None,
     d["risk_score"] = np.minimum(100, d.drift_score + s.network_weight * d.network_score)
     d.loc[d.known_bad, "risk_score"] = np.maximum(d.loc[d.known_bad, "risk_score"], 95)
     d["network_link"] = d.known_bad | (s.use_network & (d.network_score >= s.network_link_threshold))
+    # GST cross-check: annualised UPI takings vs turnover declared in GST returns
+    wk = weekly.groupby("merchant_id").agg(inflow=("inflow", "sum"), weeks=("week_start", "nunique"))
+    annual = (wk.inflow / wk.weeks.clip(lower=1) * 52).reindex(d.merchant_id).to_numpy()
+    gst = d.get("gst_annual_turnover", pd.Series(np.nan, index=d.index)).astype(float).to_numpy()
+    d["upi_annual_takings"] = annual
+    d["gst_ratio"] = np.where(gst > 0, annual / np.where(gst > 0, gst, 1), np.nan)
+    d["gst_mismatch"] = s.use_gst & (d.gst_ratio >= s.gst_ratio_flag)
+    d["gst_unregistered_above_threshold"] = s.use_gst & np.isnan(gst) & (annual >= 4_000_000) & \
+        ("gst_annual_turnover" in d)
+    d["corroborated"] = d.network_link | d.gst_mismatch
     d["possible_takeover"] = d.merchant_id.map(takeover_flags(events)).fillna(False).astype(bool)
     for c in ["linked_to", "link_reason", "cluster"]:
         d[c] = d.get(c, pd.Series("", index=d.index)).fillna("")
@@ -126,9 +136,9 @@ def decide(m, weekly, scores, net, decl, events, s: C.Settings | None = None,
         level = level_for(r.risk_score, s)
         system_level = level
         notes = []
-        if level == 3 and s.require_corroboration and not r.network_link:
+        if level == 3 and s.require_corroboration and not r.corroborated:
             level = 2
-            notes.append("Capped at Friction: no network corroboration")
+            notes.append("Capped at Friction: no independent corroboration (network link or GST mismatch)")
         if s.use_takeover and r.possible_takeover:
             level = max(level, 1)  # always at least ask
             if r.network_link:
@@ -149,6 +159,12 @@ def decide(m, weekly, scores, net, decl, events, s: C.Settings | None = None,
         if s.use_learning and level == 0 and pd.notna(r.learned_prob) and r.learned_prob >= s.learning_escalate_at:
             level = 1
             notes.append(f"Resembles cases analysts confirmed before (learned model: {r.learned_prob:.0%}); asking to explain")
+        if r.gst_mismatch:
+            notes.append(f"UPI takings (~Rs {r.upi_annual_takings / 1e5:,.1f} lakh/yr) are {r.gst_ratio:.1f}x the turnover "
+                         f"in its GST returns (Rs {r.gst_annual_turnover / 1e5:,.1f} lakh)")
+        elif r.gst_unregistered_above_threshold and level >= 1:
+            notes.append(f"UPI takings ~Rs {r.upi_annual_takings / 1e5:,.0f} lakh/yr, above the GST registration "
+                         "threshold, but no GST registration on file")
         if r.known_bad:
             notes.append("UPI ID found on a public betting page / known-bad list")
         elif r.network_link and r.linked_to:
@@ -175,6 +191,7 @@ def decide(m, weekly, scores, net, decl, events, s: C.Settings | None = None,
     cols = ["merchant_id", "category", "city", "state", "tier", "declared_size", "declared_monthly_turnover",
             "drift_score", "network_score", "risk_score", "level", "action",
             "reason_1", "reason_2", "reason_3", "notes", "known_bad", "network_link", "possible_takeover",
+            "upi_id", "gst_annual_turnover", "upi_annual_takings", "gst_ratio", "gst_mismatch", "corroborated",
             "linked_to", "cluster", "cluster_size", "peak_week", "shift_week", "shift_jump",
             "learned_prob", "anomaly_pct", "review_outcome", "label", "drift_type"]
     cols = [c for c in cols if c in out]

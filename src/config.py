@@ -102,6 +102,8 @@ class Settings:
     use_declarations: bool = True     # pre-declared changes lower the level by one
     use_takeover: bool = True         # phone + bank account change = possible rental
     use_changepoint: bool = True      # behaviour shift right after an account change = escalate
+    use_gst: bool = True              # UPI takings far above GST-declared turnover = independent corroboration
+    gst_ratio_flag: float = 3.0       # flag when annualised UPI takings >= this many times GST turnover
     use_learning: bool = True         # model trained on reviewer decisions can escalate Monitor -> Ask
     learning_escalate_at: float = 0.8  # model probability needed to escalate
 

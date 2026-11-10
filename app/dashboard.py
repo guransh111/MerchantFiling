@@ -7,6 +7,10 @@ Load data                  upload your own CSV/Excel, generate a simulated world
 Overview / Risk queue      what the system recommends
 Merchant drill-down        full case file + analyst confirm / clear buttons
 Network                    clusters and a picture of linked merchants
+Case management            cases with 72h deadlines, decisions, appeals, audit log
+Scan a betting page        find UPI IDs on public betting pages, match to merchants
+Consortium check           privacy-preserving sharing of offboarded identifiers between providers
+Regulator reports          draft STRs for FIU-IND, I4C Suspect Registry file
 Check a merchant           score a new merchant from sliders or its payments file
 Settings & what-if         change any weight / threshold and see the impact
 Learning loop              what it learned from reviewer decisions; audit queue
@@ -24,7 +28,8 @@ for p in (APP, APP.parent):
         sys.path.insert(0, str(p))
 
 import state  # noqa: E402
-from views import analysis, check_one, data_page, experience, learning_perf, network_page, settings_page  # noqa: E402
+from views import (analysis, cases_page, check_one, data_page, experience, intel, learning_perf,  # noqa: E402
+                   network_page, settings_page)
 
 st.set_page_config(page_title="TrustLoop", layout="wide", page_icon="🔁")
 state.init()
@@ -53,6 +58,8 @@ seasonal or genuinely changing.
 - Look at the **Risk queue**, open a case in **Merchant drill-down**, and **confirm or clear** it. Everything updates.
 - Try **Check a merchant** to score any profile you can imagine.
 - Move the sliders in **Settings & what-if** to see the trade-off between catching fraud and bothering honest merchants.
+- Run the operation: **Case management** (deadlines, appeals), **Scan a betting page**, **Consortium check**,
+  **Regulator reports**.
 """)
     p = state.prepared()
     st.info(f"Loaded now: **{p.name}**, {len(p.merchants):,} merchants.")
@@ -65,6 +72,10 @@ pages = {
                 st.Page(analysis.queue, title="Risk queue", icon="📋", url_path="queue"),
                 st.Page(analysis.merchant, title="Merchant drill-down", icon="🔎", url_path="merchant"),
                 st.Page(network_page.page, title="Network", icon="🕸️", url_path="network")],
+    "Operations": [st.Page(cases_page.page, title="Case management", icon="🗂️", url_path="cases"),
+                   st.Page(intel.scanner_page, title="Scan a betting page", icon="🔍", url_path="scanner"),
+                   st.Page(intel.consortium_page, title="Consortium check", icon="🤝", url_path="consortium"),
+                   st.Page(intel.reports_page, title="Regulator reports", icon="📄", url_path="reports")],
     "Tools": [st.Page(check_one.page, title="Check a merchant", icon="🧪", url_path="check"),
               st.Page(settings_page.page, title="Settings & what-if", icon="🎛️", url_path="settings"),
               st.Page(learning_perf.learning, title="Learning loop", icon="🧠", url_path="learning"),

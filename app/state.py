@@ -39,6 +39,8 @@ def init():
     ss.setdefault("transactions", None)   # raw payments, when available (uploaded / generated)
     ss.setdefault("calendar", None)
     ss.setdefault("reveal", False)
+    ss.setdefault("extra_kb", pd.DataFrame(columns=["merchant_id", "source", "found_date"]))
+    ss.setdefault("settings_log", [])
 
 
 def prepared() -> engine.Prepared:
@@ -61,6 +63,34 @@ def set_dataset(p: engine.Prepared, transactions=None, calendar=None):
     ss.reviews = pd.DataFrame(columns=REVIEW_COLS)
     ss.extra_decl = pd.DataFrame(columns=DECL_COLS)
     ss.pop("_res_key", None)
+    ss.pop("_cases_for", None)
+    ss.extra_kb = pd.DataFrame(columns=["merchant_id", "source", "found_date"])
+
+
+def clock() -> pd.Timestamp:
+    """'Now' for this dataset: the end of its last week (keeps demo deadlines consistent with the data)."""
+    f = prepared().features
+    return pd.Timestamp(f.week_start.max()) + pd.Timedelta(days=7) if len(f) else pd.Timestamp.now().floor("s")
+
+
+def cases():
+    """Case book for the current dataset. Demo datasets start with a simulated quarter of case history."""
+    from src import cases as K
+    ss = st.session_state
+    if ss.get("_cases_for") != prepared().name:
+        d = results().decisions
+        if has_truth():
+            c, e = K.simulate_history(d, prepared().merchants.set_index("merchant_id").label, clock())
+            ss.cases_simulated = True
+        else:
+            c, e = K.open_cases(d, *K.empty(), clock())
+            ss.cases_simulated = False
+        ss.case_book, ss.case_events, ss._cases_for = c, e, prepared().name
+    return ss.case_book, ss.case_events
+
+
+def save_cases(c, e):
+    st.session_state.case_book, st.session_state.case_events = c, e
 
 
 def use_demo():
@@ -79,11 +109,14 @@ def results() -> engine.Results:
     ss = st.session_state
     p = prepared()
     key = _sig(p.name, id(p), dataclasses.asdict(ss.tl_settings), ss.reviews.to_dict("records"),
-               ss.extra_decl.to_dict("records"))
+               ss.extra_decl.to_dict("records"), ss.extra_kb.to_dict("records"))
     if ss.get("_res_key") != key:
         pp = p
         if len(ss.extra_decl):
-            pp = dataclasses.replace(p, declarations=pd.concat([p.declarations, ss.extra_decl], ignore_index=True))
+            pp = dataclasses.replace(pp, declarations=pd.concat([p.declarations, ss.extra_decl], ignore_index=True))
+        if len(ss.extra_kb):
+            pp = dataclasses.replace(pp, known_bad=pd.concat([p.known_bad, ss.extra_kb], ignore_index=True)
+                                     .drop_duplicates("merchant_id"))
         box = st.empty()
         with box.status("Running the analysis...", expanded=False) as status:
             res = engine.analyse(pp, ss.tl_settings, ss.reviews if len(ss.reviews) else None,
@@ -116,3 +149,29 @@ def level_badge(level: int) -> str:
 def merchant_label(d: pd.DataFrame, mid: str) -> str:
     r = d.set_index("merchant_id").loc[mid]
     return f"{mid} · {str(r.category).replace('_', ' ')} · {C.LEVEL_SHORT[int(r.level)]} · risk {r.risk_score:.0f}"
+
+
+def add_known_bad(mids, source: str):
+    ss = st.session_state
+    rows = pd.DataFrame({"merchant_id": list(mids), "source": source, "found_date": str(clock().date())})
+    ss.extra_kb = pd.concat([ss.extra_kb, rows], ignore_index=True).drop_duplicates("merchant_id")
+
+
+def set_settings(new, why: str = ""):
+    """Change settings and record who/what/when in the policy change log."""
+    import dataclasses as dc
+    ss = st.session_state
+    old = dc.asdict(ss.tl_settings)
+    nd = dc.asdict(new)
+    changes = []
+    for k in nd:
+        if nd[k] != old[k]:
+            if isinstance(nd[k], dict):
+                changes += [f"{k}.{kk}: {old[k].get(kk)} → {vv}" for kk, vv in nd[k].items() if old[k].get(kk) != vv]
+            else:
+                changes.append(f"{k}: {old[k]} → {nd[k]}")
+    if changes:
+        ss.settings_log.append({"when": pd.Timestamp.now().strftime("%d %b %Y %H:%M:%S"),
+                                "who": ss.get("analyst_name", "Policy team"), "why": why,
+                                "changes": "; ".join(changes)})
+    ss.tl_settings = new

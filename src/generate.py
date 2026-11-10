@@ -402,7 +402,48 @@ def simulate(n_merchants: int, seed: int = C.SEED, n_weeks: int = C.N_WEEKS,
     })
     ev = pd.DataFrame(events, columns=["merchant_id", "date", "event", "new_value"])
     decl = pd.DataFrame(declarations, columns=["merchant_id", "week_start", "declared_change"])
+    add_external_fields(m, tx, seed)
     return m, tx, cal, known_bad, ev, decl
+
+
+PSP_HANDLES = ["okaxis", "oksbi", "okhdfcbank", "okicici", "ybl", "ibl", "paytm", "axl", "apl", "ptyes"]
+
+
+def add_external_fields(m: pd.DataFrame, tx: pd.DataFrame, seed: int = C.SEED) -> None:
+    """Fields a payment provider would hold from outside its transaction stream (added in place).
+
+    Uses its OWN random generator, so adding these never changes the simulated payments.
+      upi_id                the merchant's UPI ID (VPA), e.g. shree042store@okaxis
+      gst_annual_turnover   turnover in the merchant's GST returns (blank = not GST-registered)
+    GST rules of thumb: registration is compulsory above Rs 40 lakh a year for goods (Rs 20 lakh for
+    services), so most small shops are unregistered. Honest registered shops report roughly what they
+    take. Fronts either have no GST registration or a forged/nil one with tiny turnover. A rented account
+    keeps the ORIGINAL shop's GST turnover, which no longer matches once betting money arrives.
+    """
+    rng = np.random.default_rng(seed + 101)
+    n = len(m)
+    m["upi_id"] = [f"{mid.lower()}{CITIES_BY_NAME.get(city, 'in')[:3].lower()}@{rng.choice(PSP_HANDLES)}"
+                   for mid, city in zip(m.merchant_id, m.city)]
+    inn = tx[tx.direction == "in"]
+    days = max(1, (tx.ts.max() - tx.ts.min()).days)
+    annual = inn.groupby("merchant_id").amount.sum() * 365 / days
+    gst = []
+    for r in m.itertuples(index=False):
+        a = float(annual.get(r.merchant_id, 0.0))
+        if r.label == "betting_front":
+            gst.append(np.nan if rng.random() < 0.5 else round(r.declared_monthly_turnover * 12 * rng.uniform(0.3, 1.0), -3))
+            continue
+        if r.label == "rented":  # GST reflects the original shop, not the betting money
+            a = float(r.declared_monthly_turnover * 12 * rng.uniform(0.8, 1.2))
+        must = a >= 4_000_000
+        if must or rng.random() < 0.3:  # voluntary registration is common for input-tax credit
+            gst.append(round(a * rng.uniform(0.85, 1.1), -3))
+        else:
+            gst.append(np.nan)
+    m["gst_annual_turnover"] = gst
+
+
+CITIES_BY_NAME = {c: c for c, _, _ in CITIES}
 
 
 def main(small: bool = False):

@@ -34,6 +34,7 @@ class Prepared:
     account_events: pd.DataFrame
     review_history: pd.DataFrame = field(default_factory=pd.DataFrame)  # past analyst decisions (training data)
     name: str = "dataset"
+    identifiers: pd.DataFrame = field(default_factory=pd.DataFrame)  # merchant_id, kind, value (devices, accounts, UPI IDs)
 
 
 @dataclass
@@ -55,13 +56,36 @@ def _say(progress, msg):
         progress(msg)
 
 
+def identifiers(m: pd.DataFrame, tx: pd.DataFrame, events: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Every identifier tied to each merchant: UPI ID, settlement accounts (incl. changes), devices used.
+    Used for regulator reports and for privacy-preserving sharing with other payment providers."""
+    parts = []
+    if "upi_id" in m:
+        parts.append(m[["merchant_id", "upi_id"]].rename(columns={"upi_id": "value"}).assign(kind="upi_id"))
+    if "settlement_account" in m:
+        parts.append(m[["merchant_id", "settlement_account"]].rename(columns={"settlement_account": "value"}).assign(kind="settlement_account"))
+    if events is not None and len(events):
+        e = events[events.event == "settlement_account_change"][["merchant_id", "new_value"]]
+        parts.append(e.rename(columns={"new_value": "value"}).assign(kind="settlement_account"))
+        d = events[events.event == "device_change"][["merchant_id", "new_value"]]
+        parts.append(d.rename(columns={"new_value": "value"}).assign(kind="device_id"))
+    if "device_id" in tx:
+        parts.append(tx[["merchant_id", "device_id"]].drop_duplicates().rename(columns={"device_id": "value"}).assign(kind="device_id"))
+    if not parts:
+        return pd.DataFrame(columns=["merchant_id", "kind", "value"])
+    out = pd.concat(parts, ignore_index=True).dropna(subset=["value"])
+    out["value"] = out.value.astype(str)
+    return out[["merchant_id", "kind", "value"]].drop_duplicates().reset_index(drop=True)
+
+
 def prepare(tables: dict, start=None, progress=None, name: str = "dataset") -> Prepared:
     m, tx = tables["merchants"], tables["transactions"]
     _say(progress, f"Calculating weekly signals from {len(tx):,} payments...")
     f = build_features(m, tx, tables["calendar"], start=start)
     _say(progress, "Finding shared phones, bank accounts and customers...")
     edges = N.build_edges(m, tx, tables.get("account_events", pd.DataFrame(columns=["merchant_id", "event", "new_value"])))
-    return Prepared(merchants=m, features=f, edges=edges,
+    ids = identifiers(m, tx, tables.get("account_events"))
+    return Prepared(merchants=m, features=f, edges=edges, identifiers=ids,
                     known_bad=tables.get("known_bad", pd.DataFrame(columns=["merchant_id"])),
                     declarations=tables.get("declarations", pd.DataFrame(columns=["merchant_id", "declared_change"])),
                     account_events=tables.get("account_events", pd.DataFrame(columns=["merchant_id", "date", "event"])),
@@ -125,6 +149,7 @@ def save(p: Prepared, r: Results, folder=C.DATA):
     p.declarations.to_csv(folder / "declarations.csv", index=False)
     p.account_events.to_csv(folder / "account_events.csv", index=False)
     p.review_history.to_csv(folder / "review_history.csv", index=False)
+    p.identifiers.to_csv(folder / "identifiers.csv", index=False)
     r.decisions.to_csv(folder / "decisions.csv", index=False)
     r.scores.to_csv(folder / "scores.csv", index=False)
     r.network.to_csv(folder / "network.csv", index=False)
@@ -140,7 +165,7 @@ def load_prepared(folder=C.DATA, name: str = "Demo (simulated 1,000 merchants)")
     return Prepared(merchants=rd("merchants.csv"), features=rd("features.csv.gz", parse_dates=["week_start"]),
                     edges=rd("network_edges.csv"), known_bad=rd("known_bad.csv"),
                     declarations=rd("declarations.csv"), account_events=rd("account_events.csv"),
-                    review_history=hist, name=name)
+                    review_history=hist, name=name, identifiers=rd("identifiers.csv"))
 
 
 def main():
