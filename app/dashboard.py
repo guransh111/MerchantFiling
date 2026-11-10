@@ -2,7 +2,7 @@
 
 Pages
 -----
-Home                       what Trace does, how Trace decides (with live drawings), and the Load data window
+Home                       what Trace does, how Trace decides (an animation with live numbers), and the Load data window
                            (upload your own CSV/Excel, generate a simulated world, templates)
 Overview / Risk queue      what the system recommends
 Merchant drill-down        full case file + analyst confirm / clear buttons
@@ -17,11 +17,11 @@ Learning loop              what it learned from reviewer decisions; audit queue
 Performance & thresholds   precision / recall, cost-based threshold
 Merchant's view / Customer's payment screen   the human side
 """
-import re
 import sys
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 APP = Path(__file__).resolve().parent
 for p in (APP, APP.parent):
@@ -64,31 +64,8 @@ def home():
     count = "" if "merchants" in p.name else f" · {len(d):,} merchants"
     st.caption(f"{p.name}{count} · as of {state.clock():%d %b %Y}")
 
-    n = len(d)
     st.markdown("<div style='height:40px'></div>", unsafe_allow_html=True)
-
-    # one real flagged merchant against its peers, e.g. "57% vs 10% for similar kirana stores"
-    peer_visual, peer_line = ui.peer_bars(57, 10), "Example: share of takings in match hours"
-    for r_ in d[d.level >= 1].sort_values("risk_score", ascending=False).itertuples():
-        m = re.search(r"^(.*?):\s*([\d.]+)%\s*vs\s*([\d.]+)%", str(r_.reason_1 or ""))
-        if m:
-            shop = str(r_.category).replace("_", " ")
-            peer_visual = ui.peer_bars(float(m.group(2)), float(m.group(3)), f"{r_.merchant_id}, {shop}", "Similar shops")
-            peer_line = m.group(1)
-            break
-    linked = d[d.network_link.fillna(False).astype(bool)] if "network_link" in d else d.iloc[:0]
-    clusters = linked.cluster.nunique() if "cluster" in linked else 0
-    calm = int((d.level == 0).sum())
-
-    st.markdown("##### How Trace decides")
-    st.markdown(ui.principles([
-        ("Compare with peers", "Each merchant against similar shops in the same week, so festival rushes stay normal",
-         peer_visual, peer_line),
-        ("Follow the links", "Shared phones, bank accounts and gamblers tie fronts to known betting accounts",
-         ui.link_graph(), f"{len(linked):,} merchants linked, in {clusters:,} clusters"),
-        ("Ask before you punish", "Every action has a reason; money is held only with a second source of evidence",
-         ui.ladder_steps(d.level.value_counts().to_dict()), f"{calm:,} of {n:,} merchants see no action at all"),
-    ]), unsafe_allow_html=True)
+    components.html(ui.how_trace_decides(d), height=470)
 
 
 pages = {

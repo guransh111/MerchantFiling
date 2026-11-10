@@ -116,6 +116,14 @@ raised grey panels, and a small search bar in the sidebar.
   - Code: `funnel()` (now takes text figures and stacked bars), `reason_compare()`, `risk_scale()`,
     `clock_rows()` in `app/ui.py`; the pages in `app/views/analysis.py`, `cases_page.py`, `learning_perf.py`.
 
+- **Animated "How Trace decides" on Home.** The three cards on Home now play a short animation when the page
+  opens (about 3 seconds; click it to replay): the merchant-vs-peers bars fill, the network grows out from a
+  known betting account, and the ladder bars rise one by one with their counts. Viewers who ask their computer
+  for reduced motion see the finished picture straight away. The numbers are live (top flagged merchant, linked
+  merchants and clusters, merchants per ladder step), so it stays right when you load your own data.
+  The animation is `app/assets/how_trace_decides.html` (fonts included in the file); `ui.how_trace_decides()`
+  fills in the numbers and `home()` shows it. It replaces the static drawings there.
+
 **Where it lives**
 
 - `.streamlit/config.toml`: the dark colours, corner sizes, fonts
