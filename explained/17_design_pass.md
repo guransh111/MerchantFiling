@@ -81,6 +81,16 @@ raised grey panels, and a small search bar in the sidebar.
   the same line separates the page list from the data info at the bottom.
 - **Home, follow-up.** The "Top of the risk queue" preview is gone from Home (the full list is one click away
   on **Risk queue**). Home is now the headline, Load data, the dataset line and **How Trace decides**.
+- **Home infographics.** Two drawings, both from the live results, so they change when you load your own data:
+  - **From 1,000 merchants to 49 human reviews**: four big figures (watched, flagged, restricted, with a human)
+    in the ladder colours, each with a thin bar showing its share of all merchants. The bars barely move past
+    "Watched", which is the point: most honest shops never notice Trace.
+  - **How Trace decides** now has a small picture in each card: the top flagged merchant's figure against
+    similar shops (e.g. 57% vs 10% of takings in match hours, read from its main reason), a little network of
+    merchants tied to a known betting account with the real count of linked merchants and clusters, and the
+    five-step ladder drawn as a rising staircase with how many merchants sit on each step.
+  - Code: `home()` in `app/dashboard.py`; `funnel()`, `peer_bars()`, `link_graph()`, `ladder_steps()` and
+    `principles()` in `app/ui.py`. None of it uses the hidden truth.
 
 - **A simpler Home.** The five-box ladder strip (Monitor to Offboard) is gone from Home; the ladder still
   appears on Overview and next to every merchant. Home now shows

@@ -220,14 +220,90 @@ def ladder_list(counts: dict, describe: bool = True) -> str:
 
 
 def principles(items) -> str:
-    """Home's three ideas: one panel, three equal columns split by hairlines, a title and a line each."""
+    """Home's three ideas: one panel, three equal columns split by hairlines. Each item is
+    (title, text) or (title, text, visual, figure): a small drawing and one line of live numbers under it."""
     p = pal()
     cells = []
-    for i, (title, text) in enumerate(items):
+    for i, item in enumerate(items):
+        title, text = item[0], item[1]
+        visual = (f"<div style='height:88px;display:flex;align-items:flex-end;margin-top:16px'>{item[2]}</div>"
+                  f"<div style='font-family:{MONO};font-size:12px;line-height:16px;min-height:48px;color:{p['MUTED']};margin-top:12px;"
+                  f"padding-bottom:16px;border-bottom:1px solid {p['HAIRLINE']}'>{item[3]}</div>") if len(item) > 2 else ""
         cells.append(
             f"<div style='flex:1 1 220px;padding:20px 24px;border-left:{'none' if i == 0 else '1px solid ' + p['HAIRLINE']}'>"
             f"<div style='font-family:{MONO};font-size:12px;color:{p['MUTED']}'>{i + 1:02d}</div>"
-            f"<div style='font-size:15px;font-weight:500;color:{p['INK']};margin-top:8px'>{title}</div>"
+            f"{visual}"
+            f"<div style='font-size:15px;font-weight:500;color:{p['INK']};margin-top:{16 if visual else 8}px'>{title}</div>"
             f"<div style='font-size:14px;line-height:1.55;color:{p['INK_2']};margin-top:4px'>{text}</div></div>")
     return (f"<div style='display:flex;flex-wrap:wrap;background:{p['PANEL']};border:1px solid {p['HAIRLINE']};"
             f"border-radius:14px;overflow:hidden'>" + "".join(cells) + "</div>")
+
+
+def funnel(steps) -> str:
+    """Home's main figure: how the watched merchants narrow down the ladder. Each step is
+    (figure, label, note, colour, share of all merchants); the thin bar under each figure shows that share."""
+    p = pal()
+    cells = []
+    for i, (figure, label, note, color, share) in enumerate(steps):
+        w = max(0.0, min(1.0, share)) * 100
+        cells.append(
+            f"<div style='flex:1 1 200px;padding:20px 24px;border-left:{'none' if i == 0 else '1px solid ' + p['HAIRLINE']}'>"
+            f"<div style='display:flex;align-items:center;gap:8px;font-size:14px;color:{p['INK_2']}'>"
+            f"<span style='width:8px;height:8px;border-radius:2px;background:{color}'></span>{label}</div>"
+            f"<div style='font-family:{MONO};font-size:32px;line-height:40px;font-weight:500;color:{p['INK']};"
+            f"margin-top:8px;font-variant-numeric:tabular-nums'>{figure:,}</div>"
+            f"<div style='height:4px;background:{p['TRACK']};border-radius:2px;margin-top:12px'>"
+            f"<div style='width:{w:.2f}%;min-width:4px;height:4px;background:{color};border-radius:2px'></div></div>"
+            f"<div style='font-size:13px;line-height:1.5;color:{p['MUTED']};margin-top:12px'>{note}</div></div>")
+    return (f"<div style='display:flex;flex-wrap:wrap;background:{p['PANEL']};border:1px solid {p['HAIRLINE']};"
+            f"border-radius:14px;overflow:hidden'>" + "".join(cells) + "</div>")
+
+
+def peer_bars(shop: float, peers: float, shop_label: str = "This shop", peer_label: str = "Similar shops") -> str:
+    """Two bars, one merchant against its peers: the drawing for 'Compare with peers'."""
+    p = pal()
+    top = max(shop, peers, 1)
+    rows = []
+    for label, v, color in ((shop_label, shop, p["LEVEL_COLOR"][3]), (peer_label, peers, p["NEUTRAL_BAR"])):
+        rows.append(
+            f"<div style='margin-top:8px'><div style='display:flex;justify-content:space-between;font-size:12px;"
+            f"color:{p['INK_2']}'><span>{label}</span><span style='font-family:{MONO};font-variant-numeric:tabular-nums'>"
+            f"{v:.0f}%</span></div><div style='height:8px;background:{p['TRACK']};border-radius:4px;margin-top:4px'>"
+            f"<div style='width:{v / top * 100:.1f}%;min-width:4px;height:8px;background:{color};border-radius:4px'></div>"
+            f"</div></div>")
+    return f"<div style='width:100%'>{''.join(rows)}</div>"
+
+
+def link_graph() -> str:
+    """A small network: one known betting account in the middle, three merchants tied to it by shared phones or
+    bank accounts, two honest shops nearby with no link. The drawing for 'Follow the links'."""
+    p = pal()
+    bad, linked, quiet, edge = p["LEVEL_COLOR"][4], p["LEVEL_COLOR"][3], p["NEUTRAL_BAR"], p["EDGE"]
+    centre = (110, 44)
+    tied = [(40, 18), (44, 72), (178, 22)]
+    alone = [(176, 74), (232, 48)]
+    lines = "".join(f"<line x1='{centre[0]}' y1='{centre[1]}' x2='{x}' y2='{y}' stroke='{edge}' stroke-width='1.5'/>"
+                    for x, y in tied)
+    nodes = (f"<circle cx='{centre[0]}' cy='{centre[1]}' r='11' fill='{bad}'/>"
+             + "".join(f"<circle cx='{x}' cy='{y}' r='7' fill='{linked}'/>" for x, y in tied)
+             + "".join(f"<circle cx='{x}' cy='{y}' r='7' fill='none' stroke='{quiet}' stroke-width='1.5'/>"
+                       for x, y in alone))
+    return (f"<svg width='100%' height='88' viewBox='0 0 260 88' preserveAspectRatio='xMinYMid meet' "
+            f"role='img' aria-label='Merchants linked to a known betting account'>{lines}{nodes}</svg>")
+
+
+def ladder_steps(counts: dict) -> str:
+    """The ladder drawn as a staircase: five rising steps in the ladder colours, the count above each.
+    The drawing for 'Ask before you punish'."""
+    p = pal()
+    cells = []
+    for lvl in range(5):
+        h = 8 + lvl * 10
+        cells.append(
+            f"<div style='flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch'>"
+            f"<div style='font-family:{MONO};font-size:12px;color:{p['INK']};text-align:center;margin-bottom:4px;"
+            f"font-variant-numeric:tabular-nums'>{int(counts.get(lvl, 0)):,}</div>"
+            f"<div style='height:{h}px;background:{p['LEVEL_COLOR'][lvl]};border-radius:4px 4px 0 0' "
+            f"title='{LEVEL_NAME[lvl]}'></div>"
+            f"<div style='font-size:11px;color:{p['MUTED']};text-align:center;margin-top:4px'>{LEVEL_NAME[lvl]}</div></div>")
+    return f"<div style='display:flex;gap:4px;width:100%;align-items:flex-end'>{''.join(cells)}</div>"
