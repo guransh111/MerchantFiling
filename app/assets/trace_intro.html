@@ -1,0 +1,92 @@
+<!-- Trace intro: shown once when someone opens the site (app/dashboard.py, ui.intro()).
+     The mark draws in, the name slides out beside it, then the overlay fades away (~3.6s). CSS only. -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
+/* the overlay is fixed over everything; its Streamlit wrapper takes no space in the page */
+[data-testid="stElementContainer"]:has(#trace-intro) { position: absolute; height: 0; margin: 0; }
+
+  /* ---------- Trace intro: mark draws in, then slides aside to reveal the name ---------- */
+  :root {
+    --bg: #0b0b0d;
+    --ink: #ececee;
+    --ease-out: cubic-bezier(.16, 1, .3, 1);
+    --ease-pop: cubic-bezier(.34, 1.56, .64, 1);
+    --ease-slide: cubic-bezier(.65, 0, .35, 1);
+  }
+
+  /* Full-screen overlay. Place this over your page; it fades itself away (~3.4s total). */
+  #trace-intro {
+    position: fixed; inset: 0; z-index: 1000000;
+    display: grid; place-items: center;
+    background: var(--bg);
+    animation: overlay-out .6s ease 3.0s forwards;
+  }
+  @keyframes overlay-out {
+    to { opacity: 0; visibility: hidden; }
+  }
+
+  .group { display: flex; align-items: center; }
+
+  .mark { width: 128px; height: auto; overflow: visible; display: block; }
+  .mark * { transform-box: fill-box; transform-origin: center; }
+
+  /* 1. big dot pops in */
+  .big {
+    fill: var(--ink);
+    transform: scale(0);
+    animation: pop .6s var(--ease-pop) .15s forwards;
+  }
+  /* 2. the line traces out toward the small dot */
+  .stem {
+    stroke: var(--ink); stroke-width: 14; stroke-linecap: butt; fill: none;
+    stroke-dasharray: 110; stroke-dashoffset: 110;
+    animation: draw .5s var(--ease-out) .55s forwards;
+  }
+  /* 3. small dot lands at the end of the line */
+  .small {
+    fill: var(--ink);
+    transform: scale(0);
+    animation: pop .5s var(--ease-pop) .95s forwards;
+  }
+  @keyframes pop  { to { transform: scale(1); } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* 4. the name opens up beside the mark, which slides left to make room */
+  .word {
+    display: grid;
+    grid-template-columns: 0fr;
+    animation: open .85s var(--ease-slide) 1.7s forwards;
+  }
+  @keyframes open { to { grid-template-columns: 1fr; } }
+
+  .word > div { min-width: 0; overflow: hidden; }
+  .word span {
+    display: block; white-space: nowrap;
+    padding-left: 30px; padding-right: 4px;
+    font: 600 92px/1.1 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    opacity: 0; transform: translateX(-36px);
+    animation: word-in .8s var(--ease-out) 1.85s forwards;
+  }
+  @keyframes word-in { to { opacity: 1; transform: translateX(0); } }
+
+  @media (max-width: 600px) {
+    .mark { width: 84px; }
+    .word span { font-size: 60px; padding-left: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #trace-intro, #trace-intro * { animation-duration: .01s !important; animation-delay: 0s !important; }
+    #trace-intro { animation-delay: 1s !important; }
+  }
+</style>
+<div id="trace-intro" aria-hidden="true">
+  <div class="group">
+    <svg class="mark" viewBox="74 41 159 155" xmlns="http://www.w3.org/2000/svg">
+      <circle class="big"   cx="122" cy="148" r="44"/>
+      <line   class="stem"  x1="122" y1="148" x2="200" y2="74"/>
+      <circle class="small" cx="200" cy="74"  r="29"/>
+    </svg>
+    <div class="word"><div><span>Trace</span></div></div>
+  </div>
+</div>

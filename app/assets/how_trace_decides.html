@@ -196,7 +196,11 @@ html,body{height:100%;background:var(--bg);overflow:hidden}
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   render(0);
   function play(){let t0=null;(function tick(ts){if(t0===null)t0=ts;const t=(ts-t0)/1000;render(Math.min(t,TOTAL));if(t<TOTAL)requestAnimationFrame(tick);})(performance.now());}
-  if(reduce){render(TOTAL);} else if(!manual){requestAnimationFrame(()=>play());addEventListener('click',play);}
+  // if the site's opening intro (app/assets/trace_intro.html) is still covering the page, wait for it to fade
+  function introGone(){try{const o=parent.document.getElementById('trace-intro');
+    return !o||getComputedStyle(o).visibility==='hidden'||+getComputedStyle(o).opacity<0.05;}catch(e){return true;}}
+  function whenReady(fn){const t0=Date.now();(function wait(){if(introGone()||Date.now()-t0>5000)fn();else setTimeout(wait,100);})();}
+  if(reduce){render(TOTAL);} else if(!manual){whenReady(()=>requestAnimationFrame(()=>play()));addEventListener('click',play);}
 })();
 </script>
 </body>

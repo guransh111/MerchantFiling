@@ -34,6 +34,7 @@ from views import (analysis, cases_page, check_one, data_page, experience, intel
                    network_page, settings_page)
 
 st.set_page_config(page_title="Trace", layout="wide", page_icon=":material/sync_alt:")
+ui.intro()  # the opening animation, once per visit
 state.init()
 
 

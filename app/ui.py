@@ -350,3 +350,16 @@ def how_trace_decides(d) -> str:
     for k, v in values.items():
         page = page.replace(k, v)
     return page
+
+
+def intro():
+    """The opening animation (app/assets/trace_intro.html): the Trace mark draws in, the name slides out beside it,
+    then the dark overlay fades away after about 3.6 seconds. Shown once per visit (a reload counts as a new visit),
+    so moving between pages doesn't replay it. It also covers the first few seconds while the data loads."""
+    if st.session_state.get("_intro_shown"):
+        return
+    st.session_state._intro_shown = True
+    # st.html would strip the SVG mark, so use markdown; without blank lines or indentation it reads the whole
+    # thing as one block of HTML instead of mistaking indented CSS for code
+    page = "\n".join(line.strip() for line in (ASSETS / "trace_intro.html").read_text().splitlines() if line.strip())
+    st.markdown(page, unsafe_allow_html=True)

@@ -124,6 +124,12 @@ raised grey panels, and a small search bar in the sidebar.
   The animation is `app/assets/how_trace_decides.html` (fonts included in the file); `ui.how_trace_decides()`
   fills in the numbers and `home()` shows it. It replaces the static drawings there.
 
+- **Opening intro.** When someone opens (or reloads) the site, a dark screen shows the Trace mark drawing itself
+  (big dot, line, small dot), the name slides out beside it, and the screen fades away after about 3.6 seconds.
+  It plays once per visit, not on every page change, and it covers the first seconds while the data loads.
+  The Home animation waits for it to finish before it starts. Viewers who ask for reduced motion get a short
+  version. The intro is `app/assets/trace_intro.html` (CSS only); `ui.intro()` shows it from `app/dashboard.py`.
+
 **Where it lives**
 
 - `.streamlit/config.toml`: the dark colours, corner sizes, fonts
