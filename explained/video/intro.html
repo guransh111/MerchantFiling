@@ -422,6 +422,11 @@ function drawTrace(s) {
     text(word, wx - (1 - wu) * 40, H / 2 + 42, wordFont, COL.ink, wu);
     ctx.restore();
   }
+  // optional tagline under the logo, used by the demo film's ending (window.__TAGLINE = true); off in the intro
+  if (window.__TAGLINE) {
+    const ta = eExpo(seg(s, 2.75, 0.8));
+    text("Catch the fronts. Protect the shops.", W / 2, H / 2 + 160 + (1 - ta) * 14, MONO(34), COL.soft, ta, "center");
+  }
 }
 
 // ------------------------------------------------------------- playback
