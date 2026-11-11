@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trace intro film</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+  /* One 1920 x 1080 stage, drawn entirely by render(t) below and scaled to fit the window. */
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #wrap { position: fixed; inset: 0; display: grid; place-items: center; }
+  canvas { width: min(100vw, 177.78vh); height: min(56.25vw, 100vh); display: block; }
+  /* force the browser to load the three faces before the first frame */
+  .preload { position: absolute; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c" width="1920" height="1080"></canvas></div>
+<span class="preload" style="font-family:'Plex Sans';font-weight:400">a</span>
+<span class="preload" style="font-family:'Plex Sans';font-weight:600">a</span>
+<span class="preload" style="font-family:'Plex Mono'">a</span>
+<script>
+/*
+  Trace: opening film, 45 seconds. "One shop, one day, one continuous shot."
+    0.0   morning: a bakery in Lucknow draws itself
+    7.5   local customers pay, small amounts, slowly
+   12.8   what the payment provider sees: everything verified
+   20.0   "But behind the counter...": the ticks undo, the day drains to night
+   22.8   the camera pulls back over India; at 8 PM payments pour in from every corner
+   31.6   midnight: the money fans straight out again
+   32.8   push back in: not a bakery, a betting front
+   37.0   black; the Trace mark draws itself and the name opens beside it
+  Everything is a pure function of t, so the export can step it frame by frame at 60 fps.
+*/
+const W = 1920, H = 1080, TOTAL = 45;
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+
+// ------------------------------------------------------------- palette (the dashboard's)
+const COL = {
+  ink: "#F4F4F5", soft: "#A8A8AD", dim: "#7D7D82", line: "#2C2C2F", card: "#17171A",
+  grey: "#6B6B70", blue: "#6490D8", gold: "#C4904A", orange: "#D4784A", red: "#C4605E", map: "#3A3A41",
+};
+const BG_MORNING = [21, 18, 15], BG_DAY = [17, 17, 19], BG_NIGHT = [10, 11, 15];
+
+// ------------------------------------------------------------- easing
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, t0, d) => clamp((t - t0) / d);
+const eExpo = (x) => (x = clamp(x), x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));             // fast start, long soft landing
+const eQuart = (x) => 1 - Math.pow(1 - clamp(x), 4);
+const eIO = (x) => (x = clamp(x), x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2); // slow, fast, slow
+const eSine = (x) => -(Math.cos(Math.PI * clamp(x)) - 1) / 2;
+const eBack = (x) => { x = clamp(x); const c1 = 1.15, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const mix = (c1, c2, t) => c1.map((v, i) => Math.round(lerp(v, c2[i], t)));
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const rgb = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+// seeded random, so every render is identical
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+
+// ------------------------------------------------------------- India, as a faint field of dots
+// approximate mainland outline (longitude, latitude): good enough for a dotted silhouette
+const INDIA = [[68.4,23.7],[69.8,24.2],[71.0,24.6],[70.1,25.7],[69.6,26.8],[70.6,27.7],[72.3,28.4],[73.4,29.9],[74.0,30.5],[74.6,31.0],
+  [75.3,32.2],[74.7,32.5],[74.3,33.0],[73.8,34.3],[74.5,35.0],[76.5,35.8],[78.0,35.5],[78.8,34.3],[78.4,32.5],[79.0,31.0],[80.3,30.2],
+  [80.1,28.8],[81.0,28.4],[83.0,27.4],[84.0,27.3],[86.0,26.6],[88.1,26.4],[89.8,26.8],[92.1,26.9],[94.2,27.6],[96.0,28.2],[97.3,27.8],
+  [96.2,27.1],[95.2,26.6],[94.6,25.2],[94.2,23.8],[93.2,22.3],[92.4,22.0],[92.2,23.5],[91.4,24.0],[91.9,25.1],[90.0,25.3],[88.6,25.2],
+  [88.6,24.3],[88.9,23.0],[89.0,21.9],[88.2,21.6],[87.0,21.6],[86.6,20.4],[85.1,19.5],[83.4,18.0],[82.3,17.0],[81.3,16.4],[80.1,15.5],
+  [80.3,13.1],[79.9,12.0],[79.3,10.3],[78.2,8.9],[77.5,8.1],[76.3,9.5],[75.8,11.2],[74.8,12.9],[74.1,14.8],[73.4,16.5],[72.8,19.0],
+  [72.6,21.0],[70.2,20.9],[69.0,22.4],[68.4,23.7]];
+const SHOP_LL = [80.95, 26.85];           // Lucknow
+const K = 74;                              // world units per degree
+const W_LL = (lon, lat) => [(lon - SHOP_LL[0]) * K, (SHOP_LL[1] - lat) * K];
+function inside(lon, lat) {
+  let c = false;
+  for (let i = 0, j = INDIA.length - 1; i < INDIA.length; j = i++) {
+    const [xi, yi] = INDIA[i], [xj, yj] = INDIA[j];
+    if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+const MAP = [];
+for (let lat = 8; lat <= 36; lat += 0.62) for (let lon = 68; lon <= 97.5; lon += 0.62) if (inside(lon, lat)) MAP.push(W_LL(lon, lat));
+const CITIES = { Delhi: [77.21, 28.61], Mumbai: [72.88, 19.08], Kolkata: [88.36, 22.57], Bengaluru: [77.59, 12.97],
+  Hyderabad: [78.49, 17.39], Chennai: [80.27, 13.08], Jaipur: [75.79, 26.91], Patna: [85.14, 25.59], Ahmedabad: [72.57, 23.02], Pune: [73.86, 18.52] };
+function randomLand(r, minDist) {
+  for (;;) {
+    const lon = 68.5 + r() * 28.5, lat = 8.3 + r() * 27.5;
+    if (!inside(lon, lat)) continue;
+    const w = W_LL(lon, lat);
+    if (Math.hypot(w[0], w[1]) >= minDist) return w;
+  }
+}
+
+// ------------------------------------------------------------- the camera
+// screen = anchor + (world - cam) * scale. Day: the shop at (700, 500), life size. Night: all of India.
+const CAM_DAY = { a: [700, 500], c: [0, 0], s: 1 };
+const CAM_NIGHT = { a: [960, 548], c: W_LL(82.6, 22.4), s: 0.38 };
+const CAM_END = { a: [960, 470], c: [0, 0], s: 1 };
+function camera(t) {
+  // the shop starts centred, then slides left to make room for the provider's card
+  const room = eIO(seg(t, 12.2, 1.4));
+  CAM_DAY.a = [lerp(960, 700, room), 500];
+  const out = eIO(seg(t, 22.8, 2.6)), back = eIO(seg(t, 32.8, 1.8));
+  const A = out < 1 ? CAM_DAY : CAM_NIGHT, B = out < 1 ? CAM_NIGHT : CAM_END, k = out < 1 ? out : back;
+  // a slow drift keeps the night shot alive
+  const drift = out >= 1 && back <= 0 ? Math.sin((t - 25.4) * 0.35) * 0.006 : 0;
+  return { a: [lerp(A.a[0], B.a[0], k), lerp(A.a[1], B.a[1], k)], c: [lerp(A.c[0], B.c[0], k), lerp(A.c[1], B.c[1], k)],
+    s: lerp(A.s, B.s, k) * (1 + drift) };
+}
+const toScreen = (cam, w) => [cam.a[0] + (w[0] - cam.c[0]) * cam.s, cam.a[1] + (w[1] - cam.c[1]) * cam.s];
+
+// ------------------------------------------------------------- payments
+// a payment is a dot that travels a gentle curve into the shop, leaving a short fading trail
+function curve(o, k) { // quadratic bezier from o to the shop (0,0), bowed to one side
+  const mx = o[0] / 2, my = o[1] / 2, d = Math.hypot(o[0], o[1]) || 1;
+  return [mx + (-o[1] / d) * d * 0.22 * k, my + (o[0] / d) * d * 0.22 * k];
+}
+const bez = (o, c, u) => [(1 - u) * (1 - u) * o[0] + 2 * (1 - u) * u * c[0], (1 - u) * (1 - u) * o[1] + 2 * (1 - u) * u * c[1]];
+
+const DAY_PAY = (() => {
+  const r = rng(3), list = [], times = [7.5, 8.2, 9.0, 9.7, 10.5, 11.1, 11.8, 12.5];
+  const amounts = [200, 140, 300, 260, 180, 220, 90, 340];
+  times.forEach((t0, i) => {
+    const ang = -2.4 + r() * 4.2, dist = 300 + r() * 160;
+    const o = [Math.cos(ang) * dist, Math.sin(ang) * dist * 0.75];
+    list.push({ t0, dur: 1.5, o, c: curve(o, r() < 0.5 ? 1 : -1), amt: amounts[i] });
+  });
+  return list;
+})();
+
+const NIGHT_PAY = (() => {
+  const r = rng(11), list = [];
+  const amounts = [500, 1000, 500, 500, 2000, 1000, 500, 5000, 500, 1000];
+  // arrivals ramp up as the match goes on: inverse of a rising rate
+  const N = 190, start = 23.4, end = 31.0;
+  for (let i = 0; i < N; i++) {
+    const q = i / N, t0 = start + (end - start) * Math.pow(q, 0.62) + (r() - 0.5) * 0.08;
+    const o = randomLand(r, 160);
+    list.push({ t0, dur: 1.35 + r() * 0.6, o, c: curve(o, r() < 0.5 ? 1 : -1), amt: amounts[Math.floor(r() * amounts.length)] });
+  }
+  // the three the narrator calls out: Delhi, Mumbai, Kolkata
+  [["Delhi", 24.7], ["Mumbai", 25.5], ["Kolkata", 26.3]].forEach(([city, t0]) => {
+    const o = W_LL(...CITIES[city]);
+    list.push({ t0, dur: 1.6, o, c: curve(o, city === "Mumbai" ? -1 : 1), amt: 500, city });
+  });
+  return list.sort((a, b) => a.t0 - b.t0);
+})();
+
+const PAYOUT = (() => { // midnight: the money fans out to many accounts
+  const r = rng(29), list = [];
+  for (let i = 0; i < 44; i++) list.push({ t0: 31.65 + r() * 0.45, dur: 1.0 + r() * 0.5, d: randomLand(r, 220) });
+  return list;
+})();
+
+// the narrator's beats, shown as tags beside the shop
+const CALLOUTS = [{ t: 27.6, txt: "₹500" }, { t: 28.35, txt: "₹1,000" }, { t: 29.1, txt: "₹500" }];
+
+// ------------------------------------------------------------- icons (lucide, 24-unit box)
+const STORE = ["m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7", "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8",
+  "M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4", "M2 7h20",
+  "M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"].map((d) => new Path2D(d));
+function icon(paths, cx, cy, size, color, alpha, lw = 1.6) {
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.translate(cx - size / 2, cy - size / 2); ctx.scale(size / 24, size / 24);
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  paths.forEach((p) => ctx.stroke(p)); ctx.restore();
+}
+function check(cx, cy, size, color, u) { // a tick that draws itself (u 0..1)
+  if (u <= 0) return;
+  ctx.save(); ctx.translate(cx - size / 2, cy - size / 2); ctx.scale(size / 24, size / 24);
+  const len = 22.6; ctx.setLineDash([len, len]); ctx.lineDashOffset = len * (1 - u);
+  ctx.strokeStyle = color; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.moveTo(4, 12); ctx.lineTo(9, 17); ctx.lineTo(20, 6); ctx.stroke(); ctx.restore();
+}
+
+// ------------------------------------------------------------- text helpers
+const SANS = (w, px) => `${w} ${px}px "Plex Sans", system-ui, sans-serif`;
+const MONO = (px) => `400 ${px}px "Plex Mono", ui-monospace, monospace`;
+function text(s, x, y, font, color, alpha = 1, align = "left") {
+  if (alpha <= 0) return;
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+  ctx.fillText(s, x, y); ctx.restore();
+}
+function typed(s, u) { return s.slice(0, Math.round(s.length * clamp(u))); }
+
+// ------------------------------------------------------------- clock
+function minutesAt(t) {
+  if (t < 8) return 7 * 60;
+  if (t < 20) return lerp(7 * 60, 18 * 60 + 30, eSine(seg(t, 8, 12)));
+  if (t < 22.0) return 18 * 60 + 30;
+  if (t < 22.5) return lerp(18 * 60 + 30, 20 * 60, eQuart(seg(t, 22.0, 0.5)));
+  if (t < 31.6) return lerp(20 * 60, 24 * 60, seg(t, 23.4, 8.2));
+  return 24 * 60;
+}
+function clockLabel(m) {
+  m = Math.floor(m / 5) * 5; let h = Math.floor(m / 60) % 24; const mm = m % 60;
+  const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+  return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")} ${ap}`;
+}
+
+// ------------------------------------------------------------- the frame
+function render(t) {
+  // background: warm morning, neutral day, cold night
+  const toDay = eIO(seg(t, 4, 6)), toNight = eIO(seg(t, 20.3, 2.2)), toBlack = eIO(seg(t, 36.8, 0.9));
+  let bg = mix(mix(BG_MORNING, BG_DAY, toDay), BG_NIGHT, toNight);
+  bg = mix(bg, [0, 0, 0], toBlack);
+  ctx.fillStyle = rgb(bg); ctx.fillRect(0, 0, W, H);
+
+  const cam = camera(t), S = toScreen(cam, [0, 0]);
+  const scene = 1 - toBlack;                 // everything before the logo fades together
+  ctx.save(); ctx.globalAlpha = scene;
+
+  // ---- map of India (night)
+  const mapA = eIO(seg(t, 23.2, 2.2)) * (1 - eIO(seg(t, 32.9, 1.2)));
+  if (mapA > 0) {
+    ctx.fillStyle = COL.map;
+    ctx.globalAlpha = scene * mapA * 0.75;
+    const r = 2.2;
+    for (const w of MAP) { const p = toScreen(cam, w); ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill(); }
+    ctx.globalAlpha = scene;
+  }
+
+  // ---- local customers (day)
+  for (const P of DAY_PAY) drawPayment(t, cam, P, hex(COL.soft), 8, 0.55);
+
+  // ---- night payments and city labels
+  for (const P of NIGHT_PAY) drawPayment(t, cam, P, hex(COL.red), 4.2, 0.6);
+  for (const P of NIGHT_PAY) if (P.city) {
+    const a = eExpo(seg(t, P.t0 - 0.15, 0.35)) * (1 - eQuart(seg(t, P.t0 + 1.25, 0.5)));
+    if (a > 0) {
+      const p = toScreen(cam, P.o);
+      ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = COL.red; ctx.lineWidth = 1.5;
+      const rr = lerp(6, 22, eExpo(seg(t, P.t0 - 0.15, 0.9)));
+      ctx.globalAlpha *= 1 - seg(t, P.t0, 0.9) * 0.7; ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, 6.2832); ctx.stroke(); ctx.restore();
+      text(P.city, p[0] + 16, p[1] - 14, MONO(24), COL.ink, a);
+    }
+  }
+
+  // ---- midnight: the money leaves
+  for (const P of PAYOUT) {
+    const u = seg(t, P.t0, P.dur); if (u <= 0 || t > P.t0 + P.dur + 0.6) continue;
+    const k = eExpo(u), fade = 1 - seg(t, P.t0 + P.dur, 0.6);
+    for (let i = 8; i >= 0; i--) {
+      const kk = eExpo(seg(t - i * 0.022, P.t0, P.dur)); if (kk <= 0) continue;
+      const p = toScreen(cam, [P.d[0] * kk, P.d[1] * kk]);
+      ctx.fillStyle = rgb(hex(COL.gold), (i === 0 ? 1 : (1 - i / 9) * 0.35) * fade);
+      ctx.beginPath(); ctx.arc(p[0], p[1], i === 0 ? 4.4 : 3.2 * (1 - i / 12), 0, 6.2832); ctx.fill();
+    }
+    void k;
+  }
+
+  // ---- the shop
+  drawShop(t, cam, S);
+
+  // ---- "what the provider sees" card (day)
+  drawCard(t, S);
+
+  // ---- money tags beside the shop
+  DAY_PAY.forEach((P, i) => tag(t, P.t0 + P.dur, S, `₹${P.amt}`, MONO(32), COL.soft, i % 2 ? 96 : -96, -104, 1.3, i % 2 ? "left" : "right"));
+  CALLOUTS.forEach((c, i) => tag(t, c.t, S, c.txt, MONO(40), COL.ink, i === 1 ? 64 : -64, -70, 1.1, i === 1 ? "left" : "right"));
+
+  // ---- running total since 8 PM, then drained at midnight
+  drawCounter(t);
+
+  // ---- clock
+  const clockA = eExpo(seg(t, 1.6, 1.0)) * (1 - eQuart(seg(t, 34.6, 0.8)));
+  if (clockA > 0) {
+    text("Lucknow", W - 120, 104, MONO(18), COL.dim, clockA, "right");
+    const night = t > 22.0;
+    text(clockLabel(minutesAt(t)), W - 120, 146, MONO(36), night ? COL.ink : COL.soft, clockA, "right");
+  }
+  ctx.restore();
+
+  // ---- Trace: the mark draws itself and the name opens beside it
+  drawTrace(t - 37.6);
+}
+
+function drawPayment(t, cam, P, color, r, trailA) {
+  const u = seg(t, P.t0, P.dur);
+  if (u <= 0 || u >= 1) return;
+  for (let i = 9; i >= 0; i--) {
+    const uu = eIO(seg(t - i * 0.03, P.t0, P.dur)); if (uu <= 0) continue;
+    const p = toScreen(cam, bez(P.o, P.c, uu));
+    const a = i === 0 ? 1 : (1 - i / 10) * trailA;
+    ctx.fillStyle = rgb(color, a * (u < 0.08 ? u / 0.08 : 1));
+    ctx.beginPath(); ctx.arc(p[0], p[1], i === 0 ? r : r * (1 - i / 13), 0, 6.2832); ctx.fill();
+  }
+}
+
+function tag(t, t0, S, s, font, color, dx, dy, life = 1.3, align = "left") {
+  const u = seg(t, t0, life); if (u <= 0 || u >= 1) return;
+  const a = eExpo(u * 4) * (1 - eQuart(seg(t, t0 + life * 0.55, life * 0.45)));
+  text(s, S[0] + dx, S[1] + dy - eExpo(u) * 26, font, color, a, align);
+}
+
+function drawShop(t, cam, S) {
+  // size follows the camera, but never smaller than a readable node
+  const base = Math.max(74 * cam.s, 34);
+  // each arrival nudges the ring outward, then it settles
+  let bump = 0;
+  for (const P of DAY_PAY) { const d = t - (P.t0 + P.dur); if (d > 0 && d < 1) bump += Math.exp(-d * 6) * 6; }
+  for (const P of NIGHT_PAY) { const d = t - (P.t0 + P.dur); if (d > 0 && d < 0.6) bump += Math.exp(-d * 9) * 1.4; }
+  bump = Math.min(bump, 10);
+  const draw = eExpo(seg(t, 0.5, 1.6));                      // the ring traces itself in
+  const red = eIO(seg(t, 33.7, 0.9)), nightRed = eIO(seg(t, 27.0, 3.0)) * 0.35;
+  const ringCol = mix(mix(hex(COL.soft), hex(COL.red), nightRed), hex(COL.red), red);
+  const R = base + bump;
+  if (draw > 0) {
+    ctx.save();
+    ctx.fillStyle = rgb(mix(hex("#17171A"), [0, 0, 0], 0)); ctx.globalAlpha *= draw;
+    ctx.beginPath(); ctx.arc(S[0], S[1], R, 0, 6.2832); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.strokeStyle = rgb(ringCol); ctx.lineWidth = 2.5; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(S[0], S[1], R, -Math.PI / 2, -Math.PI / 2 + 6.2832 * draw); ctx.stroke(); ctx.restore();
+    const iconA = eExpo(seg(t, 1.2, 0.9));
+    const isz = R * 0.95 * lerp(0.86, 1, eBack(seg(t, 1.2, 0.8)));
+    icon(STORE, S[0], S[1] + 1, isz, rgb(mix(hex(COL.ink), hex(COL.red), red)), iconA, 1.5);
+  }
+
+  // name and line beneath: typed in, hidden while the camera is out over India, swapped at the reveal
+  const out = eIO(seg(t, 22.6, 0.8)) * (1 - eIO(seg(t, 33.4, 0.8)));
+  const la = 1 - out;
+  const y1 = S[1] + R + 74, y2 = y1 + 42;
+  const nameU = seg(t, 2.0, 0.9), lineU = seg(t, 2.9, 1.0);
+  const quoted = eIO(seg(t, 33.9, 0.6));
+  text(quoted > 0.5 ? "“Sharma Bakes”" : typed("Sharma Bakes", nameU), S[0], y1, SANS(600, 46), COL.ink, la, "center");
+  // "Bakery · Lucknow" blurs away; "Betting front" rolls in
+  const swap = seg(t, 34.2, 0.9);
+  if (swap < 1) {
+    ctx.save(); if (swap > 0) ctx.filter = `blur(${eQuart(swap) * 10}px)`;
+    text(typed("Bakery  ·  Lucknow", lineU), S[0], y2, MONO(26), COL.soft, la * (1 - eQuart(swap)), "center"); ctx.restore();
+  }
+  if (swap > 0) {
+    const word = "Betting front";
+    ctx.save(); ctx.font = MONO(30); const total = ctx.measureText(word).width; ctx.restore();
+    let x = S[0] - total / 2;
+    for (let i = 0; i < word.length; i++) {
+      const ch = word[i], u = eExpo(seg(t, 34.45 + i * 0.03, 0.5));
+      ctx.save(); ctx.font = MONO(30); const w = ctx.measureText(ch).width; ctx.restore();
+      text(ch, x, y2 + 4 + (1 - u) * 18, MONO(30), COL.red, u);
+      x += w;
+    }
+  }
+}
+
+function roundRectPath(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function drawCard(t, S) {
+  const draw = eExpo(seg(t, 12.8, 1.1));
+  const out = eIO(seg(t, 21.6, 1.0));
+  if (draw <= 0 || out >= 1) return;
+  const x = S[0] + 210, y = S[1] - 150, w = 560, h = 300, r = 18;
+  const a = 1 - out;
+  ctx.save(); ctx.globalAlpha *= a;
+  // the outline traces in, then the card fills
+  const per = 2 * (w + h);
+  ctx.fillStyle = rgb(hex(COL.card), eQuart(seg(t, 13.3, 0.6)));
+  roundRectPath(x, y, w, h, r); ctx.fill();
+  ctx.setLineDash([per, per]); ctx.lineDashOffset = per * (1 - draw);
+  ctx.strokeStyle = COL.line; ctx.lineWidth = 1.5; roundRectPath(x, y, w, h, r); ctx.stroke(); ctx.setLineDash([]);
+  // a hairline ties the card to the shop
+  const tie = eExpo(seg(t, 12.9, 0.8));
+  ctx.strokeStyle = COL.line; ctx.beginPath(); ctx.moveTo(S[0] + 90, S[1]); ctx.lineTo(lerp(S[0] + 90, x, tie), S[1]); ctx.stroke();
+  text("What the payment provider sees", x + 36, y + 56, MONO(20), COL.dim, eExpo(seg(t, 13.4, 0.6)));
+  const rows = ["Documents verified", "Payments look normal", "Settled next morning"];
+  rows.forEach((row, i) => {
+    const t0 = 14.6 + i * 1.5, ry = y + 118 + i * 62;
+    const ta = eExpo(seg(t, t0, 0.7));
+    text(row, x + 36 + (1 - ta) * 12, ry + 10, SANS(400, 30), COL.ink, ta);
+    // ticks draw in; at "But behind the counter..." they undo, last first
+    const undo = eQuart(seg(t, 20.2 + (2 - i) * 0.3, 0.45));
+    check(x + w - 62, ry, 30, COL.soft, eQuart(seg(t, t0 + 0.35, 0.5)) * (1 - undo));
+  });
+  ctx.restore();
+}
+
+function drawCounter(t) {
+  const a = eExpo(seg(t, 23.6, 0.8)) * (1 - eQuart(seg(t, 33.0, 0.7)));
+  if (a <= 0) return;
+  let sum = 0;
+  for (const P of NIGHT_PAY) if (t >= P.t0 + P.dur) sum += P.amt;
+  const drain = eIO(seg(t, 31.75, 0.9));
+  const peak = NIGHT_PAY.reduce((s, P) => s + (31.75 >= P.t0 + P.dur ? P.amt : 0), 0);
+  const shown = t < 31.75 ? sum : Math.round(peak * (1 - drain) / 100) * 100;
+  text("Received since 8 PM", 120, 104, MONO(18), COL.dim, a);
+  text(`₹${shown.toLocaleString("en-IN")}`, 120, 160, MONO(52), shown === 0 && t > 32 ? COL.gold : COL.ink, a);
+  const outA = eExpo(seg(t, 31.8, 0.5)) * a;
+  text("Paid out by midnight", 120, 206, MONO(18), COL.gold, outA);
+}
+
+// The Trace intro: big dot pops, the stem draws, the small dot lands, then the mark slides left as the name opens
+function drawTrace(s) {
+  if (s < 0) return;
+  const size = 170, k = size / 159;            // the intro's 159-unit box
+  const word = "Trace", wordFont = SANS(600, 118);
+  ctx.save(); ctx.font = wordFont; const ww = ctx.measureText(word).width; ctx.restore();
+  const gap = 38, open = eIO(seg(s, 1.7, 0.85));
+  const groupW = size + open * (gap + ww);
+  const gx = W / 2 - groupW / 2, gy = H / 2 - (155 * k) / 2;
+  const P = (u, v) => [gx + (u - 74) * k, gy + (v - 41) * k];
+  const big = P(122, 148), small = P(200, 74);
+  ctx.save(); ctx.fillStyle = COL.ink; ctx.strokeStyle = COL.ink;
+  const bs = Math.max(0, eBack(seg(s, 0.15, 0.6)));
+  ctx.beginPath(); ctx.arc(big[0], big[1], 44 * k * bs, 0, 6.2832); ctx.fill();
+  const st = eExpo(seg(s, 0.55, 0.5));
+  if (st > 0) {
+    ctx.lineWidth = 14 * k; ctx.lineCap = "butt"; ctx.beginPath(); ctx.moveTo(big[0], big[1]);
+    ctx.lineTo(lerp(big[0], small[0], st), lerp(big[1], small[1], st)); ctx.stroke();
+  }
+  const ss = Math.max(0, eBack(seg(s, 0.95, 0.5)));
+  ctx.beginPath(); ctx.arc(small[0], small[1], 29 * k * ss, 0, 6.2832); ctx.fill();
+  ctx.restore();
+  // the name, revealed through an opening window beside the mark
+  const wu = eExpo(seg(s, 1.85, 0.8));
+  if (wu > 0) {
+    const wx = gx + size + gap;
+    ctx.save(); ctx.beginPath(); ctx.rect(wx - 4, 0, open * (ww + 8), H); ctx.clip();
+    text(word, wx - (1 - wu) * 40, H / 2 + 42, wordFont, COL.ink, wu);
+    ctx.restore();
+  }
+}
+
+// ------------------------------------------------------------- playback
+window.__renderAt = render; window.__TOTAL = TOTAL;
+const params = new URLSearchParams(location.search);
+function play() {
+  let t0 = null;
+  const tick = (ts) => { if (t0 === null) t0 = ts; const t = (ts - t0) / 1000 + (+params.get("from") || 0); render(Math.min(t, TOTAL)); if (t < TOTAL) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+document.fonts.ready.then(() => {
+  window.__ready = true;
+  if (params.has("t")) render(+params.get("t"));
+  else if (!params.has("manual")) { play(); addEventListener("click", play); }
+  else render(0);
+});
+</script>
+</body>
+</html>
