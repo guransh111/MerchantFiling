@@ -204,44 +204,11 @@ async function build() {
     s.addNotes("Now the problem. Online betting is illegal in most of India, but operators still need to collect deposits. " +
       "They open merchant accounts as ordinary shops with genuine documents, post the QR code on betting sites and Telegram, and gamblers from all over India pay 'the kirana'. " +
       "The money goes straight out again to winners and the operator. Some operators rent real shops' accounts instead. " +
-      "In the 1xBet case the Enforcement Directorate found more than six thousand mule accounts, and CUTS reports UPI is now the main deposit channel for illegal betting.");
+      "In the 1xBet case the Enforcement Directorate found more than six thousand mule accounts, and CUTS reports UPI is now the main deposit channel for illegal betting. " +
+      "Getting this wrong is costly both ways: FIU-IND fined Paytm Payments Bank 5.49 crore over gambling money, but freezing an honest shop in Diwali week can ruin it.");
   }
 
-  // 4 ── 02 Problem: both ways to fail
-  {
-    const s = card("02 Problem", "02   Problem");
-    const pw = (CW - 0.4) / 2;
-    // left: too lax, money streams through
-    panel(s, M, 1.1, pw, 3.6, "lax panel");
-    mono(s, "Too lax", { x: M + 0.35, y: 1.35, w: 3, h: 0.3, fontSize: 12, color: HEX.RED });
-    tx(s, "Fronts keep collecting bets", { x: M + 0.35, y: 1.7, w: pw - 0.7, h: 0.45, fontSize: 20, bold: true });
-    line(s, M + 0.35, 3.05, M + pw - 0.35, 3.05, HEX.LINE, 2, "lax wire");
-    for (let i = 0; i < 9; i++) dot(s, M + 0.6 + i * ((pw - 1.2) / 8), 3.05, 0.09, HEX.RED, `lax money ${i}`);
-    tx(s, "Regulators fine the provider: FIU-IND fined Paytm Payments Bank ₹5.49 crore over gambling money (2024)",
-      { x: M + 0.35, y: 3.5, w: pw - 0.7, h: 0.8, fontSize: 13, color: HEX.INK2 });
-    // right: too strict, an honest Diwali spike frozen
-    const rx = M + pw + 0.4;
-    panel(s, rx, 1.1, pw, 3.6, "strict panel");
-    mono(s, "Too strict", { x: rx + 0.35, y: 1.35, w: 3, h: 0.3, fontSize: 12, color: HEX.GOLD });
-    tx(s, "Honest shops get frozen", { x: rx + 0.35, y: 1.7, w: pw - 0.7, h: 0.45, fontSize: 20, bold: true });
-    const heights = [0.22, 0.25, 0.2, 0.27, 0.24, 0.3, 0.95, 0.28];
-    heights.forEach((h, i) => rrect(s, rx + 0.45 + i * 0.42, 3.3 - h, 0.28, h, i === 6 ? HEX.GOLD : HEX.GREY, 0.04, { objectName: `sales ${i}` }));
-    mono(s, "Diwali", { x: rx + 0.45 + 6 * 0.42 - 0.2, y: 3.38, w: 0.7, h: 0.25, fontSize: 10, color: HEX.MUTED, align: "center" });
-    rrect(s, rx + pw - 1.35, 2.3, 0.8, 0.8, HEX.RAISED, 0.12, { objectName: "lock tile" });
-    s.addImage({ data: ICON.lock, x: rx + pw - 1.17, y: 2.48, w: 0.44, h: 0.44, objectName: "lock" });
-    tx(s, "A sweet shop's festival rush looks like a spike, and freezing its money can ruin it",
-      { x: rx + 0.35, y: 3.75, w: pw - 0.7, h: 0.6, fontSize: 13, color: HEX.INK2 });
-    fill(s, {
-      caption: "₹500 to a kirana is not suspicious on its own, and Diwali triples honest sales",
-      title: "Each payment looks normal, and honest shops change too",
-      body: "A good system has to catch the fronts and protect honest merchants at the same time",
-    });
-    s.addNotes("Why is this hard? Each payment looks normal: 500 rupees to a kirana proves nothing. And honest shops change too: Diwali, a restaurant screening IPL matches, a shop that starts delivery. " +
-      "Get it wrong one way and fronts keep collecting bets while regulators fine the provider; FIU-IND fined Paytm Payments Bank 5.49 crore over gambling money. " +
-      "Get it wrong the other way and you freeze an honest sweet shop in its busiest week. The challenge asks for both goals at once.");
-  }
-
-  // grid shared by slides 5 and 6 (Morph shrinks it to make room for the numbers)
+  // grid shared by slides 4 and 5 (Morph shrinks it to make room for the numbers)
   const TOOLS = ["KYC at onboarding", "Sales-spike rules", "Own-history detectors", "MuleHunter (banks)", "Suspect Registry"];
   const NEEDS = ["Checks documents", "Watches behaviour", "Compares with similar shops", "Follows links", "Responds in steps"];
   const COVER = [[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 1, 0], [0, 0, 0, 1, 0]];
@@ -262,7 +229,7 @@ async function build() {
     });
   }
 
-  // 5 ── 03 Current solutions
+  // 4 ── 03 Current solutions
   pres.addSection({ title: "03 Current solutions" });
   {
     const s = card("03 Current solutions", "03   Current solutions");
@@ -277,7 +244,7 @@ async function build() {
       "Look at the two empty columns: nobody compares a shop with similar shops, and nobody responds in steps.");
   }
 
-  // 6 ── 04 The gap
+  // 5 ── 04 The gap
   pres.addSection({ title: "04 The gap" });
   {
     const s = card("04 The gap", "04   The gap");
@@ -295,10 +262,10 @@ async function build() {
       body: "The missing pieces: compare each shop with similar shops, follow the links, and respond in steps",
     });
     s.addNotes("That gap has a cost in both directions. A typical detector that compares a shop with its own past catches only 20 percent of bad merchants, because a front that bet from day one never changes. " +
-      "A sales-spike rule flags 62 percent of honest sweet and electronics shops in Diwali week. Trace fills exactly the empty columns, shown in blue.");
+      "A sales-spike rule flags 62 percent of honest sweet and electronics shops in Diwali week. Those two numbers are the two ways to fail: too lax and too strict. Trace fills exactly the empty columns, shown in blue.");
   }
 
-  // 7 ── 05 Introducing Trace
+  // 6 ── 05 Introducing Trace
   pres.addSection({ title: "05 Introducing Trace" });
   {
     const s = card("05 Introducing Trace", "05   Introducing Trace");
@@ -328,115 +295,73 @@ async function build() {
       "It's like judging a P/E ratio against its sector. And because the comparison is with similar shops in the same week, a Diwali rush lifts everyone together and nobody looks strange.");
   }
 
-  // 8 ── 06 What Trace does: ten signals
+  // 7 ── 06 What Trace does: the Home panel's three ideas, with the results underneath
   pres.addSection({ title: "06 What Trace does" });
-  const SIGNALS = ["Match hours", "Late night", "Round amounts", "Other states", "Repeat payers", "Fixed stakes", "Same-day out", "Many payouts", "Sales growth", "Size vs declared"];
   {
     const s = card("06 What Trace does", "06   What Trace does");
-    const rows = [["Restaurant screening IPL matches", [0, 1], "Monitor or Ask", HEX.BLUE],
-                  ["Betting front posing as a kirana", [0, 1, 2, 3, 4, 5, 6], "Review", HEX.ORANGE]];
-    const sq = 0.58, gap = 0.15, gx = M + 3.45;
-    rows.forEach(([name, lit, verdict, col], r) => {
-      const y = 1.35 + r * 1.55;
-      tx(s, name, { x: M, y, w: 3.3, h: sq, fontSize: 15, bold: true, valign: "middle" });
-      SIGNALS.forEach((_, i) => rrect(s, gx + i * (sq + gap), y, sq, sq, lit.includes(i) ? HEX.ORANGE : HEX.TRACK, 0.08, { objectName: `signal ${r}-${i}` }));
-      mono(s, `${lit.length} of 10`, { x: gx + 10 * (sq + gap) + 0.15, y, w: 1.2, h: 0.32, fontSize: 16, bold: true });
-      tx(s, verdict, { x: gx + 10 * (sq + gap) + 0.15, y: y + 0.32, w: 1.6, h: 0.3, fontSize: 12, color: col });
+    const pw = (CW - 0.6) / 3, top = 1.0, ch = 2.8;
+    const cards = [
+      ["01", "Compare with peers", "A front trips 7 of 10 signals"],
+      ["02", "Follow the links", "93% of unlisted fronts found"],
+      ["03", "Ask before you punish", "937 of 1,000 see no action"],
+    ];
+    cards.forEach(([n, title, fig], i) => {
+      const x = M + i * (pw + 0.3), ix = x + 0.3, iw = pw - 0.6;
+      panel(s, x, top, pw, ch, `idea card ${i}`);
+      mono(s, n, { x: ix, y: top + 0.15, w: 0.6, h: 0.28, fontSize: 12, color: HEX.MUTED });
+      if (i === 0) {
+        // ten signals: a restaurant screening matches lights 2, a betting front lights 7
+        const sq = 0.24, g = (iw - 10 * sq) / 9;
+        [["Restaurant screening matches", 2, "2 of 10"], ["Betting front", 7, "7 of 10"]].forEach(([lab, k, cnt], r) => {
+          const y = top + 0.5 + r * 0.62;
+          tx(s, lab, { x: ix, y, w: iw - 0.8, h: 0.24, fontSize: 11, color: HEX.INK2 });
+          mono(s, cnt, { x: ix + iw - 0.8, y, w: 0.8, h: 0.24, fontSize: 11, bold: true, align: "right" });
+          for (let q = 0; q < 10; q++) rrect(s, ix + q * (sq + g), y + 0.27, sq, sq, q < k ? HEX.ORANGE : HEX.TRACK, 0.04, { objectName: `signal ${r}-${q}` });
+        });
+      }
+      if (i === 1) {
+        // a small network around one known betting account
+        const cx = x + pw / 2, cy = top + 1.05;
+        [[-1.15, -0.4], [-0.95, 0.4], [0.75, -0.48], [1.05, 0.3], [-0.1, 0.55]].forEach(([dx, dy], k) => {
+          line(s, cx, cy, cx + dx, cy + dy, HEX.TRACK, 1.5, `net link ${k}`); dot(s, cx + dx, cy + dy, 0.1, HEX.ORANGE, `net front ${k}`);
+        });
+        dot(s, cx, cy, 0.2, HEX.RED, "net known bad");
+        ring(s, x + pw - 0.45, top + 0.45, 0.09, HEX.GREY, "net honest a", 1.25);
+        ring(s, ix + 0.1, top + 1.55, 0.09, HEX.GREY, "net honest b", 1.25);
+      }
+      if (i === 2) {
+        // the ladder, with how many merchants sit on each step
+        const counts = [937, 12, 2, 49, 0], bw = iw / 5, base = top + 1.75;
+        LADDER.forEach((col, k) => {
+          const h = 0.18 + k * 0.17;
+          rrect(s, ix + k * bw + 0.03, base - h, bw - 0.06, h, col, 0.04, { objectName: `ladder ${k}` });
+          mono(s, counts[k].toLocaleString("en-IN"), { x: ix + k * bw, y: base - h - 0.27, w: bw, h: 0.24, fontSize: 11, bold: true, align: "center" });
+          tx(s, LADDER_NAME[k], { x: ix + k * bw - 0.05, y: base + 0.05, w: bw + 0.1, h: 0.22, fontSize: 9, color: HEX.MUTED, align: "center" });
+        });
+      }
+      line(s, ix, top + 2.05, ix + iw, top + 2.05, HEX.LINE, 0.75, `idea rule ${i}`);
+      tx(s, title, { x: ix, y: top + 2.13, w: iw, h: 0.32, fontSize: 16, bold: true });
+      mono(s, fig, { x: ix, y: top + 2.45, w: iw, h: 0.28, fontSize: 10, color: HEX.INK2 });
     });
-    SIGNALS.forEach((n, i) => tx(s, n, { x: gx + i * (sq + gap) - 0.06, y: 4.2, w: sq + 0.12, h: 0.55, fontSize: 10, color: HEX.MUTED, align: "center", valign: "top" }));
-    fill(s, {
-      caption: "Each signal adds at most 4 points, so no single one can condemn a shop",
-      title: "One odd signal is a story; seven together are a pattern",
-      body: "Ten weekly signals, each compared with similar shops in the same week",
-    });
-    s.addNotes("Trace measures ten weekly signals: match hours, late nights, round amounts, payers from other states, repeat payers, fixed stake sizes, money out the same day, many payout accounts, growth, and size versus what was declared. " +
-      "A restaurant screening IPL matches trips two of them. A betting front trips six or seven. Each signal is capped, so no single one can condemn a shop; several have to agree, like a credit analyst who ignores one late payment but not a pattern.");
-  }
-
-  // 9 ── 06 What Trace does: follow the links
-  {
-    const s = card("06 What Trace does", "06   What Trace does");
-    const c = [6.65, 2.85];
-    const fronts = [[4.2, 1.55, "Same phone"], [3.7, 3.6, "Same bank account"], [8.9, 1.45, "Shared gamblers"], [9.9, 3.75, ""], [6.3, 4.05, ""], [5.0, 2.55, ""]];
-    fronts.forEach(([x, y, l], i) => {
-      line(s, c[0], c[1], x, y, HEX.TRACK, 2, `link ${i}`);
-      if (l) tx(s, l, { x: (c[0] + x) / 2 - 0.9, y: (c[1] + y) / 2 - 0.32, w: 1.8, h: 0.25, fontSize: 10, color: HEX.MUTED, align: "center" });
-    });
-    line(s, 4.2, 1.55, 5.0, 2.55, HEX.TRACK, 1.5, "link family");
-    fronts.forEach(([x, y], i) => dot(s, x, y, 0.17, HEX.ORANGE, `front ${i}`));
-    ring(s, 4.2, 1.55, 0.28, HEX.ORANGE, "this kirana halo", 1.25);
-    tx(s, "The Pune kirana", { x: 2.4, y: 1.0, w: 2.2, h: 0.3, fontSize: 12, color: HEX.INK2, align: "right" });
-    dot(s, c[0], c[1], 0.36, HEX.RED, "known bad");
-    [[1.4, 1.6], [1.9, 4.2], [11.2, 2.4], [11.8, 4.1], [2.6, 2.7], [11.0, 1.2]].forEach(([x, y], i) => ring(s, x, y, 0.15, HEX.GREY, `honest ${i}`, 1.5));
-    // legend: same pattern as the results slide
-    dot(s, M + 0.1, 4.63, 0.08, HEX.RED); tx(s, "Known betting account (UPI ID found on a betting page)", { x: M + 0.28, y: 4.5, w: 4.6, h: 0.26, fontSize: 11, color: HEX.INK2 });
-    dot(s, M + 5.1, 4.63, 0.07, HEX.ORANGE); tx(s, "Linked front", { x: M + 5.28, y: 4.5, w: 1.6, h: 0.26, fontSize: 11, color: HEX.INK2 });
-    ring(s, M + 7.1, 4.63, 0.07, HEX.GREY, "legend ring", 1.25); tx(s, "Honest shop: no links", { x: M + 7.28, y: 4.5, w: 2.4, h: 0.26, fontSize: 11, color: HEX.INK2 });
-    fill(s, {
-      caption: "93% of fronts not on any known list were found this way",
-      title: "Fronts come in families, so Trace follows the links",
-      body: "From one UPI ID posted on a betting page, suspicion spreads along shared phones, bank accounts and gamblers",
-    });
-    s.addNotes("Fronts come in families: one operator runs many of them, and they share phones, bank accounts and gamblers. " +
-      "Some fronts' UPI IDs are posted openly on betting pages; Trace treats those as known bad and follows the links outward. Our Pune kirana shares a phone with one of them. " +
-      "Honest shops have no such links. In the simulation, 93 percent of the fronts that were not on any known list were found through the network.");
-  }
-
-  // 10 ── 06 What Trace does: the ladder
-  {
-    const s = card("06 What Trace does", "06   What Trace does");
-    const counts = [937, 12, 2, 49, 0];
-    const cost = ["Nothing visible", "A 2-minute question", "Lower limits, T+2", "20% reserve and a human", "Only after a human confirms"];
-    const bw = 2.12, g = 0.37, base = 3.55;
-    LADDER.forEach((col, i) => {
-      const h = 0.45 + i * 0.5, x = M + i * (bw + g);
-      rrect(s, x, base - h, bw, h, col, 0.08, { objectName: `step ${i}` });
-      mono(s, counts[i].toLocaleString("en-IN"), { x, y: base - h - 0.5, w: bw, h: 0.42, fontSize: 22, bold: true, align: "center" });
-      tx(s, LADDER_NAME[i], { x, y: base + 0.15, w: bw, h: 0.36, fontSize: 16, bold: true, align: "center" });
-      tx(s, cost[i], { x, y: base + 0.52, w: bw, h: 0.55, fontSize: 12, color: HEX.INK2, align: "center" });
+    // results strip
+    const rw = CW / 4;
+    [["100%", "of bad merchants caught (vs 20%)"], ["0 of 920", "honest shops penalised"], ["62% → 1%", "Diwali false alarms"], ["7 days", "median time to act"]].forEach(([n, l], k) => {
+      mono(s, n, { x: M + k * rw, y: 3.98, w: rw - 0.2, h: 0.45, fontSize: 24, bold: true });
+      tx(s, l, { x: M + k * rw, y: 4.43, w: rw - 0.2, h: 0.3, fontSize: 12, color: HEX.INK2 });
     });
     fill(s, {
-      caption: "937 of 1,000 merchants see no action at all",
-      title: "Ask before you punish",
-      body: "Money is held only with a second source of evidence, and only a human can close an account",
+      caption: "Results from a simulated world of 1,000 merchants over 37 weeks, calibrated to real NPCI data",
+      title: "Compare with peers, follow the links, ask before punishing",
+      body: "Every flag comes with a reason in plain English; money is held only with a second source of evidence and a human",
     });
-    s.addNotes("And Trace never punishes first. There is a ladder. Most merchants see nothing. A shop that looks different gets a neutral question: 'what's changed?', which takes two minutes. " +
-      "Next comes friction: lower limits and slower settlement, but payments keep working. Holding money needs a second, independent source of evidence and a human investigator, and only a human can close an account. " +
-      "In the demo, 937 of 1,000 merchants see no action at all.");
+    s.addNotes("This is what Trace does, in three ideas. First, compare with peers: ten weekly signals such as match hours, late nights, round amounts and payers from other states, each compared with similar shops in the same week. " +
+      "A restaurant screening IPL matches trips two; a betting front trips seven. Each signal is capped, so several have to agree. " +
+      "Second, follow the links: fronts come in families that share phones, bank accounts and gamblers. Starting from UPI IDs posted on betting pages, Trace found 93 percent of the fronts that were on no list. " +
+      "Third, ask before you punish: most merchants see nothing, a changed shop gets a two-minute question, and money is held only with a second source of evidence and a human decision. " +
+      "The results, from a simulated world calibrated to real NPCI data: every front and rented account caught, against 20 percent for a typical detector; none of 920 honest shops penalised; Diwali false alarms down from 62 percent to 1; and action in a median of 7 days.");
   }
 
-  // 11 ── 06 What Trace does: results
-  {
-    const s = card("06 What Trace does", "06   What Trace does");
-    // 1,000 merchants as dots: 950 honest stay grey, the 50 fronts and rented accounts are caught
-    let seed = 11; const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
-    const bad = new Set(); while (bad.size < 50) bad.add(Math.floor(rnd() * 1000));
-    const cols = 50, step = 0.128, r = 0.044, gx = M + 0.05, gy = 1.1;
-    for (let i = 0; i < 1000; i++) {
-      const x = gx + (i % cols) * step, y = gy + Math.floor(i / cols) * step;
-      dot(s, x + r, y + r, r, bad.has(i) ? HEX.RED : HEX.TRACK, `m${i}`);
-    }
-    dot(s, M + 0.1, 4.03, 0.06, HEX.RED); tx(s, "Front or rented account: caught", { x: M + 0.25, y: 3.9, w: 3.2, h: 0.28, fontSize: 11, color: HEX.INK2 });
-    dot(s, M + 3.6, 4.03, 0.06, HEX.TRACK); tx(s, "Honest shop: untouched", { x: M + 3.75, y: 3.9, w: 3, h: 0.28, fontSize: 11, color: HEX.INK2 });
-    const sx = 7.55;
-    [["100%", "of bad merchants caught", "vs 20% for a typical detector"], ["0 of 920", "honest shops penalised", ""],
-     ["62% → 1%", "Diwali false alarms", "honest sweet and electronics shops"], ["7 days", "median time to act", "replayed week by week, no hindsight"]].forEach(([n, a, b], i) => {
-      const x = sx + (i % 2) * 2.7, y = 1.0 + Math.floor(i / 2) * 1.75;
-      mono(s, n, { x, y, w: 2.6, h: 0.65, fontSize: 30, bold: true });
-      tx(s, a, { x, y: y + 0.66, w: 2.55, h: 0.3, fontSize: 14 });
-      if (b) tx(s, b, { x, y: y + 0.98, w: 2.55, h: 0.5, fontSize: 11, color: HEX.MUTED });
-    });
-    fill(s, {
-      caption: "Simulated world of 1,000 merchants over 37 weeks, calibrated to real NPCI data",
-      title: "Every front caught, no honest shop penalised",
-      body: "Proof that the method works as designed; a pilot on a provider's own data measures real-world accuracy",
-    });
-    s.addNotes("Results. This is the simulated world: a thousand merchants over 37 weeks, calibrated to real NPCI data. The fifty red dots are the betting fronts and rented accounts: Trace caught all of them, against 20 percent for a typical detector. " +
-      "None of the 920 ordinary honest shops was penalised. Diwali false alarms fall from 62 percent to 1. And replayed week by week with no hindsight, Trace acts in a median of 7 days. " +
-      "Be upfront: the data is simulated, so this shows the method works as designed; a pilot on real data measures real accuracy.");
-  }
-
-  // 12 ── 07 Financial implementation and costs
+  // 8 ── 07 Financial implementation and costs
   pres.addSection({ title: "07 Financial implementation and costs" });
   {
     const s = card("07 Financial implementation and costs", "07   Financial implementation and costs");
@@ -468,44 +393,20 @@ async function build() {
     fill(s, {
       caption: "A payment provider with 20 lakh merchants; planning estimates, every assumption in appendix M",
       title: "About ₹9 per merchant per year",
-      body: "People are most of the cost; Trace needs little computing and no paid model licences",
+      body: [{ text: "Catch the fronts. Protect the shops.", options: { bold: true, color: HEX.INK } },
+        { text: "   A six-month pilot on a provider's own data comes first" }],
     });
     s.addNotes("What does it cost? For a mid-size payment provider with 20 lakh merchants: about 2.15 crore rupees to implement over nine months, including a three-month shadow pilot, and about 1.88 crore a year to run. " +
       "That's roughly 9 rupees per merchant per year. Most of it is people: the analyst desk and a small model team. Cloud is about 29 lakh a year. " +
-      "It pays for itself if it prevents one penalty the size of FIU-IND's fine on Paytm Payments Bank every 2.4 years. Every assumption is in appendix M.");
-  }
-
-  // 13 ── Close
-  pres.addSection({ title: "Close" });
-  {
-    const s = pres.addSlide({ masterName: "CARD", sectionTitle: "Close" });
-    s.addText("Trace", { placeholder: "kicker" });
-    const pw = (CW - 0.6) / 3;
-    const cards = [["01", "Compare with peers", "57% vs 10% in match hours"], ["02", "Follow the links", "93% of unlisted fronts found"], ["03", "Ask before you punish", "0 of 920 honest shops penalised"]];
-    cards.forEach(([n, t, f], i) => {
-      const x = M + i * (pw + 0.3);
-      panel(s, x, 1.0, pw, 3.6, `close card ${i}`);
-      mono(s, n, { x: x + 0.3, y: 1.2, w: 1, h: 0.3, fontSize: 12, color: HEX.MUTED });
-      if (i === 0) { bar(s, x + 0.3, 2.0, pw - 0.6, 0.18, 1, HEX.ORANGE, "c bar a"); bar(s, x + 0.3, 2.45, pw - 0.6, 0.18, 0.1 / 0.57, HEX.GREY, "c bar b"); }
-      if (i === 1) { const cx = x + pw / 2, cy = 2.3; [[-1.0, -0.4], [-0.8, 0.45], [0.95, -0.35]].forEach(([dx, dy], k) => { line(s, cx, cy, cx + dx, cy + dy, HEX.TRACK, 1.5); dot(s, cx + dx, cy + dy, 0.11, HEX.ORANGE); }); dot(s, cx, cy, 0.2, HEX.RED); ring(s, cx + 1.3, cy + 0.4, 0.1, HEX.GREY); }
-      if (i === 2) LADDER.forEach((col, k) => rrect(s, x + 0.3 + k * ((pw - 0.6) / 5), 2.8 - (0.15 + k * 0.17), (pw - 0.6) / 5 - 0.08, 0.15 + k * 0.17, col, 0.04));
-      tx(s, t, { x: x + 0.3, y: 3.15, w: pw - 0.6, h: 0.45, fontSize: 18, bold: true });
-      mono(s, f, { x: x + 0.3, y: 3.65, w: pw - 0.6, h: 0.6, fontSize: 12, color: HEX.INK2 });
-    });
-    fill(s, {
-      caption: "Pilot (0 to 6 months)  →  Enrich (6 to 12)  →  Ecosystem (12 to 24)",
-      title: "Catch the fronts. Protect the shops.",
-      body: "Live dashboard, full method and costs in the appendix",
-    });
-    s.addNotes("To close: Trace compares every shop with similar shops, follows the links between fronts, and asks before it punishes. " +
-      "The plan is a six-month pilot on a provider's own data, then richer checks such as GST, then sharing across providers. Catch the fronts. Protect the shops.");
+      "It pays for itself if it prevents one penalty the size of FIU-IND's fine on Paytm Payments Bank every 2.4 years. Every assumption is in appendix M. " +
+      "To close: the plan is a six-month pilot on a provider's own data, then richer checks such as GST, then sharing across providers. Catch the fronts. Protect the shops.");
   }
 
   await pres.writeFile({ fileName: OUT });
 }
 
 // Morph between slides (PowerPoint 2019 / 365), with a fade for older versions. Shapes that keep the same name on
-// consecutive slides (the payment flow on 2 and 3, the comparison grid on 5 and 6) move into place instead of cutting.
+// consecutive slides (the comparison grid on 4 and 5) move into place instead of cutting.
 async function addMorph(file) {
   const JSZip = require("jszip");
   const zip = await JSZip.loadAsync(fs.readFileSync(file));

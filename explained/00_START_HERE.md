@@ -24,7 +24,7 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 17 | [The design pass](17_design_pass.md) | How the dashboard and landing page were redesigned with the unslop checklist |
 | — | [Build conversation notes](CHAT_NOTES.md) | A record of the whole build conversation: every request, what was built, results and links |
 | — | [Implementation plan v2](IMPLEMENTATION_PLAN_v2.md) | Your original plan, updated to show what is built (✅) and what is still for the real rollout (⏳) |
-| — | [Pitch deck (PowerPoint)](Trace_Deck.pptx) | 13 slides in the dashboard's look, with speaker notes. Rebuilt by `explained/deck/build_deck.js` (needs pptxgenjs, react-icons, react, react-dom, sharp, jszip) |
+| — | [Pitch deck (PowerPoint)](Trace_Deck.pptx) | 8 slides in the dashboard's look, with speaker notes. Rebuilt by `explained/deck/build_deck.js` (needs pptxgenjs, react-icons, react, react-dom, sharp, jszip) |
 | — | [Full appendix (Word)](Trace_Appendix.docx) | Everything behind Trace in one document: context, problem, current solutions, the gap, the idea, signals, scoring, layers, fairness and law, operations, data, results, costs, limitations, likely questions, glossary and sources. Rebuilt by `bash explained/financials/make.sh` |
 | — | [Financial appendix (Word)](Trace_Appendix_Financials.docx) | What Trace costs a payment aggregator to implement and run, with every assumption stated. Rebuild it with `bash explained/financials/make.sh` after changing `explained/financials/model.py` |
 
