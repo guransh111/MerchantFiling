@@ -1,0 +1,884 @@
+{
+ "assumptions": {
+  "fx": 90.0,
+  "overhead": 0.2,
+  "analyst_hours": 1700,
+  "case_rate": 0.01,
+  "payments_per_day": 8,
+  "salary": {
+   "Product / project lead": 3500000.0,
+   "Senior data scientist": 2400000.0,
+   "Data scientist": 1800000.0,
+   "ML / data engineer": 2200000.0,
+   "Backend engineer": 1800000.0,
+   "DevOps / QA engineer": 1600000.0,
+   "Compliance and legal specialist": 3000000.0,
+   "Risk analyst": 650000.0,
+   "Analyst team lead": 1400000.0
+  },
+  "price": {
+   "m6i.2xlarge": 0.404,
+   "r6i.4xlarge": 1.0,
+   "m6i.xlarge": 0.202,
+   "kafka.broker": 0.25,
+   "postgres.multiaz": 1.0,
+   "s3.gb_month": 0.025
+  },
+  "case_mix": [
+   [
+    "Ask: neutral question, merchant replies",
+    0.6,
+    10
+   ],
+   [
+    "Friction: lower limits, slower settlement",
+    0.25,
+    25
+   ],
+   [
+    "Review: reserve, investigation, STR draft",
+    0.15,
+    90
+   ]
+  ],
+  "appeal_rate": 0.05,
+  "appeal_minutes": 60,
+  "audit_rate": 0.0025,
+  "audit_minutes": 20,
+  "contingency": 0.15,
+  "retention": 5,
+  "bytes": 60,
+  "cloud_extras": 0.2,
+  "build_cloud_share": 0.4,
+  "analysts_per_lead": 8,
+  "salary_growth": 0.08,
+  "merchant_growth": 0.1,
+  "amortise": 5,
+  "fiu_penalty": 54900000.0,
+  "gst_lookup": 3.0,
+  "precision_trace": 0.79,
+  "precision_baseline": 0.43
+ },
+ "phases": [
+  [
+   "Discovery and data access",
+   1,
+   "Map the PA's payment, KYC and settlement data; agree the action ladder with compliance"
+  ],
+  [
+   "Build and integrate",
+   4,
+   "Signals, peer scoring, network, change points, case management, GST check, reporting"
+  ],
+  [
+   "Shadow pilot",
+   3,
+   "Trace scores every merchant but takes no action; analysts check its flags against their own"
+  ],
+  [
+   "Rollout",
+   1,
+   "Ask and Friction switched on first; Review and holds only after sign-off"
+  ]
+ ],
+ "impl_months": 9,
+ "scenarios": {
+  "Small PA": {
+   "merchants": 500000.0,
+   "implementation": {
+    "team": [
+     {
+      "role": "Product / project lead",
+      "people": 1,
+      "months": 9,
+      "inr": 3150000.0
+     },
+     {
+      "role": "Senior data scientist",
+      "people": 1,
+      "months": 9,
+      "inr": 2160000.0
+     },
+     {
+      "role": "Data scientist",
+      "people": 1,
+      "months": 8,
+      "inr": 1440000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "people": 2,
+      "months": 8,
+      "inr": 3520000.0
+     },
+     {
+      "role": "Backend engineer",
+      "people": 2,
+      "months": 6,
+      "inr": 2160000.0
+     },
+     {
+      "role": "DevOps / QA engineer",
+      "people": 1,
+      "months": 6,
+      "inr": 960000.0
+     },
+     {
+      "role": "Compliance and legal specialist",
+      "people": 0.5,
+      "months": 9,
+      "inr": 1350000.0
+     },
+     {
+      "role": "Risk analyst",
+      "people": 3,
+      "months": 4,
+      "inr": 780000.0
+     }
+    ],
+    "other": [
+     {
+      "item": "Cloud for development, staging and the pilot",
+      "inr": 750903.696,
+      "note": "40% of the production bill for 9 months"
+     },
+     {
+      "item": "GST verification API (GSP) set-up and testing",
+      "inr": 600000.0,
+      "note": "Connect to a GST Suvidha Provider to read declared turnover"
+     },
+     {
+      "item": "Security testing and DPDP impact assessment",
+      "inr": 800000.0,
+      "note": "External penetration test; Digital Personal Data Protection review"
+     },
+     {
+      "item": "Legal review of the ladder, notices and appeals",
+      "inr": 600000.0,
+      "note": "Merchant-facing wording, hold policy, appeal process"
+     },
+     {
+      "item": "Analyst training and playbooks",
+      "inr": 300000.0,
+      "note": "How to work a case, write an STR draft, decide an appeal"
+     }
+    ],
+    "subtotal": 18570903.696,
+    "contingency": 2785635.5544,
+    "total": 21356539.2504,
+    "team_total": 15520000.0,
+    "other_total": 3050903.696
+   },
+   "running": {
+    "cloud": {
+     "rows": [
+      {
+       "item": "Weekly signals and scoring",
+       "basis": "2 x m6i.2xlarge, 4 h a day",
+       "usd": 1179.68,
+       "inr": 106171.20000000001
+      },
+      {
+       "item": "Network graph and learning loop",
+       "basis": "1 x r6i.4xlarge, 3 h a day",
+       "usd": 1095.0,
+       "inr": 98550.0
+      },
+      {
+       "item": "Dashboard, case management, APIs",
+       "basis": "3 x m6i.xlarge, always on",
+       "usd": 5308.56,
+       "inr": 477770.4
+      },
+      {
+       "item": "Streaming payment feed (Kafka)",
+       "basis": "3 managed brokers, always on",
+       "usd": 6570.0,
+       "inr": 591300.0
+      },
+      {
+       "item": "Cases and results database",
+       "basis": "Managed PostgreSQL, two zones",
+       "usd": 8760.0,
+       "inr": 788400.0
+      },
+      {
+       "item": "Payment history storage",
+       "basis": "438 GB kept 5 years, plus a backup copy",
+       "usd": 262.8,
+       "inr": 23652.0
+      },
+      {
+       "item": "Monitoring, logs, backups, data transfer",
+       "basis": "20% on top",
+       "usd": 4635.2080000000005,
+       "inr": 417168.72000000003
+      }
+     ],
+     "inr": 2503012.3200000003,
+     "usd": 27811.248,
+     "payments_year": 1460000000.0,
+     "stored_gb": 438.0
+    },
+    "team": [
+     {
+      "role": "Senior data scientist",
+      "fte": 1.0,
+      "inr": 2880000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "fte": 1.0,
+      "inr": 2640000.0
+     },
+     {
+      "role": "Backend engineer",
+      "fte": 0.5,
+      "inr": 1080000.0
+     },
+     {
+      "role": "DevOps / QA engineer",
+      "fte": 0.25,
+      "inr": 480000.0
+     }
+    ],
+    "analysts": {
+     "cases": 5000.0,
+     "rows": [
+      {
+       "item": "Ask: neutral question, merchant replies",
+       "count": 3000.0,
+       "minutes": 10.0,
+       "hours": 500.0
+      },
+      {
+       "item": "Friction: lower limits, slower settlement",
+       "count": 1250.0,
+       "minutes": 25.0,
+       "hours": 520.8333333333334
+      },
+      {
+       "item": "Review: reserve, investigation, STR draft",
+       "count": 750.0,
+       "minutes": 90.0,
+       "hours": 1125.0
+      },
+      {
+       "item": "Appeals, decided by a second analyst",
+       "count": 100.0,
+       "minutes": 60.0,
+       "hours": 100.0
+      },
+      {
+       "item": "Random audits of unflagged merchants",
+       "count": 1250.0,
+       "minutes": 20.0,
+       "hours": 416.6666666666667
+      }
+     ],
+     "hours": 2662.5,
+     "analysts": 2,
+     "leads": 1,
+     "cost": 3240000.0,
+     "gst": 17250.0,
+     "minutes_per_case": 25.75
+    },
+    "other": [
+     {
+      "item": "Annual security test and compliance audit",
+      "inr": 600000.0
+     },
+     {
+      "item": "Monitoring, ticketing and other software",
+      "inr": 125000.0
+     },
+     {
+      "item": "Policy reviews and analyst training",
+      "inr": 300000.0
+     },
+     {
+      "item": "Consortium token sharing (legal and hosting)",
+      "inr": 200000.0
+     },
+     {
+      "item": "GST lookups for flagged merchants",
+      "inr": 17250.0
+     }
+    ],
+    "lines": {
+     "Cloud and data": 2503012.3200000003,
+     "Model and engineering team": 7080000.0,
+     "Analyst desk": 3240000.0,
+     "Audit, software and other": 1242250.0
+    },
+    "total": 14065262.32,
+    "per_merchant": 28.13052464,
+    "per_case": 2813.052464
+   },
+   "annual_all_in": 18336570.17008,
+   "penalties_to_break_even": 0.3339994566499089
+  },
+  "Mid-size PA (base case)": {
+   "merchants": 2000000.0,
+   "implementation": {
+    "team": [
+     {
+      "role": "Product / project lead",
+      "people": 1,
+      "months": 9,
+      "inr": 3150000.0
+     },
+     {
+      "role": "Senior data scientist",
+      "people": 1,
+      "months": 9,
+      "inr": 2160000.0
+     },
+     {
+      "role": "Data scientist",
+      "people": 1,
+      "months": 8,
+      "inr": 1440000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "people": 2,
+      "months": 8,
+      "inr": 3520000.0
+     },
+     {
+      "role": "Backend engineer",
+      "people": 2,
+      "months": 6,
+      "inr": 2160000.0
+     },
+     {
+      "role": "DevOps / QA engineer",
+      "people": 1,
+      "months": 6,
+      "inr": 960000.0
+     },
+     {
+      "role": "Compliance and legal specialist",
+      "people": 0.5,
+      "months": 9,
+      "inr": 1350000.0
+     },
+     {
+      "role": "Risk analyst",
+      "people": 3,
+      "months": 4,
+      "inr": 780000.0
+     }
+    ],
+    "other": [
+     {
+      "item": "Cloud for development, staging and the pilot",
+      "inr": 869258.3040000001,
+      "note": "40% of the production bill for 9 months"
+     },
+     {
+      "item": "GST verification API (GSP) set-up and testing",
+      "inr": 600000.0,
+      "note": "Connect to a GST Suvidha Provider to read declared turnover"
+     },
+     {
+      "item": "Security testing and DPDP impact assessment",
+      "inr": 800000.0,
+      "note": "External penetration test; Digital Personal Data Protection review"
+     },
+     {
+      "item": "Legal review of the ladder, notices and appeals",
+      "inr": 600000.0,
+      "note": "Merchant-facing wording, hold policy, appeal process"
+     },
+     {
+      "item": "Analyst training and playbooks",
+      "inr": 300000.0,
+      "note": "How to work a case, write an STR draft, decide an appeal"
+     }
+    ],
+    "subtotal": 18689258.304,
+    "contingency": 2803388.7456,
+    "total": 21492647.0496,
+    "team_total": 15520000.0,
+    "other_total": 3169258.304
+   },
+   "running": {
+    "cloud": {
+     "rows": [
+      {
+       "item": "Weekly signals and scoring",
+       "basis": "5 x m6i.2xlarge, 4 h a day",
+       "usd": 2949.2,
+       "inr": 265428.0
+      },
+      {
+       "item": "Network graph and learning loop",
+       "basis": "2 x r6i.4xlarge, 3 h a day",
+       "usd": 2190.0,
+       "inr": 197100.0
+      },
+      {
+       "item": "Dashboard, case management, APIs",
+       "basis": "3 x m6i.xlarge, always on",
+       "usd": 5308.56,
+       "inr": 477770.4
+      },
+      {
+       "item": "Streaming payment feed (Kafka)",
+       "basis": "3 managed brokers, always on",
+       "usd": 6570.0,
+       "inr": 591300.0
+      },
+      {
+       "item": "Cases and results database",
+       "basis": "Managed PostgreSQL, two zones",
+       "usd": 8760.0,
+       "inr": 788400.0
+      },
+      {
+       "item": "Payment history storage",
+       "basis": "1,752 GB kept 5 years, plus a backup copy",
+       "usd": 1051.2,
+       "inr": 94608.0
+      },
+      {
+       "item": "Monitoring, logs, backups, data transfer",
+       "basis": "20% on top",
+       "usd": 5365.792,
+       "inr": 482921.28
+      }
+     ],
+     "inr": 2897527.68,
+     "usd": 32194.752,
+     "payments_year": 5840000000.0,
+     "stored_gb": 1752.0
+    },
+    "team": [
+     {
+      "role": "Senior data scientist",
+      "fte": 1.0,
+      "inr": 2880000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "fte": 1.0,
+      "inr": 2640000.0
+     },
+     {
+      "role": "Backend engineer",
+      "fte": 0.5,
+      "inr": 1080000.0
+     },
+     {
+      "role": "DevOps / QA engineer",
+      "fte": 0.25,
+      "inr": 480000.0
+     }
+    ],
+    "analysts": {
+     "cases": 20000.0,
+     "rows": [
+      {
+       "item": "Ask: neutral question, merchant replies",
+       "count": 12000.0,
+       "minutes": 10.0,
+       "hours": 2000.0
+      },
+      {
+       "item": "Friction: lower limits, slower settlement",
+       "count": 5000.0,
+       "minutes": 25.0,
+       "hours": 2083.3333333333335
+      },
+      {
+       "item": "Review: reserve, investigation, STR draft",
+       "count": 3000.0,
+       "minutes": 90.0,
+       "hours": 4500.0
+      },
+      {
+       "item": "Appeals, decided by a second analyst",
+       "count": 400.0,
+       "minutes": 60.0,
+       "hours": 400.0
+      },
+      {
+       "item": "Random audits of unflagged merchants",
+       "count": 5000.0,
+       "minutes": 20.0,
+       "hours": 1666.6666666666667
+      }
+     ],
+     "hours": 10650.0,
+     "analysts": 7,
+     "leads": 1,
+     "cost": 7140000.0,
+     "gst": 69000.0,
+     "minutes_per_case": 25.75
+    },
+    "other": [
+     {
+      "item": "Annual security test and compliance audit",
+      "inr": 600000.0
+     },
+     {
+      "item": "Monitoring, ticketing and other software",
+      "inr": 500000.0
+     },
+     {
+      "item": "Policy reviews and analyst training",
+      "inr": 300000.0
+     },
+     {
+      "item": "Consortium token sharing (legal and hosting)",
+      "inr": 200000.0
+     },
+     {
+      "item": "GST lookups for flagged merchants",
+      "inr": 69000.0
+     }
+    ],
+    "lines": {
+     "Cloud and data": 2897527.68,
+     "Model and engineering team": 7080000.0,
+     "Analyst desk": 7140000.0,
+     "Audit, software and other": 1669000.0
+    },
+    "total": 18786527.68,
+    "per_merchant": 9.39326384,
+    "per_case": 939.326384
+   },
+   "annual_all_in": 23085057.08992,
+   "penalties_to_break_even": 0.4204928431679417
+  },
+  "Large PA": {
+   "merchants": 10000000.0,
+   "implementation": {
+    "team": [
+     {
+      "role": "Product / project lead",
+      "people": 1,
+      "months": 9,
+      "inr": 3150000.0
+     },
+     {
+      "role": "Senior data scientist",
+      "people": 1,
+      "months": 9,
+      "inr": 2160000.0
+     },
+     {
+      "role": "Data scientist",
+      "people": 1,
+      "months": 8,
+      "inr": 1440000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "people": 2,
+      "months": 8,
+      "inr": 3520000.0
+     },
+     {
+      "role": "Backend engineer",
+      "people": 2,
+      "months": 6,
+      "inr": 2160000.0
+     },
+     {
+      "role": "DevOps / QA engineer",
+      "people": 1,
+      "months": 6,
+      "inr": 960000.0
+     },
+     {
+      "role": "Compliance and legal specialist",
+      "people": 0.5,
+      "months": 9,
+      "inr": 1350000.0
+     },
+     {
+      "role": "Risk analyst",
+      "people": 3,
+      "months": 4,
+      "inr": 780000.0
+     }
+    ],
+    "other": [
+     {
+      "item": "Cloud for development, staging and the pilot",
+      "inr": 2127355.4880000004,
+      "note": "40% of the production bill for 9 months"
+     },
+     {
+      "item": "GST verification API (GSP) set-up and testing",
+      "inr": 600000.0,
+      "note": "Connect to a GST Suvidha Provider to read declared turnover"
+     },
+     {
+      "item": "Security testing and DPDP impact assessment",
+      "inr": 800000.0,
+      "note": "External penetration test; Digital Personal Data Protection review"
+     },
+     {
+      "item": "Legal review of the ladder, notices and appeals",
+      "inr": 600000.0,
+      "note": "Merchant-facing wording, hold policy, appeal process"
+     },
+     {
+      "item": "Analyst training and playbooks",
+      "inr": 300000.0,
+      "note": "How to work a case, write an STR draft, decide an appeal"
+     }
+    ],
+    "subtotal": 19947355.487999998,
+    "contingency": 2992103.3231999995,
+    "total": 22939458.811199997,
+    "team_total": 15520000.0,
+    "other_total": 4427355.488
+   },
+   "running": {
+    "cloud": {
+     "rows": [
+      {
+       "item": "Weekly signals and scoring",
+       "basis": "25 x m6i.2xlarge, 4 h a day",
+       "usd": 14746.000000000002,
+       "inr": 1327140.0000000002
+      },
+      {
+       "item": "Network graph and learning loop",
+       "basis": "10 x r6i.4xlarge, 3 h a day",
+       "usd": 10950.0,
+       "inr": 985500.0
+      },
+      {
+       "item": "Dashboard, case management, APIs",
+       "basis": "6 x m6i.xlarge, always on",
+       "usd": 10617.12,
+       "inr": 955540.8
+      },
+      {
+       "item": "Streaming payment feed (Kafka)",
+       "basis": "3 managed brokers, always on",
+       "usd": 6570.0,
+       "inr": 591300.0
+      },
+      {
+       "item": "Cases and results database",
+       "basis": "Managed PostgreSQL, two zones",
+       "usd": 17520.0,
+       "inr": 1576800.0
+      },
+      {
+       "item": "Payment history storage",
+       "basis": "8,760 GB kept 5 years, plus a backup copy",
+       "usd": 5256.0,
+       "inr": 473040.0
+      },
+      {
+       "item": "Monitoring, logs, backups, data transfer",
+       "basis": "20% on top",
+       "usd": 13131.824,
+       "inr": 1181864.1600000001
+      }
+     ],
+     "inr": 7091184.960000001,
+     "usd": 78790.944,
+     "payments_year": 29200000000.0,
+     "stored_gb": 8760.0
+    },
+    "team": [
+     {
+      "role": "Senior data scientist",
+      "fte": 1.0,
+      "inr": 2880000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "fte": 1.0,
+      "inr": 2640000.0
+     },
+     {
+      "role": "Backend engineer",
+      "fte": 0.5,
+      "inr": 1080000.0
+     },
+     {
+      "role": "DevOps / QA engineer",
+      "fte": 0.25,
+      "inr": 480000.0
+     },
+     {
+      "role": "ML / data engineer",
+      "fte": 1.0,
+      "inr": 2640000.0
+     }
+    ],
+    "analysts": {
+     "cases": 100000.0,
+     "rows": [
+      {
+       "item": "Ask: neutral question, merchant replies",
+       "count": 60000.0,
+       "minutes": 10.0,
+       "hours": 10000.0
+      },
+      {
+       "item": "Friction: lower limits, slower settlement",
+       "count": 25000.0,
+       "minutes": 25.0,
+       "hours": 10416.666666666666
+      },
+      {
+       "item": "Review: reserve, investigation, STR draft",
+       "count": 15000.0,
+       "minutes": 90.0,
+       "hours": 22500.0
+      },
+      {
+       "item": "Appeals, decided by a second analyst",
+       "count": 2000.0,
+       "minutes": 60.0,
+       "hours": 2000.0
+      },
+      {
+       "item": "Random audits of unflagged merchants",
+       "count": 25000.0,
+       "minutes": 20.0,
+       "hours": 8333.333333333334
+      }
+     ],
+     "hours": 53250.0,
+     "analysts": 32,
+     "leads": 4,
+     "cost": 31680000.0,
+     "gst": 345000.0,
+     "minutes_per_case": 25.75
+    },
+    "other": [
+     {
+      "item": "Annual security test and compliance audit",
+      "inr": 600000.0
+     },
+     {
+      "item": "Monitoring, ticketing and other software",
+      "inr": 2500000.0
+     },
+     {
+      "item": "Policy reviews and analyst training",
+      "inr": 300000.0
+     },
+     {
+      "item": "Consortium token sharing (legal and hosting)",
+      "inr": 200000.0
+     },
+     {
+      "item": "GST lookups for flagged merchants",
+      "inr": 345000.0
+     }
+    ],
+    "lines": {
+     "Cloud and data": 7091184.960000001,
+     "Model and engineering team": 9720000.0,
+     "Analyst desk": 31680000.0,
+     "Audit, software and other": 3945000.0
+    },
+    "total": 52436184.96,
+    "per_merchant": 5.243618496,
+    "per_case": 524.3618496
+   },
+   "annual_all_in": 57024076.72224,
+   "penalties_to_break_even": 1.0386899220808743
+  }
+ },
+ "sensitivity": [
+  {
+   "driver": "Share of merchants reaching a case",
+   "low_case": "0.5%",
+   "high_case": "2%",
+   "low": 16412027.68,
+   "high": 24435527.68,
+   "base": 18786527.68
+  },
+  {
+   "driver": "Analyst minutes per case",
+   "low_case": "-30%",
+   "high_case": "+30%",
+   "low": 17226527.68,
+   "high": 22026527.68,
+   "base": 18786527.68
+  },
+  {
+   "driver": "Salaries",
+   "low_case": "-20%",
+   "high_case": "+20%",
+   "low": 15942527.68,
+   "high": 21630527.68,
+   "base": 18786527.68
+  },
+  {
+   "driver": "Cloud prices",
+   "low_case": "-30% (reserved)",
+   "high_case": "+30%",
+   "low": 17917269.376,
+   "high": 19655785.984,
+   "base": 18786527.68
+  }
+ ],
+ "five_year": [
+  {
+   "year": "Year 0 (build)",
+   "implementation": 21492647.0496,
+   "running": 0.0
+  },
+  {
+   "year": "Year 1",
+   "implementation": 0.0,
+   "running": 18786527.68,
+   "merchants": 2000000.0,
+   "analysts": 7
+  },
+  {
+   "year": "Year 2",
+   "implementation": 0.0,
+   "running": 20174343.36,
+   "merchants": 2200000.0,
+   "analysts": 7
+  },
+  {
+   "year": "Year 3",
+   "implementation": 0.0,
+   "running": 22451524.336000003,
+   "merchants": 2420000.0000000005,
+   "analysts": 8
+  },
+  {
+   "year": "Year 4",
+   "implementation": 0.0,
+   "running": 27032681.9376,
+   "merchants": 2662000.000000001,
+   "analysts": 9
+  },
+  {
+   "year": "Year 5",
+   "implementation": 0.0,
+   "running": 30007976.457760002,
+   "merchants": 2928200.000000001,
+   "analysts": 10
+  }
+ ],
+ "five_year_total": 139945700.82096002,
+ "value": {
+  "true_cases": 15800.0,
+  "baseline_alerts": 36744.186046511626,
+  "fewer_reviews": 16744.186046511626,
+  "hours_saved": 7186.0465116279065,
+  "analysts_saved": 4.227086183310533,
+  "inr_saved": 3297127.2229822157,
+  "analyst_cost_hour": 458.8235294117647,
+  "fewer_share": 0.45569620253164556
+ }
+}

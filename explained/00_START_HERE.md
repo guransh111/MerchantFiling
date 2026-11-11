@@ -24,6 +24,7 @@ Read the files in order. Each takes 5 to 10 minutes.
 | 17 | [The design pass](17_design_pass.md) | How the dashboard and landing page were redesigned with the unslop checklist |
 | — | [Build conversation notes](CHAT_NOTES.md) | A record of the whole build conversation: every request, what was built, results and links |
 | — | [Implementation plan v2](IMPLEMENTATION_PLAN_v2.md) | Your original plan, updated to show what is built (✅) and what is still for the real rollout (⏳) |
+| — | [Financial appendix (Word)](Trace_Appendix_Financials.docx) | What Trace costs a payment aggregator to implement and run, with every assumption stated. Rebuild it with `bash explained/financials/make.sh` after changing `explained/financials/model.py` |
 
 ## The 2-minute version
 
