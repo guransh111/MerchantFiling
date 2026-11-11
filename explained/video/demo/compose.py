@@ -74,7 +74,9 @@ APPEALED = (1100.0, 316.0)          # the "Appealed" cell on Case management (A 
 #   ("Same phone, same bank account" 29.3) · "Got a Telegram post" 34.4 ("Paste it in" 36.6, "four more fronts" 41.6)
 #   · "And nobody gets punished" 43.2 ("three days to reply" 47.5, "the right to appeal" 48.9)
 #   then a 2 s pause is inserted into the voice at 50.0, so from here on everything is 2 s later:
-#   · "Customers even see" 52.2 · "Trace" 56.8 · "Catch the fronts" 57.7 · "Protect the shops" 58.8
+#   · "Customers even see" 52.2 · "...before they pay" 55.8
+#   then a second 2 s pause (cut at 54.4 s of the original voice) lets the phone screen linger:
+#   · "Trace" 58.8 · "Catch the fronts" 59.7 · "Protect the shops" 60.8
 SCENES = [
     dict(page="home", start=0.0, end=8.6, anim=(0.4, None),
          cam=[(0, (0, *Z1))],
@@ -112,11 +114,11 @@ SCENES = [
          cursor=[(43.1, nav("Case management")), (45.4, b("cases", "clock", 0.55, 0.35)), (47.5, b("cases", "clock", 0.55, 0.62)),
                  (48.8, (1000, 372)), (51.0, (1150, 372)), (51.7, nav("Customer's payment screen"))],
          clicks=[51.8]),
-    dict(page="payer", start=52.0, end=55.9,
+    dict(page="payer", start=52.0, end=57.9,          # lingers through a 2 s pause after "before they pay"
          cam=[(52.2, (0, *Z1)), (53.2, (0, 1.65, 1101, 420))],
          cursor=[(52.0, nav("Customer's payment screen")), (53.3, b("payer", "warn", 0.9, 1.25))], clicks=[]),
     # the logo: start 1.3 s into its drawing so the name opens on "Trace" (54.8); the tagline lands on "Protect the shops"
-    dict(page="endcard", start=55.9, end=62.0, fade=0.5, offset=1.3),
+    dict(page="endcard", start=57.9, end=64.0, fade=0.5, offset=1.3),
 ]
 TOTAL = SCENES[-1]["end"]
 
