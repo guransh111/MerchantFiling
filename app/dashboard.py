@@ -33,6 +33,27 @@ import ui  # noqa: E402
 from views import (analysis, cases_page, check_one, data_page, experience, intel, learning_perf,  # noqa: E402
                    network_page, settings_page)
 
+
+def _reload_changed_modules():
+    """Streamlit Cloud reruns this file after an update but can keep older copies of the dashboard's own modules
+    (ui.py, state.py, the pages) in memory, which crashes with errors like "module 'ui' has no attribute ...".
+    Reload any of them whose file changed since it was loaded. Analysis code in src/ is left alone."""
+    import importlib
+    mods = [ui, state, analysis, cases_page, check_one, data_page, experience, intel, learning_perf,
+            network_page, settings_page]
+    for m in mods:
+        try:
+            mtime = Path(m.__file__).stat().st_mtime
+        except (OSError, TypeError):
+            continue
+        seen = m.__dict__.get("_trace_mtime")
+        if seen is not None and seen != mtime:
+            importlib.reload(m)
+        m.__dict__["_trace_mtime"] = mtime
+
+
+_reload_changed_modules()
+
 st.set_page_config(page_title="Trace", layout="wide", page_icon=":material/sync_alt:")
 ui.intro()  # the opening animation, once per visit
 state.init()
