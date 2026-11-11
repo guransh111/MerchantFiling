@@ -67,51 +67,56 @@ def b(page, key, fx=0.5, fy=0.5):
 
 Z1 = (1.0, 960.0, 540.0)            # camera at rest: zoom 1, centred
 # camera keys: (t, (scrollY, zoom, focusX, focusY)); focus is in viewport px; cursor keys: (t, (x, y_page)); clicks: [t]
+# Timed to the demo voiceover (ElevenLabs, 58.2 s); word times from forced alignment:
+#   "Trace is a watchdog" 0.1 · "Out of a thousand shops" 8.7 · "The few it does flag" 13.7 · "Like this little kirana" 16.2
+#   ("Fifty-seven percent" 18.3, "Around ten" 23.0, "the same day" 25.9) · "Then Trace follows the trail" 27.1
+#   ("Same phone, same bank account" 29.3) · "Got a Telegram post" 34.4 ("Paste it in" 36.6, "four more fronts" 41.6)
+#   · "And nobody gets punished" 43.2 ("three days to reply" 47.5, "the right to appeal" 48.9) · "Customers even see" 50.2
+#   · "Trace" 54.8 · "Catch the fronts" 55.7 · "Protect the shops" 56.8
 SCENES = [
-    dict(page="home", start=0.0, end=8.0, anim=(0.4, None),
+    dict(page="home", start=0.0, end=8.6, anim=(0.4, None),
          cam=[(0, (0, *Z1))],
-         cursor=[(0, (1500, 900)), (6.9, (1500, 900)), (7.7, nav("Overview"))], clicks=[7.8]),
-    dict(page="overview", start=8.0, end=14.0,
-         cam=[(8.2, (0, *Z1)), (9.4, (0, 1.32, *b("overview", "funnel", 0.5, 0.45))), (12.4, (0, 1.32, *b("overview", "funnel", 0.5, 0.45))),
-              (13.2, (0, *Z1))],
-         cursor=[(8.0, nav("Overview")), (9.2, b("overview", "funnel", 0.12, 0.45)), (10.4, b("overview", "funnel", 0.37, 0.45)),
-                 (11.4, b("overview", "funnel", 0.62, 0.45)), (12.3, b("overview", "funnel", 0.88, 0.45)), (13.6, nav("Risk queue"))], clicks=[13.7]),
-    dict(page="queue", start=14.0, end=19.0,
-         cam=[(14.3, (0, *Z1)), (15.4, (0, 1.4, *b("queue", "table", 0.78, 0.35))), (17.6, (0, 1.4, *b("queue", "table", 0.78, 0.35))), (18.3, (0, *Z1))],
-         cursor=[(14.0, nav("Risk queue")), (15.4, b("queue", "table", 0.72, 0.09)), (17.0, b("queue", "table", 0.72, 0.2)), (18.6, nav("Merchant drill-down"))],
-         clicks=[18.7]),
-    dict(page="merchant", start=19.0, end=31.0,
-         cam=[(19.3, (0, *Z1)), (20.4, (0, 1.32, *b("merchant", "head"))), (22.4, (0, 1.32, *b("merchant", "head"))),
-              (23.6, (470, *Z1)), (24.6, (470, 1.75, 840, 664 - 470 + 70)), (26.8, (470, 1.75, 840, 664 - 470 + 70)),
-              (27.8, (470, 1.75, 840, 801 - 470 + 70)), (29.4, (470, 1.75, 840, 801 - 470 + 70)), (30.2, (470, *Z1))],
-         cursor=[(19.0, nav("Merchant drill-down")), (20.4, b("merchant", "head", 0.86, 0.45)), (22.6, b("merchant", "head", 0.86, 0.45)),
-                 (24.6, (720, 664 + 52)), (26.6, (870, 664 + 52)), (27.8, (720, 801 + 52)), (29.4, (790, 801 + 52)), (30.4, nav("Network"))],
-         clicks=[30.5]),
-    dict(page="network", start=31.0, end=39.0,
-         cam=[(31.2, (0, *Z1)), (32.6, (560, *Z1)), (33.6, (560, 1.18, 1100, 520)), (37.0, (560, 1.18, 1100, 520)), (37.8, (560, *Z1))],
-         cursor=[(31.0, nav("Network")), (33.6, (850, 768)), (34.8, (1252, 832)), (36.0, (1001, 1106)), (37.0, (1001, 1106)), (38.2, nav("Scan a betting page"))],
-         clicks=[38.3]),
-    dict(page="scan0", start=39.0, end=40.6,
-         cam=[(39.0, (0, *Z1))],
-         cursor=[(39.0, nav("Scan a betting page")), (40.1, b("scan0", "button"))], clicks=[40.2]),
-    dict(page="scan1", start=40.6, end=47.0, fade=0.25,
-         cam=[(40.8, (0, *Z1)), (41.9, (0, 1.32, 1101, 690)), (45.2, (0, 1.32, 1101, 690)), (46.0, (0, *Z1))],
-         cursor=[(40.6, b("scan0", "button")), (42.2, b("scan1", "found", 0.03, 0.5)), (44.6, b("scan1", "found", 0.22, 0.5)), (46.2, nav("Case management"))],
-         clicks=[46.3]),
-    dict(page="cases", start=47.0, end=56.0,
-         cam=[(47.2, (0, *Z1)), (48.4, (0, 1.42, *b("cases", "clock"))), (50.8, (0, 1.42, *b("cases", "clock"))),
-              (52.2, (1010, *Z1)), (53.2, (1010, 1.15, 1180, 560)), (54.4, (1010, 1.15, 1180, 560)), (55.1, (1010, *Z1))],
-         cursor=[(47.0, nav("Case management")), (48.4, b("cases", "clock", 0.55, 0.35)), (50.6, b("cases", "clock", 0.55, 0.62)),
-                 (53.2, (760, 1148 + 230)), (54.4, (900, 1148 + 230)), (55.4, nav("Customer's payment screen"))],
-         clicks=[55.5]),
-    dict(page="payer", start=56.0, end=63.0,
-         cam=[(56.2, (0, *Z1)), (57.5, (0, 1.65, 1101, 420)), (61.4, (0, 1.65, 1101, 420)), (62.2, (0, *Z1))],
-         cursor=[(56.0, nav("Customer's payment screen")), (57.6, b("payer", "warn", 0.9, 1.25)), (61.4, b("payer", "warn", 0.9, 1.25)), (62.4, nav("Home"))],
-         clicks=[62.5]),
-    dict(page="home", start=63.0, end=66.4, anim=(63.2, None),
-         cam=[(63.0, (0, *Z1))],
-         cursor=[(63.0, nav("Home")), (64.4, (1500, 900))], clicks=[]),
-    dict(page="endcard", start=66.4, end=72.0, fade=0.5),
+         cursor=[(0, (1500, 900)), (7.5, (1500, 900)), (8.3, nav("Overview"))], clicks=[8.4]),
+    dict(page="overview", start=8.6, end=13.6,
+         cam=[(8.8, (0, *Z1)), (9.9, (0, 1.32, *b("overview", "funnel", 0.5, 0.45))), (12.3, (0, 1.32, *b("overview", "funnel", 0.5, 0.45))),
+              (13.0, (0, *Z1))],
+         cursor=[(8.6, nav("Overview")), (9.9, b("overview", "funnel", 0.12, 0.45)), (10.8, b("overview", "funnel", 0.37, 0.45)),
+                 (11.6, b("overview", "funnel", 0.62, 0.45)), (12.2, b("overview", "funnel", 0.88, 0.45)), (13.25, nav("Risk queue"))], clicks=[13.35]),
+    dict(page="queue", start=13.6, end=16.1,
+         cam=[(13.8, (0, *Z1)), (14.7, (0, 1.4, *b("queue", "table", 0.78, 0.35))), (15.1, (0, 1.4, *b("queue", "table", 0.78, 0.35))), (15.65, (0, *Z1))],
+         cursor=[(13.6, nav("Risk queue")), (14.7, b("queue", "table", 0.72, 0.12)), (15.1, b("queue", "table", 0.72, 0.18)), (15.8, nav("Merchant drill-down"))],
+         clicks=[15.9]),
+    dict(page="merchant", start=16.1, end=27.0,
+         cam=[(16.3, (0, *Z1)), (17.0, (0, 1.32, *b("merchant", "head"))), (17.2, (0, 1.32, *b("merchant", "head"))),
+              (17.9, (470, *Z1)), (18.6, (470, 1.75, 840, 664 - 470 + 70)), (23.5, (470, 1.75, 840, 664 - 470 + 70)),
+              (24.2, (470, 1.75, 840, 801 - 470 + 70)), (25.9, (470, 1.75, 840, 801 - 470 + 70)), (26.5, (470, *Z1))],
+         cursor=[(16.1, nav("Merchant drill-down")), (17.0, b("merchant", "head", 0.86, 0.45)), (17.3, b("merchant", "head", 0.86, 0.45)),
+                 (18.6, (720, 664 + 52)), (21.2, (870, 664 + 52)), (22.2, (720, 664 + 80)), (23.4, (800, 664 + 80)),
+                 (24.2, (720, 801 + 52)), (25.8, (800, 801 + 52)), (26.7, nav("Network"))],
+         clicks=[26.8]),
+    dict(page="network", start=27.0, end=34.2,
+         cam=[(27.2, (0, *Z1)), (28.4, (560, *Z1)), (29.2, (560, 1.18, 1100, 520)), (33.1, (560, 1.18, 1100, 520)), (33.7, (560, *Z1))],
+         cursor=[(27.0, nav("Network")), (29.3, (850, 768)), (30.6, (1252, 832)), (32.0, (1001, 1106)), (33.0, (1001, 1106)), (33.9, nav("Scan a betting page"))],
+         clicks=[34.0]),
+    dict(page="scan0", start=34.2, end=37.0,
+         cam=[(34.2, (0, *Z1))],
+         cursor=[(34.2, nav("Scan a betting page")), (35.6, b("scan0", "button")), (36.5, b("scan0", "button"))], clicks=[36.65]),
+    dict(page="scan1", start=37.0, end=43.0, fade=0.25,
+         cam=[(37.2, (0, *Z1)), (38.2, (0, 1.32, 1101, 690)), (42.1, (0, 1.32, 1101, 690)), (42.6, (0, *Z1))],
+         cursor=[(37.0, b("scan0", "button")), (38.6, b("scan1", "table", 0.1, 0.3)), (40.0, b("scan1", "table", 0.1, 0.75)),
+                 (41.3, b("scan1", "found", 0.03, 0.5)), (42.0, b("scan1", "found", 0.22, 0.5)), (42.8, nav("Case management"))],
+         clicks=[42.9]),
+    dict(page="cases", start=43.1, end=50.0,
+         cam=[(43.3, (0, *Z1)), (44.3, (0, 1.42, *b("cases", "clock"))), (47.9, (0, 1.42, *b("cases", "clock"))),
+              (48.7, (1010, *Z1)), (49.2, (1010, 1.15, 1180, 560)), (49.4, (1010, 1.15, 1180, 560)), (49.75, (1010, *Z1))],
+         cursor=[(43.1, nav("Case management")), (45.4, b("cases", "clock", 0.55, 0.35)), (47.5, b("cases", "clock", 0.55, 0.62)),
+                 (48.9, (1220, 1148 + 300)), (49.3, (1220, 1148 + 300)), (49.75, nav("Customer's payment screen"))],
+         clicks=[49.85]),
+    dict(page="payer", start=50.0, end=53.9,
+         cam=[(50.2, (0, *Z1)), (51.2, (0, 1.65, 1101, 420))],
+         cursor=[(50.0, nav("Customer's payment screen")), (51.3, b("payer", "warn", 0.9, 1.25))], clicks=[]),
+    # the logo: start 1.3 s into its drawing so the name opens on "Trace" (54.8); the tagline lands on "Protect the shops"
+    dict(page="endcard", start=53.9, end=60.0, fade=0.5, offset=1.3),
 ]
 TOTAL = SCENES[-1]["end"]
 
@@ -171,7 +176,7 @@ def render_scene(scene, t):
     """One frame of a scene at demo time t, as a 1920x1080 RGB image."""
     page = scene["page"]
     if page == "endcard":
-        return endcard_frame(t - scene["start"]).copy()
+        return endcard_frame(t - scene["start"] + scene.get("offset", 0)).copy()
     scroll, z, fx, fy = camera_at(scene, t)
     if "anim" in scene:
         base = home_anim_frame(t - scene["anim"][0])
