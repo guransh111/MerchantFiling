@@ -21,21 +21,21 @@
 <span class="preload" style="font-family:'Plex Mono'">a</span>
 <script>
 /*
-  Trace: opening film, 46 seconds. "One shop, one day, one continuous shot."
-  Timed to the voiceover (ElevenLabs, 44.4 s); the word times came from forced alignment.
-    0.1   "Imagine a small bakery in Lucknow": the shop draws itself; "Sharma Bakes" types at 2.9
-    7.7   "All day, customers scan its QR code": local payments; ₹200 at 11.0, ₹300 at 12.3
-   13.3   "On the payment provider's screen": the card; ticks on "Real documents" 16.4,
-          "Normal payments" 17.6, "Money settled the next morning" 18.8
-   20.8   "But behind the counter...": the ticks undo, the day drains to night
-   24.2   "At eight at night": clock to 8 PM, the camera pulls back over India; payments pour in;
-          Delhi 28.1, Mumbai 28.7, Kolkata 29.4; ₹500 30.3, ₹1,000 31.3, ₹500 32.1
-   33.5   "And by midnight": 12 AM; "the money's gone" 34.9: it fans straight out
-   36.5   "It's not a bakery": push back in, the ring turns red; "It's a betting front" 38.1
-   40.6   black; "Introducing..." 42.4: the mark draws; "Trace" 43.6: the name opens
+  Trace: opening film, 47.5 seconds. "One shop, one day, one continuous shot."
+  Timed to the voiceover (ElevenLabs, calm take, 46.1 s); the word times came from forced alignment.
+    0.1   "Imagine a small bakery in Lucknow": the shop draws itself; "Sharma Bakes" types at 3.0
+    8.1   "All day, customers scan its QR code": local payments; ₹200 at 11.6, ₹300 at 12.9
+   14.1   "On the payment provider's screen": the card; ticks on "Real documents" 17.3,
+          "Normal payments" 18.5, "Money settled the next morning" 19.8
+   22.0   "But behind the counter...": the ticks undo, the day drains to night
+   25.4   "At eight at night": clock to 8 PM, the camera pulls back over India; payments pour in at 27.8;
+          Delhi 29.6, Mumbai 30.3, Kolkata 31.1; ₹500 32.1, ₹1,000 33.2, ₹500 34.4
+   35.8   "And by midnight": 12 AM; "the money is gone" 36.8: it fans straight out
+   38.5   "It's not a bakery": push back in, the ring turns red; "It's a betting front" 40.0
+   42.6   black; "Introducing..." 44.2: the mark draws; "Trace" 45.3: the name opens
   Everything is a pure function of t, so the export can step it frame by frame at 60 fps.
 */
-const W = 1920, H = 1080, TOTAL = 46;
+const W = 1920, H = 1080, TOTAL = 47.5;
 const cv = document.getElementById("c"), ctx = cv.getContext("2d");
 
 // ------------------------------------------------------------- palette (the dashboard's)
@@ -101,12 +101,12 @@ const CAM_NIGHT = { a: [960, 548], c: W_LL(82.6, 22.4), s: 0.38 };
 const CAM_END = { a: [960, 470], c: [0, 0], s: 1 };
 function camera(t) {
   // the shop starts centred, then slides left to make room for the provider's card
-  const room = eIO(seg(t, 12.6, 1.2));
+  const room = eIO(seg(t, 13.3, 1.2));
   CAM_DAY.a = [lerp(960, 700, room), 500];
-  const out = eIO(seg(t, 23.8, 2.6)), back = eIO(seg(t, 35.8, 1.7));
+  const out = eIO(seg(t, 24.9, 2.6)), back = eIO(seg(t, 38.2, 1.7));
   const A = out < 1 ? CAM_DAY : CAM_NIGHT, B = out < 1 ? CAM_NIGHT : CAM_END, k = out < 1 ? out : back;
   // a slow drift keeps the night shot alive
-  const drift = out >= 1 && back <= 0 ? Math.sin((t - 26.4) * 0.35) * 0.006 : 0;
+  const drift = out >= 1 && back <= 0 ? Math.sin((t - 27.5) * 0.35) * 0.006 : 0;
   return { a: [lerp(A.a[0], B.a[0], k), lerp(A.a[1], B.a[1], k)], c: [lerp(A.c[0], B.c[0], k), lerp(A.c[1], B.c[1], k)],
     s: lerp(A.s, B.s, k) * (1 + drift) };
 }
@@ -122,8 +122,8 @@ const bez = (o, c, u) => [(1 - u) * (1 - u) * o[0] + 2 * (1 - u) * u * c[0], (1 
 
 const DAY_PAY = (() => {
   const r = rng(3), list = [];
-  // arrival times; "Two hundred rupees" is spoken at 11.0 and "Three hundred" at 12.3
-  const arrivals = [8.4, 9.3, 10.2, 11.0, 12.3, 13.0], amounts = [140, 260, 180, 200, 300, 90];
+  // arrival times; "Two hundred rupees" is spoken at 11.6 and "Three hundred" at 12.9
+  const arrivals = [9.0, 9.9, 10.8, 11.6, 12.9, 13.6], amounts = [140, 260, 180, 200, 300, 90];
   arrivals.map((a) => a - 1.5).forEach((t0, i) => {
     const ang = -2.4 + r() * 4.2, dist = 300 + r() * 160;
     const o = [Math.cos(ang) * dist, Math.sin(ang) * dist * 0.75];
@@ -136,14 +136,14 @@ const NIGHT_PAY = (() => {
   const r = rng(11), list = [];
   const amounts = [500, 1000, 500, 500, 2000, 1000, 500, 5000, 500, 1000];
   // arrivals ramp up as the match goes on: inverse of a rising rate
-  const N = 190, start = 25.6, end = 32.6;   // every bet lands before "the money's gone" (34.9)
+  const N = 190, start = 27.6, end = 34.8;   // every bet lands before "the money's gone" (36.9)
   for (let i = 0; i < N; i++) {
     const q = i / N, t0 = start + (end - start) * Math.pow(q, 0.62) + (r() - 0.5) * 0.08;
     const o = randomLand(r, 160);
     list.push({ t0, dur: 1.35 + r() * 0.6, o, c: curve(o, r() < 0.5 ? 1 : -1), amt: amounts[Math.floor(r() * amounts.length)] });
   }
   // the three the narrator calls out: Delhi, Mumbai, Kolkata
-  [["Delhi", 28.2], ["Mumbai", 28.8], ["Kolkata", 29.5]].forEach(([city, t0]) => {
+  [["Delhi", 29.7], ["Mumbai", 30.4], ["Kolkata", 31.2]].forEach(([city, t0]) => {
     const o = W_LL(...CITIES[city]);
     list.push({ t0, dur: 1.6, o, c: curve(o, city === "Mumbai" ? -1 : 1), amt: 500, city });
   });
@@ -152,12 +152,12 @@ const NIGHT_PAY = (() => {
 
 const PAYOUT = (() => { // midnight: the money fans out to many accounts
   const r = rng(29), list = [];
-  for (let i = 0; i < 44; i++) list.push({ t0: 34.9 + r() * 0.45, dur: 1.0 + r() * 0.5, d: randomLand(r, 220) });
+  for (let i = 0; i < 44; i++) list.push({ t0: 36.9 + r() * 0.45, dur: 1.0 + r() * 0.5, d: randomLand(r, 220) });
   return list;
 })();
 
 // the narrator's beats, shown as tags beside the shop
-const CALLOUTS = [{ t: 30.3, txt: "₹500" }, { t: 31.3, txt: "₹1,000" }, { t: 32.1, txt: "₹500" }];
+const CALLOUTS = [{ t: 32.1, txt: "₹500" }, { t: 33.2, txt: "₹1,000" }, { t: 34.4, txt: "₹500" }];
 
 // ------------------------------------------------------------- icons (lucide, 24-unit box)
 const STORE = ["m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7", "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8",
@@ -189,10 +189,10 @@ function typed(s, u) { return s.slice(0, Math.round(s.length * clamp(u))); }
 // ------------------------------------------------------------- clock
 function minutesAt(t) {
   if (t < 8) return 7 * 60;
-  if (t < 20.5) return lerp(7 * 60, 18 * 60 + 30, eSine(seg(t, 8, 12.5)));
-  if (t < 24.2) return 18 * 60 + 30;
-  if (t < 24.7) return lerp(18 * 60 + 30, 20 * 60, eQuart(seg(t, 24.2, 0.5)));   // "At eight at night"
-  if (t < 33.8) return lerp(20 * 60, 24 * 60, seg(t, 25.4, 8.4));                 // "...by midnight"
+  if (t < 21.5) return lerp(7 * 60, 18 * 60 + 30, eSine(seg(t, 8, 13.5)));
+  if (t < 25.4) return 18 * 60 + 30;
+  if (t < 25.9) return lerp(18 * 60 + 30, 20 * 60, eQuart(seg(t, 25.4, 0.5)));   // "At eight at night"
+  if (t < 36.0) return lerp(20 * 60, 24 * 60, seg(t, 26.6, 9.4));                 // "...by midnight"
   return 24 * 60;
 }
 function clockLabel(m) {
@@ -204,7 +204,7 @@ function clockLabel(m) {
 // ------------------------------------------------------------- the frame
 function render(t) {
   // background: warm morning, neutral day, cold night
-  const toDay = eIO(seg(t, 4, 6)), toNight = eIO(seg(t, 20.8, 2.4)), toBlack = eIO(seg(t, 40.6, 0.9));
+  const toDay = eIO(seg(t, 4, 6)), toNight = eIO(seg(t, 22.0, 2.5)), toBlack = eIO(seg(t, 42.6, 0.9));
   let bg = mix(mix(BG_MORNING, BG_DAY, toDay), BG_NIGHT, toNight);
   bg = mix(bg, [0, 0, 0], toBlack);
   ctx.fillStyle = rgb(bg); ctx.fillRect(0, 0, W, H);
@@ -214,7 +214,7 @@ function render(t) {
   ctx.save(); ctx.globalAlpha = scene;
 
   // ---- map of India (night)
-  const mapA = eIO(seg(t, 24.0, 2.2)) * (1 - eIO(seg(t, 35.8, 1.2)));
+  const mapA = eIO(seg(t, 25.1, 2.2)) * (1 - eIO(seg(t, 38.2, 1.2)));
   if (mapA > 0) {
     ctx.fillStyle = COL.map;
     ctx.globalAlpha = scene * mapA * 0.75;
@@ -266,16 +266,16 @@ function render(t) {
   drawCounter(t);
 
   // ---- clock
-  const clockA = eExpo(seg(t, 4.9, 1.0)) * (1 - eQuart(seg(t, 37.6, 0.8)));
+  const clockA = eExpo(seg(t, 5.2, 1.0)) * (1 - eQuart(seg(t, 39.6, 0.8)));
   if (clockA > 0) {
     text("Lucknow", W - 120, 104, MONO(18), COL.dim, clockA, "right");
-    const night = t > 24.2;
+    const night = t > 25.4;
     text(clockLabel(minutesAt(t)), W - 120, 146, MONO(36), night ? COL.ink : COL.soft, clockA, "right");
   }
   ctx.restore();
 
   // ---- Trace: the mark draws itself and the name opens beside it
-  drawTrace(t - 41.75);   // the name starts opening 1.85 s in, on "Trace" at 43.6
+  drawTrace(t - 43.45);   // the name starts opening 1.85 s in, on "Trace" at 45.3
 }
 
 function drawPayment(t, cam, P, color, r, trailA) {
@@ -305,7 +305,7 @@ function drawShop(t, cam, S) {
   for (const P of NIGHT_PAY) { const d = t - (P.t0 + P.dur); if (d > 0 && d < 0.6) bump += Math.exp(-d * 9) * 1.4; }
   bump = Math.min(bump, 10);
   const draw = eExpo(seg(t, 0.15, 1.3));                      // the ring traces itself in
-  const red = eIO(seg(t, 36.5, 0.9)), nightRed = eIO(seg(t, 29.0, 3.0)) * 0.35;
+  const red = eIO(seg(t, 38.6, 0.9)), nightRed = eIO(seg(t, 31.0, 3.0)) * 0.35;
   const ringCol = mix(mix(hex(COL.soft), hex(COL.red), nightRed), hex(COL.red), red);
   const R = base + bump;
   if (draw > 0) {
@@ -320,14 +320,14 @@ function drawShop(t, cam, S) {
   }
 
   // name and line beneath: typed in, hidden while the camera is out over India, swapped at the reveal
-  const out = eIO(seg(t, 23.7, 0.8)) * (1 - eIO(seg(t, 36.2, 0.8)));
+  const out = eIO(seg(t, 24.8, 0.8)) * (1 - eIO(seg(t, 38.6, 0.8)));
   const la = 1 - out;
   const y1 = S[1] + R + 74, y2 = y1 + 42;
-  const nameU = seg(t, 2.85, 0.7), lineU = seg(t, 3.5, 0.9);
-  const quoted = eIO(seg(t, 36.6, 0.6));
+  const nameU = seg(t, 2.95, 0.7), lineU = seg(t, 3.6, 0.9);
+  const quoted = eIO(seg(t, 38.7, 0.6));
   text(quoted > 0.5 ? "“Sharma Bakes”" : typed("Sharma Bakes", nameU), S[0], y1, SANS(600, 46), COL.ink, la, "center");
   // "Bakery · Lucknow" blurs away; "Betting front" rolls in
-  const swap = seg(t, 38.1, 0.9);
+  const swap = seg(t, 40.0, 0.9);
   if (swap < 1) {
     ctx.save(); if (swap > 0) ctx.filter = `blur(${eQuart(swap) * 10}px)`;
     text(typed("Bakery  ·  Lucknow", lineU), S[0], y2, MONO(26), COL.soft, la * (1 - eQuart(swap)), "center"); ctx.restore();
@@ -337,7 +337,7 @@ function drawShop(t, cam, S) {
     ctx.save(); ctx.font = MONO(30); const total = ctx.measureText(word).width; ctx.restore();
     let x = S[0] - total / 2;
     for (let i = 0; i < word.length; i++) {
-      const ch = word[i], u = eExpo(seg(t, 38.35 + i * 0.03, 0.5));
+      const ch = word[i], u = eExpo(seg(t, 40.25 + i * 0.03, 0.5));
       ctx.save(); ctx.font = MONO(30); const w = ctx.measureText(ch).width; ctx.restore();
       text(ch, x, y2 + 4 + (1 - u) * 18, MONO(30), COL.red, u);
       x += w;
@@ -350,45 +350,45 @@ function roundRectPath(x, y, w, h, r) {
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
 function drawCard(t, S) {
-  const draw = eExpo(seg(t, 13.3, 1.1));
-  const out = eIO(seg(t, 22.2, 1.0));
+  const draw = eExpo(seg(t, 14.1, 1.1));
+  const out = eIO(seg(t, 23.3, 1.0));
   if (draw <= 0 || out >= 1) return;
   const x = S[0] + 210, y = S[1] - 150, w = 560, h = 300, r = 18;
   const a = 1 - out;
   ctx.save(); ctx.globalAlpha *= a;
   // the outline traces in, then the card fills
   const per = 2 * (w + h);
-  ctx.fillStyle = rgb(hex(COL.card), eQuart(seg(t, 13.8, 0.6)));
+  ctx.fillStyle = rgb(hex(COL.card), eQuart(seg(t, 14.6, 0.6)));
   roundRectPath(x, y, w, h, r); ctx.fill();
   ctx.setLineDash([per, per]); ctx.lineDashOffset = per * (1 - draw);
   ctx.strokeStyle = COL.line; ctx.lineWidth = 1.5; roundRectPath(x, y, w, h, r); ctx.stroke(); ctx.setLineDash([]);
   // a hairline ties the card to the shop
-  const tie = eExpo(seg(t, 13.4, 0.8));
+  const tie = eExpo(seg(t, 14.2, 0.8));
   ctx.strokeStyle = COL.line; ctx.beginPath(); ctx.moveTo(S[0] + 90, S[1]); ctx.lineTo(lerp(S[0] + 90, x, tie), S[1]); ctx.stroke();
-  text("What the payment provider sees", x + 36, y + 56, MONO(20), COL.dim, eExpo(seg(t, 13.9, 0.6)));
+  text("What the payment provider sees", x + 36, y + 56, MONO(20), COL.dim, eExpo(seg(t, 14.7, 0.6)));
   const rows = ["Documents verified", "Payments look normal", "Settled next morning"];
   rows.forEach((row, i) => {
-    const t0 = [16.15, 17.35, 18.55][i], ry = y + 118 + i * 62;   // on each spoken phrase
+    const t0 = [17.15, 18.35, 19.65][i], ry = y + 118 + i * 62;   // on each spoken phrase
     const ta = eExpo(seg(t, t0, 0.7));
     text(row, x + 36 + (1 - ta) * 12, ry + 10, SANS(400, 30), COL.ink, ta);
     // ticks draw in; at "But behind the counter..." they undo, last first
-    const undo = eQuart(seg(t, 20.8 + (2 - i) * 0.3, 0.45));
+    const undo = eQuart(seg(t, 22.0 + (2 - i) * 0.3, 0.45));
     check(x + w - 62, ry, 30, COL.soft, eQuart(seg(t, t0 + 0.35, 0.5)) * (1 - undo));
   });
   ctx.restore();
 }
 
 function drawCounter(t) {
-  const a = eExpo(seg(t, 25.7, 0.8)) * (1 - eQuart(seg(t, 36.0, 0.7)));
+  const a = eExpo(seg(t, 27.7, 0.8)) * (1 - eQuart(seg(t, 38.4, 0.7)));
   if (a <= 0) return;
   let sum = 0;
   for (const P of NIGHT_PAY) if (t >= P.t0 + P.dur) sum += P.amt;
-  const drain = eIO(seg(t, 34.9, 0.9));
-  const peak = NIGHT_PAY.reduce((s, P) => s + (34.9 >= P.t0 + P.dur ? P.amt : 0), 0);
-  const shown = t < 34.9 ? sum : Math.round(peak * (1 - drain) / 100) * 100;
+  const drain = eIO(seg(t, 36.9, 0.9));
+  const peak = NIGHT_PAY.reduce((s, P) => s + (36.9 >= P.t0 + P.dur ? P.amt : 0), 0);
+  const shown = t < 36.9 ? sum : Math.round(peak * (1 - drain) / 100) * 100;
   text("Received since 8 PM", 120, 104, MONO(18), COL.dim, a);
-  text(`₹${shown.toLocaleString("en-IN")}`, 120, 160, MONO(52), shown === 0 && t > 35.2 ? COL.gold : COL.ink, a);
-  const outA = eExpo(seg(t, 34.95, 0.5)) * a;
+  text(`₹${shown.toLocaleString("en-IN")}`, 120, 160, MONO(52), shown === 0 && t > 37.2 ? COL.gold : COL.ink, a);
+  const outA = eExpo(seg(t, 36.95, 0.5)) * a;
   text("Paid out by midnight", 120, 206, MONO(18), COL.gold, outA);
 }
 
